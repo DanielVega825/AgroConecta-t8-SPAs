@@ -1,0 +1,177 @@
+/* ============================= */
+/* BASE */
+/* ============================= */
+
+body {
+
+    font-family: var(--font-family-base);
+
+    background:
+        linear-gradient(
+            to bottom,
+            var(--color-white),
+            var(--color-primary-100)
+        );
+
+}
+
+/* ============================= */
+/* TITULOS */
+/* ============================= */
+
+.titulo-principal {
+
+    color: var(--color-primary-600);
+
+    font-weight: var(--font-weight-bold);
+
+    font-size: var(--font-size-h2);
+
+    text-align: center;
+
+    margin-bottom: 20px;
+
+}
+
+/* ============================= */
+/* NOSOTROS */
+/* ============================= */
+
+.texto-nosotros {
+
+    color: var(--color-text-primary);
+
+    line-height: 1.7;
+
+}
+
+.imagen-nosotros {
+
+    border-radius: var(--border-radius-lg);
+
+    box-shadow: var(--shadow-md);
+
+}
+
+/* ============================= */
+/* TARJETAS (REUTILIZABLES) */
+/* ============================= */
+
+.tarjeta-info,
+.tarjeta-equipo,
+.caja-impacto {
+
+    background:
+        linear-gradient(
+            to bottom,
+            var(--color-white),
+            var(--color-primary-100)
+        );
+
+    border-radius: var(--border-radius-lg);
+
+    border: 1px solid var(--border-color);
+
+    box-shadow: var(--shadow-md);
+
+    padding: 20px;
+
+    transition: var(--transition-normal);
+
+}
+
+.tarjeta-info:hover,
+.tarjeta-equipo:hover,
+.caja-impacto:hover {
+
+    transform: translateY(-8px);
+
+}
+
+/* ============================= */
+/* TEXTO TARJETAS */
+/* ============================= */
+
+.nombre-equipo,
+.caja-impacto h4 {
+
+    color: var(--color-primary-600);
+
+    font-weight: var(--font-weight-bold);
+
+}
+
+.rol-equipo {
+
+    color: var(--color-text-secondary);
+
+    font-size: 14px;
+
+}
+
+.texto-equipo {
+
+    color: var(--color-text-primary);
+
+    max-width: 750px;
+
+    margin: auto;
+
+}
+
+/* ============================= */
+/* TEXTO EXPANDIBLE */
+/* ============================= */
+
+.texto-expandible {
+
+    opacity: 0;
+
+    max-height: 0;
+
+    overflow: hidden;
+
+    transition: var(--transition-normal);
+
+}
+
+.tarjeta-info:hover .texto-expandible {
+
+    opacity: 1;
+
+    max-height: 220px;
+
+    margin-top: 15px;
+
+}
+
+/* ============================= */
+/* RESPONSIVE */
+/* ============================= */
+
+@media (max-width: 768px) {
+
+    .titulo-principal {
+
+        font-size: 24px;
+
+    }
+
+    .texto-nosotros,
+    .texto-equipo {
+
+        text-align: center;
+
+        font-size: 14px;
+
+    }
+
+    .texto-expandible {
+
+        opacity: 1;
+
+        max-height: 500px;
+
+    }
+
+}

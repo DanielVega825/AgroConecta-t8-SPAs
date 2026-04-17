@@ -1,0 +1,127 @@
+:root {
+  /* =======================
+     🎨 COLORES PRINCIPALES
+  ======================= */
+  --color-primary-600: #16A34A;
+  --color-primary-500: #22C55E;
+  --color-primary-100: #DCFCE7;
+
+  /* Estados del primario */
+  --color-primary-hover: #15803D;
+  --color-primary-active: #166534;
+  --color-primary-focus: rgba(34, 197, 94, 0.4);
+
+  /* =======================
+     🌾 COLORES SECUNDARIOS
+  ======================= */
+  --color-secondary-yellow-500: #EAB308;
+  --color-secondary-yellow-hover: #CA8A04;
+
+  --color-secondary-orange-500: #F97316;
+  --color-secondary-orange-hover: #EA580C;
+
+  /* =======================
+     ⚪ NEUTROS
+  ======================= */
+  --color-white: #FFFFFF;
+  --color-white-soft: #F9FAFB;
+
+  --color-gray-100: #F3F4F6;
+  --color-gray-200: #E5E7EB;
+  --color-gray-300: #D1D5DB;
+  --color-gray-500: #6B7280;
+  --color-gray-700: #374151;
+  --color-gray-900: #1F2937;
+
+  /* Texto */
+  --color-text-primary: var(--color-gray-900);
+  --color-text-secondary: var(--color-gray-500);
+  --color-text-inverse: #FFFFFF;
+
+  /* =======================
+     🧱 BORDES
+  ======================= */
+  --border-color: var(--color-gray-200);
+  --border-color-strong: var(--color-gray-300);
+  --border-color-focus: var(--color-primary-500);
+
+  --border-radius-sm: 0.375rem;
+  --border-radius-md: 0.5rem;
+  --border-radius-lg: 0.75rem;
+
+  /* =======================
+     🔤 TIPOGRAFÍA
+  ======================= */
+  --font-family-base: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+
+  --font-size-h1: 2.5rem;
+  --font-size-h2: 1.75rem;
+  --font-size-p: 1rem;
+
+  --font-weight-bold: 700;
+  --font-weight-normal: 400;
+
+  /* =======================
+     🔘 BOTONES
+  ======================= */
+  --button-primary-bg: var(--color-primary-600);
+  --button-primary-hover: var(--color-primary-hover);
+  --button-primary-active: var(--color-primary-active);
+  --button-primary-text: #FFFFFF;
+
+  --button-secondary-bg: var(--color-secondary-yellow-500);
+  --button-secondary-hover: var(--color-secondary-yellow-hover);
+  --button-secondary-text: #FFFFFF;
+
+  --button-radius: var(--border-radius-md);
+  --button-padding: 0.6rem 1.2rem;
+
+  /* =======================
+     📦 CARDS
+  ======================= */
+  --card-bg: #FFFFFF;
+  --card-border: var(--border-color);
+  --card-radius: var(--border-radius-lg);
+  --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+
+  /* =======================
+     🔍 INPUTS / BUSCADOR
+  ======================= */
+  --input-bg: #FFFFFF;
+  --input-border: var(--border-color);
+  --input-border-focus: var(--color-primary-500);
+  --input-placeholder: var(--color-gray-500);
+
+  /* =======================
+     📌 HEADER / FOOTER
+  ======================= */
+  --header-bg: var(--color-primary-600);
+  --header-text: #FFFFFF;
+
+  --footer-bg: var(--color-gray-900);
+  --footer-text: #FFFFFF;
+
+  /* =======================
+     🌐 FONDOS
+  ======================= */
+  --bg-main: var(--color-white-soft);
+  --bg-section: var(--color-primary-100);
+  --bg-hover: var(--color-gray-100);
+
+  /* =======================
+     🚨 ESTADOS (UI/UX)
+  ======================= */
+  --color-success: #16A34A;
+  --color-warning: #EAB308;
+  --color-error: #DC2626;
+  --color-info: #2563EB;
+
+  /* =======================
+     ✨ EFECTOS
+  ======================= */
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+  --shadow-md: 0 4px 10px rgba(0,0,0,0.08);
+
+  --transition-fast: 0.2s ease-in-out;
+  --transition-normal: 0.3s ease;
+}
