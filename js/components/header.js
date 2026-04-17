@@ -1,15 +1,28 @@
 export function Header() {
     return `
         <header>
-            <h1>AgroConecta</h1>
-            <nav>
-                <ul style="display:flex; list-style:none; gap:1rem;">
-                    <li><a href="#/home">Inicio</a></li>
-                    <li><a href="#/catalogo">Catalogo</a></li>
-                    <li><a href="#/contacto">Contacto</a></li>
-                    <li><a href="#/nosotros">Nosotros</a></li>
-                </ul>
-            </nav>
+            <div class="contenedor-header">
+
+                <div class="logo">
+                <img src="" alt="AgroConecta logo">
+                    <span>AgroConecta</span>
+                </div>
+                <nav class="contenedor-nav">
+                    <a href="#/">Inicio</a>
+                    <a href="#/catalogo">Catalogo</a>
+                    <a href="#/nosotros">Nosotros</a>
+                    <a href="#/contacto">Contacto</a>
+                </nav>
+                <div class="contenedor-buscar">
+                    <input type="text" placeholder="Buscar..."/>
+                </div>
+
+                <div class="acciones">
+                    <button class="btn-carrito">🛒</button>
+                    <button class="contenedor-login">Ingresar</button>
+                </div>
+                
+            </div>
         </header>
     `;
 }
