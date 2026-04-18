@@ -16,7 +16,7 @@ function renderLayout() {
 
     root.innerHTML = `
         ${Header()}
-        <main id="app" class="flex-fill py-5"></main>
+        <main id="app" class="flex-fill"></main>
         ${Footer()}
     `;
     console.log("renderLayout completado");

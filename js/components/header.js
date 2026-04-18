@@ -4,7 +4,7 @@ export function Header() {
             <div class="contenedor-header">
 
                 <div class="logo">
-                <img src="" alt="AgroConecta logo">
+                <img src="/assets/imgs/logo.svg" alt="AgroConecta logo" width="40" height="32">
                     <span>AgroConecta</span>
                 </div>
                 <nav class="contenedor-nav">
