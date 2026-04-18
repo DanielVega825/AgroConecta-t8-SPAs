@@ -29,7 +29,7 @@ export function Nosotros() {
 
                 <div class="col-md-6 text-center">
 
-                    <img src="../../assets/imgs/imagen-sobre-nosotros.jpg" class="img-fluid imagen-nosotros"
+                    <img src="../../assets/imgs/imagen-sobre-nosotros.png" class="img-fluid imagen-nosotros"
                         alt="Equipo AgroConecta">
 
                 </div>
@@ -125,6 +125,8 @@ export function Nosotros() {
         <!-- EQUIPO -->
         <!-- ============================= -->
 
+        <section class="container">
+
         <h2 class="text-center mt-5 mb-3 titulo-principal">Nuestro Equipo</h2>
 
         <p class="text-center texto-equipo mb-5">
@@ -180,6 +182,7 @@ export function Nosotros() {
             </div>
 
         </div>
+    </section>
 
     `;
 }
