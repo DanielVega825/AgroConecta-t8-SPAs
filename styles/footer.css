@@ -1,0 +1,13 @@
+.footer {
+    background-color: var(--footer-bg);
+    font-family: var(--font-family-base);
+    color: var(--footer-text);
+}
+
+.colum__footer>p {
+    color: var(--color-primary-100);
+}
+
+.footer__logo {
+    border-radius: 8px;
+}
