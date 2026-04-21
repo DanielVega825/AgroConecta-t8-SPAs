@@ -1,14 +1,12 @@
 export function Contacto() {
     return `
         <section class="hero">
-            <span class="badge">Contacto</span>
             <h1>¿Cómo Podemos Ayudarte?</h1>
             <p>Estamos aquí para responder tus preguntas y ayudarte en lo que necesites. <br> Contáctanos por cualquiera de
                 nuestros canales.</p>
         </section>
 
         <div class="contact-container">
-
 
             <aside class="contact-info">
                 <div class="info-card">
@@ -48,37 +46,36 @@ export function Contacto() {
                     <h2>Envíanos un Mensaje</h2>
                     <p>Completa el formulario y nos pondremos en contacto contigo lo antes posible.</p>
     
-                    <form>
+                    <form id="contact-form">
                         <div class="form-grid">
                             <div class="form-group">
                                 <label>Nombre Completo *</label>
-                                <input type="text" placeholder="Juan Pérez" required>
+                                <input type="text" name="name" id="name" placeholder="Juan Pérez" required>
                             </div>
                             <div class="form-group">
                                 <label>Correo Electrónico *</label>
-                                <input type="email" placeholder="tu@correo.com" required>
+                                <input type="email" name="email" id="email" placeholder="tu@correo.com" required>
                             </div>
                             <div class="form-group">
                                 <label>Teléfono *</label>
-                                <input type="tel" placeholder="+57 300 123 4567" required>
+                                <input type="tel" name="phone" id="phone" placeholder="+57 300 123 4567" required>
                             </div>
                             <div class="form-group">
                                 <label>Asunto *</label>
-                                <select required>
+                                <select name="subject" id="subject" required>
                                     <option value="" disabled selected>Selecciona un asunto</option>
-                                    <option>Ventas</option>
-                                    <option>Soporte</option>
+                                    <option value="Ventas">Ventas</option>
+                                    <option value="Soporte">Soporte</option>
                                 </select>
                             </div>
                         </div>
                         <div class="form-group">
                             <label>Mensaje *</label>
-                            <textarea placeholder="Escribe tu mensaje aquí..." rows="5" required></textarea>
+                            <textarea name="message" id="message" placeholder="Escribe tu mensaje aquí..." rows="5" required></textarea>
                         </div>
                         <div class="checkbox-group">
                             <input type="checkbox" id="privacy" required>
-                            <label for="privacy">Acepto la política de privacidad y el tratamiento de mis datos personales
-                                para recibir información sobre productos y servicios de AgroConecta.</label>
+                            <label for="privacy">Acepto la política de privacidad...</label>
                         </div>
                         <button type="submit" class="btn-send">
                             <i class="bi bi-send"></i> Enviar Mensaje
@@ -109,4 +106,68 @@ export function Contacto() {
             </div>
         </section>
     `;
+}
+
+/**
+ * Función para inicializar la validación y el envío
+ * Se debe llamar desde el router después de cargar la vista
+ */
+export function initContactForm() {
+    const form = document.getElementById('contact-form');
+    if (!form) return;
+
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        // 1. Obtención de datos usando los 'id' del HTML
+        const name = document.getElementById('name').value.trim();
+        const email = document.getElementById('email').value.trim();
+        const phone = document.getElementById('phone').value.trim();
+        const message = document.getElementById('message').value.trim();
+
+        // 2. Validaciones de tipos de entrada
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        // Valida formatos de teléfono comunes (7 a 15 dígitos)
+        const phoneRegex = /^\+?[\d\s-]{7,15}$/;
+
+        if (name.length < 3) {
+            alert("⚠️ El nombre es demasiado corto.");
+            return;
+        }
+
+        if (!emailRegex.test(email)) {
+            alert("⚠️ Por favor, ingresa un correo electrónico válido.");
+            return;
+        }
+
+        if (!phoneRegex.test(phone)) {
+            alert("⚠️ El número de teléfono no tiene un formato válido.");
+            return;
+        }
+
+        if (message.length < 10) {
+            alert("⚠️ Por favor, escribe un mensaje más detallado.");
+            return;
+        }
+
+        // 3. Envío a Formspree usando Fetch
+        const formData = new FormData(form);
+
+        try {
+            const response = await fetch("https://formspree.io/f/xnjldgyk", {
+                method: "POST",
+                body: formData,
+                headers: { 'Accept': 'application/json' }
+            });
+
+            if (response.ok) {
+                alert("✅ ¡Enviado! Gracias por contactarnos, Cesar.");
+                form.reset();
+            } else {
+                alert("❌ Hubo un error al enviar el formulario.");
+            }
+        } catch (error) {
+            alert("❌ Error de conexión: No se pudo enviar el mensaje.");
+        }
+    });
 }
