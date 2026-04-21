@@ -2,13 +2,15 @@ import { Home } from "./views/home.js";
 import { Catalogo } from "./views/catalogo.js";
 import { Contacto, initContactForm } from "./views/contacto.js"; // Importas ambos del mismo archivo
 import { Nosotros } from "./views/nosotros.js";
+import { Panel } from "./views/panel.js";
 
 const routes = {
     "/": Home,
     "/home": Home,
     "/catalogo": Catalogo,
     "/contacto": Contacto,
-    "/nosotros": Nosotros
+    "/nosotros": Nosotros,
+    "/panel": Panel 
 };
 
 export function router() {
