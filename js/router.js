@@ -2,10 +2,12 @@ import { Catalogo } from "./views/catalogo.js";
 import { Contacto } from "./views/contacto.js";
 import { Home } from "./views/home.js";
 import { Nosotros } from "./views/nosotros.js";
+import { Panel, gestionPanel } from "./views/panel.js";
 
 const routes = {
   "/": Home,
   "/home": Home,
+  "/panel": {view: Panel, init: gestionPanel},
   "/catalogo": Catalogo,
   "/contacto": Contacto,
   "/nosotros": Nosotros
@@ -16,7 +18,7 @@ const routes = {
 // Ejemplo dentro de router.js
 export function router() {
     const path = location.hash.slice(1) || "/";
-    const view = routes[path] || Home;
+    const route = routes[path] || {view: Home};
 
     // Lógica para cambiar el CSS dinámicamente
     let cssPath = "";
@@ -28,5 +30,9 @@ export function router() {
         linkTag.href = cssPath; // Se asigna cssPath o lo limpia con ""
     }
 
-    document.getElementById("app").innerHTML = view();
+    document.getElementById("app").innerHTML = route.view();
+
+    if(route.init) {
+        route.init();
+    }
 }
