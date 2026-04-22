@@ -21,6 +21,7 @@ export function router() {
     let cssPath = "";
     if (path === "/contacto") cssPath = "styles/contact.css";
     if (path === "/nosotros") cssPath = "styles/nosotros.css";
+    if (path === "/panel") cssPath = "styles/panel.css";
 
     const linkTag = document.getElementById("page-style");
     if (linkTag) {
@@ -31,6 +32,7 @@ export function router() {
     const appContainer = document.getElementById("app");
     appContainer.innerHTML = route.view();
 
+    //Ejwcuta la funcion init que trae la logica del componente si exite
     if(route.init) {
         route.init();
     }
