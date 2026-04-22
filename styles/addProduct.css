@@ -1,21 +1,30 @@
 /* Bloque Principal */
 .product-form {
-    background-color: var(--form-bg-light);
+    background-color: var(--bg-section);
     min-height: 100vh;
+    font-family: var(--font-family-base);
+
 }
 
+
+
 .product-form__card {
-    border-radius: 15px;
+    background-color: var(--card-bg);
+    padding: 3rem;
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--card-shadow);
     border: none;
 }
 
 /* Inputs y Selects (Bootstrap overrides) */
-.form-control, .form-select {
+.form-control,
+.form-select {
     border: 1px solid #e9ecef;
     padding: 0.75rem;
 }
 
-.form-control:focus, .form-select:focus {
+.form-control:focus,
+.form-select:focus {
     border-color: var(--bs-success);
     box-shadow: 0 0 0 0.25rem rgba(0, 179, 71, 0.1);
 }
@@ -40,7 +49,8 @@
 
 /* Gestión de Imágenes y Previsualización Dinámica */
 .product-form__image-preview {
-    min-height: 0; /* Empieza sin altura si está vacío */
+    min-height: 0;
+    /* Empieza sin altura si está vacío */
 }
 
 .product-form__thumb-container {
@@ -78,7 +88,7 @@
     justify-content: center;
     font-size: 14px;
     border: none;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
     z-index: 10;
 }
 
@@ -109,24 +119,25 @@
 
 /* Botones de Acción (Success overrides) */
 .btn-success {
-    background-color: var(--bs-success);
+    background-color: var(--button-primary-bg);
     border-color: var(--bs-success);
 }
 
 .btn-success:hover {
-    background-color: #00993d;
+    background-color: var(--button-primary-hover);
     border-color: #00993d;
 }
 
 /* Animaciones */
 @keyframes fadeIn {
-    from { 
-        opacity: 0; 
-        transform: scale(0.9); 
+    from {
+        opacity: 0;
+        transform: scale(0.9);
     }
-    to { 
-        opacity: 1; 
-        transform: scale(1); 
+
+    to {
+        opacity: 1;
+        transform: scale(1);
     }
 }
 
@@ -140,6 +151,7 @@
         opacity: 0;
         transform: translateY(-10px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);

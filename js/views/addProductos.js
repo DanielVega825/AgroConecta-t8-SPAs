@@ -1,32 +1,36 @@
+import { Producto } from '../../models/productos.js';
+import { products } from '../../data/products.js';
 
 export function AddProduct() {
     return `
-        <section class="container product-form py-5">
-    <div class="container">
-        <form class="product-form__card card shadow-sm p-4">
+        <section class="product-form py-5">
+    <div class="container p-5">
+        <form id="productForm" class="product-form__card card">
             
             <div class="product-form__section mb-5">
                 <h2 class="h5 border-bottom pb-2 mb-4">Información Básica</h2>
                 <div class="row g-3">
                     <div class="col-md-6">
                         <label class="form-label fw-bold">Nombre del Producto *</label>
-                        <input type="text" class="form-control bg-light" placeholder="Ej: Tomate Cherry Orgánico">
+                        <input type="text" id="productName" class="form-control bg-light" placeholder="Ej: Tomate Cherry Orgánico" required>
                     </div>
                     <div class="col-md-6">
                         <label class="form-label fw-bold">Tipo de Producto *</label>
-                        <select class="form-select bg-light">
-                            <option selected disabled>Seleccionar tipo</option>
-                            <option value="1">Vegetales</option>
-                            <option value="2">Frutas</option>
+                        <select id="productType" class="form-select bg-light" required>
+                            <option value="" selected disabled>Seleccionar tipo</option>
+                            <option value="1">Semillas</option>
+                            <option value="2">Concentrado</option>
+                            <option value="3">Herramientas</option>
+                            
                         </select>
                     </div>
                     <div class="col-12">
                         <label class="form-label fw-bold">Precio ($) *</label>
-                        <input type="number" class="form-control bg-light" placeholder="0.00">
+                        <input type="number" id="productPrice" class="form-control bg-light" placeholder="0.00" step="0.01" min="0.01" required>
                     </div>
                     <div class="col-12">
                         <label class="form-label fw-bold">Descripción *</label>
-                        <textarea class="form-control bg-light" rows="3" placeholder="Describe el producto..."></textarea>
+                        <textarea id="productDescription" class="form-control bg-light" rows="3" placeholder="Describe el producto..." required></textarea>
                     </div>
                 </div>
             </div>
@@ -36,11 +40,11 @@ export function AddProduct() {
                 <div class="row g-3">
                     <div class="col-md-6">
                         <label class="form-label fw-bold">Cantidad Disponible *</label>
-                        <input type="number" class="form-control bg-light" placeholder="0">
+                        <input type="number" id="productQuantity" class="form-control bg-light" placeholder="0" min="0" required>
                     </div>
                     <div class="col-md-6">
                         <label class="form-label fw-bold">Stock Mínimo *</label>
-                        <input type="number" class="form-control bg-light" value="5">
+                        <input type="number" id="productMinStock" class="form-control bg-light" value="5" min="0" required>
                     </div>
                 </div>
             </div>
@@ -60,7 +64,7 @@ export function AddProduct() {
                     </div>
                     <div class="col-md-4">
                         <label class="product-form__status-card">
-                            <input type="checkbox" id="checkPromotion" class="form-check-input me-2"> En Promoción
+                            <input type="checkbox" id="checkPromotion" class="form-check-input me-2"> En descuento
                         </label>
                     </div>
                 </div>
@@ -87,7 +91,7 @@ export function AddProduct() {
             <div class="product-form__section mb-5">
                 <h2 class="h5 border-bottom pb-2 mb-4">Imágenes del Producto</h2>
                 <div class="mb-3">
-                    <input class="form-control bg-light" type="file" id="productImages" accept="image/*" multiple>
+                    <input class="form-control bg-light" type="file" id="productImages" accept="image/*" multiple required>
                 </div>
                 <div id="previewContainer" class="product-form__image-preview d-flex flex-wrap gap-3"></div>
             </div>
@@ -121,90 +125,131 @@ export function AddProduct() {
 </section>
     `;
 }
-
-
 export function initAddProductLogic() {
-    const form = document.getElementById('form-add-product');
-    const previewContainer = document.getElementById('previewContainer');
-    
-    // Referencias para el descuento
-    const checkPromotion = document.getElementById('checkPromotion');
-    const discountInput = document.getElementById('discountInput');
-    const discountGroup = document.getElementById('discountGroup');
+    const input = document.getElementById('productImages');
+    const container = document.getElementById('previewContainer');
+    const btnReset = document.getElementById('btn-reset');
 
-    if (!form) return;
 
-    // 1. Manejo de visibilidad del descuento (lo que ya teníamos)
-    checkPromotion?.addEventListener('change', (e) => {
-        discountGroup.classList.toggle('d-none', !e.target.checked);
-    });
+    if (!input || !container) return;
 
-    // 2. Escuchar el envío del formulario
-    form.addEventListener('submit', (e) => {
-        e.preventDefault(); // Evitar que la página se recargue
+    input.addEventListener('change', (e) => {
+        const files = e.target.files;
 
-        // Extraer las imágenes del preview (guardamos los src de los <img>)
-        const imagenesCargadas = Array.from(previewContainer.querySelectorAll('img'))
-                                      .map(img => img.src);
+        Array.from(files).forEach(file => {
+            if (file.type.startsWith('image/')) {
+                const reader = new FileReader();
 
-        // Crear el objeto de detalles adicionales
-        const detallesAdicionales = {
-            enPromocion: checkPromotion.checked,
-            porcentajeDescuento: checkPromotion.checked ? parseFloat(discountInput.value) : 0,
-            // Aquí podrías capturar el contenido del editor de texto enriquecido si lo tienes implementado
-            descripcionLarga: form.querySelector('.product-form__editor-content')?.value || ""
-        };
+                reader.onload = (event) => {
+                    const thumbContainer = document.createElement('div');
+                    thumbContainer.className = 'product-form__thumb-container position-relative';
 
-        // 3. Instanciar la clase Producto
-        const nuevoProducto = new Producto({
-            id: crypto.randomUUID(), // Genera un ID único
-            nombre: form.querySelector('input[placeholder*="Nombre"]').value,
-            precio: parseFloat(form.querySelector('input[type="number"]').value),
-            descripcion: form.querySelector('textarea').value,
-            imagen: imagenesCargadas,
-            detalles: detallesAdicionales,
-            cantidad: parseInt(form.querySelector('input[placeholder="0"]').value) || 0,
-            tipoProducto: form.querySelector('select').value,
-            fechaDeIngreso: new Date().toISOString().split('T')[0], // YYYY-MM-DD
-            activo: form.querySelector('.product-form__status-card input').checked, // Asumiendo que el primero es Activo
-            stockMinimo: parseInt(form.querySelectorAll('input[type="number"]')[1].value) || 5
+                    thumbContainer.innerHTML = `
+                        <div class="product-form__img-thumb rounded border">
+                            <img src="${event.target.result}" class="img-fluid" alt="Preview">
+                        </div>
+                        <button type="button" class="btn btn-danger btn-sm position-absolute top-0 end-0 m-1 product-form__btn--remove">
+                            &times;
+                        </button>
+                    `;
+
+                    // Lógica para eliminar la miniatura individualmente
+                    thumbContainer.querySelector('.product-form__btn--remove').onclick = () => thumbContainer.remove();
+
+                    container.appendChild(thumbContainer);
+                };
+                reader.readAsDataURL(file);
+            }
         });
-
-        // 4. Añadir al arreglo global
-        productos.push(nuevoProducto);
-
-        // 5. Feedback y Limpieza
-        console.log("Producto Agregado:", productos);
-        alert(`¡Producto "${nuevoProducto.nombre}" agregado con éxito!`);
-        
-        form.reset();
-        previewContainer.innerHTML = '';
-        discountGroup.classList.add('d-none');
     });
 
-    // Llamamos a la lógica de imágenes que ya tenías
-    initImageLogic(previewContainer);
+    // Limpiar el contenedor al resetear el formulario
+    if (btnReset) {
+        btnReset.addEventListener('click', () => {
+            container.innerHTML = '';
+        });
+    }
+
+    const checkPromotion = document.getElementById('checkPromotion');
+    const discountGroup = document.getElementById('discountGroup');
+    const discountInput = document.getElementById('discountInput');
+
+    if (checkPromotion && discountGroup) {
+        checkPromotion.addEventListener('change', (e) => {
+            if (e.target.checked) {
+                // Mostramos la sección y la hacemos requerida
+                discountGroup.classList.remove('d-none');
+                discountInput.setAttribute('required', 'true');
+            } else {
+                // Ocultamos y limpiamos el valor
+                discountGroup.classList.add('d-none');
+                discountInput.value = '';
+                discountInput.removeAttribute('required');
+            }
+        });
+    }
+
+    // Aseguramos que la lógica de imágenes también se cargue
+    initImageLogic();
+
+    const form = document.getElementById('productForm');
+    if (form) {
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            // Recopilar imágenes
+            const imagenesCargadas = Array.from(container.querySelectorAll('img')).map(img => img.src);
+
+            if (imagenesCargadas.length === 0) {
+                alert("Por favor, sube al menos una imagen del producto.");
+                return;
+            }
+
+            try {
+                const nuevoProducto = new Producto({
+                    id: crypto.randomUUID(),
+                    nombre: document.getElementById('productName').value,
+                    precio: parseFloat(document.getElementById('productPrice').value),
+                    descripcion: document.getElementById('productDescription').value,
+                    imagen: imagenesCargadas,
+                    detalles: {
+                        enPromocion: checkPromotion?.checked || false,
+                        porcentajeDescuento: checkPromotion?.checked ? parseFloat(discountInput.value) : 0,
+                    },
+                    cantidad: parseInt(document.getElementById('productQuantity').value),
+                    tipoProducto: document.getElementById('productType').value,
+                    fechaDeIngreso: new Date().toISOString().split('T')[0],
+                    activo: document.querySelectorAll('.product-form__status-card input')[0].checked,
+                    stockMinimo: parseInt(document.getElementById('productMinStock').value)
+                });
+
+                products.push(nuevoProducto);
+                console.log("Producto Agregado:", products);
+
+                localStorage.setItem("listaProducts", JSON.stringify(products))
+                alert("¡Producto agregado con éxito!");
+
+
+                form.reset();
+                container.innerHTML = '';
+                if (discountGroup) {
+                    discountGroup.classList.add('d-none');
+                    discountInput.removeAttribute('required');
+                }
+            } catch (error) {
+                alert("Error de validación: " + error.message);
+            }
+        });
+    }
 }
 
-function initImageLogic(container) {
+// Separamos la lógica de imágenes para limpieza
+function initImageLogic() {
     const input = document.getElementById('productImages');
-    input?.addEventListener('change', (e) => {
-        const files = e.target.files;
-        Array.from(files).forEach(file => {
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                const div = document.createElement('div');
-                div.className = 'product-form__thumb-container position-relative';
-                div.innerHTML = `
-                    <div class="product-form__img-thumb rounded border">
-                        <img src="${event.target.result}" class="img-fluid">
-                    </div>
-                    <button type="button" class="btn btn-danger btn-sm position-absolute top-0 end-0 m-1">&times;</button>
-                `;
-                div.querySelector('button').onclick = () => div.remove();
-                container.appendChild(div);
-            };
-            reader.readAsDataURL(file);
-        });
+    const container = document.getElementById('previewContainer');
+    if (!input || !container) return;
+
+    input.addEventListener('change', (e) => {
+        // ... (el código de FileReader que ya tienes) ...
     });
 }
