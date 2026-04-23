@@ -12,7 +12,7 @@ const routes = {
     "/contacto": Contacto,
     "/nosotros": Nosotros,
     "/addProduct": AddProduct,
-    "/panel": {view: Panel, init: gestionPanel}
+    "/panel": { view: Panel, init: gestionPanel }
 };
 
 export function router() {

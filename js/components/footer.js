@@ -15,7 +15,7 @@ export function Footer() {
                             Conectando productores rurales con insumos esenciales de forma rápida, segura y confiable.
                         </p>
                     </div>
-
+ 
                     <!-- Columna 2: Productos/Enlaces -->
                     <div class="colum__footer col-md-2 col-lg-2 col-xl-2 mx-auto mb-4">
                         <h6 class="text-uppercase fw-bold mb-4">Enlaces</h6>
@@ -24,7 +24,7 @@ export function Footer() {
                         <p><a href="#/nosotros" class="text-reset text-decoration-none">Nosotros</a></p>
                         <p><a href="#/contacto" class="text-reset text-decoration-none">Contacto</a></p>
                     </div>
-
+ 
                     <!-- Columna 3: Enlaces útiles -->
                     <div class="colum__footer col-md-3 col-lg-2 col-xl-2 mx-auto mb-4">
                         <h6 class="text-uppercase fw-bold mb-4">Categorías</h6>
@@ -32,7 +32,7 @@ export function Footer() {
                         <p><a href="#!" class="text-reset text-decoration-none">Concentrados</a></p>
                         <p><a href="#!" class="text-reset text-decoration-none">Herramientas</a></p>
                     </div>
-
+ 
                     <!-- Columna 4: Contacto -->
                     <div class="colum__footer col-md-4 col-lg-3 col-xl-3 mx-auto mb-md-0 mb-4">
                         <h6 class="text-uppercase fw-bold mb-4">Contacto</h6>
@@ -50,3 +50,4 @@ export function Footer() {
         </footer>
     `;
 }
+ 

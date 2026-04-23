@@ -62,7 +62,7 @@
   border: 1px solid var(--color-primary-hover);
 }
 
-@media (min-width: 768px) {
+@media (min-width: 935px) {
 
   .contenedor-nav {
     display: flex;
