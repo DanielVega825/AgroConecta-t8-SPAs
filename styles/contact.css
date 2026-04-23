@@ -2,20 +2,20 @@
    VISTA DE CONTACTO - AgroConecta
    Basado en variables globales de variables.css
    ========================================================================== */
-
+ 
 /* Reseteo local y Tipografía */
 .contact-container, .hero, .map-section {
     font-family: var(--font-family-base);
     color: var(--color-text-primary);
 }
-
+ 
 /* Hero Section */
 .hero {
     text-align: center;
     padding: 80px 20px;
     background: linear-gradient(to bottom, var(--color-primary-100), var(--color-white));
 }
-
+ 
 .badge {
     background: var(--color-primary-100);
     color: var(--color-primary-600);
@@ -26,21 +26,21 @@
     text-transform: uppercase;
     letter-spacing: 1px;
 }
-
+ 
 .hero h1 {
     font-size: var(--font-size-h1);
     color: var(--color-primary-600);
     font-weight: var(--font-weight-bold);
     margin: 20px 0;
 }
-
+ 
 .hero p {
     color: var(--color-text-secondary);
     font-size: 1.1rem;
     max-width: 600px;
     margin: 0 auto;
 }
-
+ 
 /* Layout Principal */
 .contact-container {
     display: grid;
@@ -52,7 +52,7 @@
     position: relative;
     z-index: 10;
 }
-
+ 
 /* Aside - Cards de Información */
 .info-card {
     background: var(--card-bg);
@@ -63,12 +63,12 @@
     box-shadow: var(--card-shadow);
     transition: var(--transition-normal);
 }
-
+ 
 .info-card:hover {
     transform: translateY(-5px);
     box-shadow: var(--shadow-md);
 }
-
+ 
 .icon-box {
     width: 50px;
     height: 50px;
@@ -80,17 +80,17 @@
     color: var(--color-white);
     margin-bottom: 20px;
 }
-
+ 
 .icon-box.green { background-color: var(--color-primary-600); }
 .icon-box.yellow { background-color: var(--color-secondary-yellow-500); }
 .icon-box.orange { background-color: var(--color-secondary-orange-500); }
-
+ 
 .info-card h3 {
     font-size: 1.25rem;
     color: var(--color-gray-900);
     margin-bottom: 12px;
 }
-
+ 
 .info-card p, .info-card a {
     color: var(--color-text-secondary);
     text-decoration: none;
@@ -98,11 +98,11 @@
     display: block;
     margin-bottom: 4px;
 }
-
+ 
 .info-card a:hover {
     color: var(--color-primary-500);
 }
-
+ 
 /* Formulario Principal */
 .card-form {
     background: var(--card-bg);
@@ -111,34 +111,34 @@
     box-shadow: var(--card-shadow);
     border: 1px solid var(--card-border);
 }
-
+ 
 .card-form h2 {
     font-size: var(--font-size-h2);
     color: var(--color-gray-900);
     margin-bottom: 10px;
 }
-
+ 
 .card-form p {
     color: var(--color-text-secondary);
     margin-bottom: 30px;
 }
-
+ 
 .form-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 25px;
     margin-bottom: 25px;
 }
-
+ 
 .form-group label {
     display: block;
     margin-bottom: 8px;
     font-weight: 500;
     color: var(--color-gray-700);
 }
-
-.form-group input, 
-.form-group select, 
+ 
+.form-group input,
+.form-group select,
 .form-group textarea {
     width: 100%;
     padding: 12px 16px;
@@ -148,28 +148,28 @@
     font-size: 1rem;
     transition: var(--transition-fast);
 }
-
-.form-group input:focus, 
-.form-group select:focus, 
+ 
+.form-group input:focus,
+.form-group select:focus,
 .form-group textarea:focus {
     outline: none;
     border-color: var(--input-border-focus);
     box-shadow: 0 0 0 3px var(--color-primary-focus);
 }
-
+ 
 .checkbox-group {
     display: flex;
     gap: 12px;
     margin: 30px 0;
     align-items: flex-start;
 }
-
+ 
 .checkbox-group label {
     font-size: 0.9rem;
     color: var(--color-text-secondary);
     cursor: pointer;
 }
-
+ 
 /* Botones */
 .btn-send {
     background: var(--button-primary-bg);
@@ -186,11 +186,11 @@
     justify-content: center;
     gap: 10px;
 }
-
+ 
 .btn-send:hover {
     background: var(--button-primary-hover);
 }
-
+ 
 /* WhatsApp Card */
 .whatsapp-card {
     margin-top: 40px;
@@ -200,7 +200,7 @@
     border: 1px solid var(--color-primary-500);
     text-align: center;
 }
-
+ 
 .btn-whatsapp {
     background: #25D366; /* Color oficial WhatsApp */
     color: white;
@@ -212,18 +212,18 @@
     cursor: pointer;
     transition: var(--transition-normal);
 }
-
+ 
 .btn-whatsapp:hover {
     transform: scale(1.05);
     background: #128C7E;
 }
-
+ 
 /* Map Section */
 .map-section {
     padding: 80px 20px;
     background: var(--bg-main);
 }
-
+ 
 .map-placeholder {
     margin-top: 40px;
     background: var(--color-white);
@@ -235,13 +235,13 @@
     border: 1px solid var(--border-color);
     box-shadow: var(--shadow-md);
 }
-
+ 
 .map-content i {
     font-size: 3.5rem;
     color: var(--color-primary-500);
     margin-bottom: 15px;
 }
-
+ 
 /* Responsive */
 @media (max-width: 900px) {
     .contact-container {
@@ -255,7 +255,7 @@
         padding: 30px;
     }
 }
-
+ 
 .card-form {
     background: var(--card-bg);
     border-radius: var(--card-radius);
@@ -263,13 +263,13 @@
     box-shadow: var(--card-shadow);
     border: 1px solid var(--card-border);
 }
-
+ 
 .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
     border-color: var(--color-primary-500);
     box-shadow: 0 0 0 4px var(--color-primary-focus);
     outline: none;
 }
-
+ 
 .btn-send {
     background: var(--button-primary-bg);
     color: var(--button-primary-text);
@@ -277,8 +277,9 @@
     border-radius: var(--button-radius);
     transition: var(--transition-normal);
 }
-
+ 
 .btn-send:hover {
     background: var(--button-primary-hover);
     transform: translateY(-2px);
 }
+ 

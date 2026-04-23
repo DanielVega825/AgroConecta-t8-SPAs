@@ -1,0 +1,166 @@
+/* Bloque Principal */
+.product-form {
+    background-color: var(--bg-section);
+    min-height: 100vh;
+    font-family: var(--font-family-base);
+
+}
+
+
+
+.product-form__card {
+    background-color: var(--card-bg);
+    padding: 3rem;
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--card-shadow);
+    border: none;
+}
+
+/* Inputs y Selects (Bootstrap overrides) */
+.form-control,
+.form-select {
+    border: 1px solid #e9ecef;
+    padding: 0.75rem;
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--bs-success);
+    box-shadow: 0 0 0 0.25rem rgba(0, 179, 71, 0.1);
+}
+
+/* Tarjetas de Estado (Checkboxes personalizados) */
+.product-form__status-card {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 1rem;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    background-color: #fff;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    width: 100%;
+}
+
+.product-form__status-card:hover {
+    background-color: #f1f3f5;
+}
+
+/* Gestión de Imágenes y Previsualización Dinámica */
+.product-form__image-preview {
+    min-height: 0;
+    /* Empieza sin altura si está vacío */
+}
+
+.product-form__thumb-container {
+    width: 120px;
+    height: 120px;
+    animation: fadeIn 0.3s ease-out forwards;
+}
+
+.product-form__img-thumb {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #fff;
+    border: 1px solid #dee2e6;
+}
+
+.product-form__img-thumb img {
+    object-fit: cover;
+    width: 100%;
+    height: 100%;
+}
+
+/* Botón para eliminar imagen (X) */
+.product-form__btn--remove {
+    border-radius: 50%;
+    width: 22px;
+    height: 22px;
+    padding: 0;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    border: none;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    z-index: 10;
+}
+
+/* Input de archivos (Estilo del botón de sistema) */
+.product-form__input--file::file-selector-button {
+    background-color: #e9ecef;
+    border: none;
+    border-right: 1px solid #dee2e6;
+    margin-right: 15px;
+    padding: 0.75rem 1rem;
+    margin: -0.75rem 15px -0.75rem -0.75rem;
+    cursor: pointer;
+}
+
+/* Simulación de Editor Rich Text */
+.product-form__editor {
+    overflow: hidden;
+    background-color: #fff;
+}
+
+.product-form__editor-toolbar button {
+    color: #555;
+}
+
+.product-form__editor-toolbar button:hover {
+    background-color: #e9ecef;
+}
+
+/* Botones de Acción (Success overrides) */
+.btn-success {
+    background-color: var(--button-primary-bg);
+    border-color: var(--bs-success);
+}
+
+.btn-success:hover {
+    background-color: var(--button-primary-hover);
+    border-color: #00993d;
+}
+
+/* Animaciones */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* Animación para la aparición del descuento */
+.animate-fade-in {
+    animation: slideDown 0.3s ease-out forwards;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Ajuste para el input de descuento */
+#discountInput {
+    border-color: var(--bs-success);
+    font-weight: bold;
+    text-align: center;
+}
