@@ -18,9 +18,9 @@ export function AddProduct() {
                         <label class="form-label fw-bold">Tipo de Producto *</label>
                         <select id="productType" class="form-select bg-light" required>
                             <option value="" selected disabled>Seleccionar tipo</option>
-                            <option value="1">Semillas</option>
-                            <option value="2">Concentrado</option>
-                            <option value="3">Herramientas</option>
+                            <option value="Semillas">Semillas</option>
+                            <option value="Concentrados">Concentrados</option>
+                            <option value="Herramientas">Herramientas</option>
                             
                         </select>
                     </div>

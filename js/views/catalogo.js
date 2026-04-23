@@ -12,11 +12,11 @@ const productos = [
     { nombre: "Sistema Ordeño", cat: "HERRAMIENTAS", precio: 450000, stock: "3", img: "sistema-ordeno.jpg", desc: "Alta eficiencia." },
     { nombre: "Pala Profesional", cat: "HERRAMIENTAS", precio: 35000, stock: "22", img: "pala-profesional.jpg", desc: "Acero reforzado." }
 ];
- 
+
 export function Catalogo() {
- 
+
     setTimeout(() => initCatalogo(), 0); // 👈 importante
- 
+
     return `
     <section class="catalogo-container">
  
@@ -46,15 +46,15 @@ export function Catalogo() {
     </section>
     `;
 }
- 
+
 /* =========================
    🔥 LÓGICA DE FILTROS
 ========================= */
 function initCatalogo() {
- 
+
     const contenedor = document.getElementById('contenedor-productos');
     if (!contenedor) return;
- 
+
     const render = (lista) => {
         contenedor.innerHTML = lista.map(p => `
             <div class="card">
@@ -72,17 +72,51 @@ function initCatalogo() {
             </div>
         `).join('');
     };
- 
+
+    // 1. Obtener y parsear la lista desde localStorage (usando un arreglo vacío como respaldo si no hay nada guardado)
+    const productosRecuperados = JSON.parse(localStorage.getItem('listaProducts')) || [];
+
+    const render2 = (lista) => {
+    const htmlProductos = lista.map(p => {
+        // Obtenemos el valor de la imagen (sea array o string)
+        const imagenGuardada = Array.isArray(p.imagen) ? p.imagen[0] : p.imagen;
+        
+        // Evaluamos si es Base64 o si es un archivo normal
+        // Si empieza con "data:image", es Base64 y se usa directo. Si no, es un archivo local.
+        const srcImagen = imagenGuardada.startsWith('data:image') 
+            ? imagenGuardada 
+            : `assets/imgs/${imagenGuardada}`;
+
+        return `
+            <div class="card">
+                <div class="card-img">
+                    <img src="${srcImagen}" alt="${p.nombre}">
+                    <span class="stock">${p.cantidad} en stock</span>
+                </div>
+                <div class="card-body">
+                    <small>${p.tipoProducto}</small>
+                    <h3>${p.nombre}</h3>
+                    <p>${p.descripcion}</p>
+                    <strong>$${p.precio.toLocaleString('es-CO')}</strong>
+                    <button>Agregar</button>
+                </div>
+            </div>
+        `;
+    }).join('');
+
+    contenedor.insertAdjacentHTML('beforeend', htmlProductos);
+};
+
     const filtrar = () => {
         const cat = document.querySelector('input[name="cat"]:checked').value;
         const price = document.querySelector('input[name="price"]:checked').value;
- 
+
         let filtrados = productos;
- 
+
         if (cat !== "TODOS") {
             filtrados = filtrados.filter(p => p.cat === cat);
         }
- 
+
         if (price === "LOW") {
             filtrados = filtrados.filter(p => p.precio < 50000);
         } else if (price === "MID") {
@@ -90,13 +124,14 @@ function initCatalogo() {
         } else if (price === "HIGH") {
             filtrados = filtrados.filter(p => p.precio > 100000);
         }
- 
+
         render(filtrados);
     };
- 
+
     document.querySelectorAll('input[name="cat"], input[name="price"]').forEach(el => {
         el.addEventListener("change", filtrar);
     });
- 
+
     render(productos);
+    render2(productosRecuperados)
 }
