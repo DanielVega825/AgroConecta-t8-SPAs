@@ -1,0 +1,368 @@
+/* =========================
+   🌿 FONDO GENERAL
+========================= */
+body {
+  background: linear-gradient(
+    135deg,
+    var(--color-primary-100) 0%,
+    var(--color-white-soft) 50%,
+    #ECFCCB 100%
+  );
+}
+ 
+/* Textura sutil opcional */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(circle, rgba(0,0,0,0.03) 1px, transparent 1px);
+  background-size: 20px 20px;
+  pointer-events: none;
+}
+ 
+/* =========================
+   🧩 CONTENEDOR
+========================= */
+.catalogo-container {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: 28px;
+  padding: 30px;
+  margin: 20px;
+  background: rgba(255,255,255,0.6);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--color-primary-100);
+}
+ 
+/* =========================
+   🌾 FILTROS (SIN AMARILLO)
+========================= */
+.filtros {
+  background: linear-gradient(
+    160deg,
+    var(--color-primary-100),
+    var(--color-white)
+  );
+  border: 1px solid #bbf7d0;
+  border-radius: var(--border-radius-lg);
+  padding: 20px;
+  box-shadow: var(--shadow-md);
+ 
+  /* 🔥 CLAVE */
+  align-self: start;
+ 
+  /* opcional PRO */
+  position: sticky;
+  top: 20px;
+}
+ 
+/* Título */
+.filtros h3 {
+  color: var(--color-primary-600);
+  margin-bottom: 10px;
+  border-left: 4px solid var(--color-primary-500);
+  padding-left: 10px;
+}
+ 
+/* Secciones */
+.filtros p {
+  margin-top: 18px;
+  margin-bottom: 8px;
+  font-weight: var(--font-weight-bold);
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 5px;
+}
+ 
+/* Labels */
+.filtros label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: var(--border-radius-md);
+  cursor: pointer;
+  transition: var(--transition-fast);
+  position: relative;
+}
+ 
+/* Hover */
+.filtros label:hover {
+  background: var(--color-primary-100);
+  transform: translateX(4px);
+}
+ 
+/* Radio */
+.filtros input[type="radio"] {
+  accent-color: var(--color-primary-500);
+}
+ 
+/* Activo */
+.filtros input[type="radio"]:checked + span {
+  color: var(--color-primary-600);
+  font-weight: bold;
+}
+ 
+/* Línea lateral */
+.filtros input[type="radio"]:checked + span::before {
+  content: "";
+  position: absolute;
+  left: -10px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 60%;
+  background: var(--color-primary-500);
+  border-radius: 4px;
+}
+ 
+/* =========================
+   📦 PRODUCTOS
+========================= */
+.productos {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 22px;
+  padding: 10px;
+}
+ 
+/* =========================
+   🟩 TARJETAS
+========================= */
+.card {
+  background: linear-gradient(
+    to bottom,
+    var(--color-white),
+    var(--color-primary-100)
+  );
+  border-radius: var(--border-radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--color-primary-100);
+  transition: 0.3s;
+  position: relative;
+}
+ 
+/* Línea superior */
+.card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  width: 100%;
+  height: 4px;
+  background: linear-gradient(
+    to right,
+    var(--color-primary-500),
+    var(--color-secondary-yellow-500)
+  );
+}
+ 
+/* Hover */
+.card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 25px rgba(0,0,0,0.15);
+}
+ 
+/* =========================
+   🖼 IMAGEN
+========================= */
+.card-img {
+  height: 180px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-white-soft);
+  position: relative;
+  overflow: hidden;
+}
+ 
+/* Imagen */
+.card-img img {
+  max-width: 90%;
+  max-height: 90%;
+  object-fit: contain;
+  transition: transform 0.4s ease;
+}
+ 
+/* Zoom */
+.card:hover .card-img img {
+  transform: scale(1.05);
+}
+ 
+/* Spotlight */
+.card-img::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center,
+    rgba(34, 197, 94, 0.1) 20%,
+    rgba(0,0,0,0.4) 100%
+  );
+  opacity: 0;
+  transition: 0.4s ease;
+}
+ 
+.card:hover .card-img::after {
+  opacity: 1;
+}
+ 
+/* Stock */
+.stock {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: white;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  box-shadow: var(--shadow-sm);
+}
+ 
+/* =========================
+   📝 CONTENIDO
+========================= */
+.card-body {
+  padding: 15px;
+}
+ 
+.card-body small {
+  background: var(--color-primary-100);
+  color: var(--color-primary-600);
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: bold;
+}
+ 
+.card-body h3 {
+  margin: 8px 0;
+  color: var(--color-text-primary);
+}
+ 
+.card-body p {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+}
+ 
+/* Precio */
+.card-body strong {
+  display: block;
+  margin-top: 10px;
+  color: var(--color-primary-600);
+  font-size: 18px;
+}
+ 
+/* =========================
+   🔘 BOTÓN
+========================= */
+.card-body button {
+  margin-top: 10px;
+  width: 100%;
+  padding: 8px;
+  background: linear-gradient(
+    to right,
+    var(--color-primary-500),
+    var(--color-primary-600)
+  );
+  color: white;
+  border: none;
+  border-radius: var(--border-radius-md);
+  cursor: pointer;
+  transition: 0.3s;
+}
+ 
+.card-body button:hover {
+  background: var(--color-primary-hover);
+  transform: scale(1.03);
+}
+ 
+/* =========================
+   🏷 TEXTOS
+========================= */
+h1 {
+  font-size: var(--font-size-h1);
+  color: var(--color-text-primary);
+}
+ 
+p {
+  color: var(--color-text-secondary);
+}
+/* =========================
+   💻 DESKTOP (por defecto)
+========================= */
+/* ya lo tienes: 3 columnas */
+ 
+/* =========================
+   📱 TABLET (768px - 1024px)
+========================= */
+@media (max-width: 1024px) {
+  .catalogo-container {
+    grid-template-columns: 220px 1fr;
+    gap: 20px;
+  }
+ 
+  .productos {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+ 
+/* =========================
+   📲 CELULAR (<768px)
+========================= */
+@media (max-width: 768px) {
+ 
+  /* Layout vertical */
+  .catalogo-container {
+    grid-template-columns: 1fr;
+  }
+ 
+  /* Filtros arriba */
+  .filtros {
+    position: relative;
+    top: auto;
+    width: 100%;
+  }
+ 
+  /* Productos 1 columna */
+  .productos {
+    grid-template-columns: 1fr;
+  }
+ 
+  /* Cards más compactas */
+  .card-img {
+    height: 160px;
+  }
+ 
+  h1 {
+    font-size: 1.8rem;
+  }
+}
+ 
+/* =========================
+   📲 CELULAR PEQUEÑO (<480px)
+========================= */
+@media (max-width: 480px) {
+ 
+  .catalogo-container {
+    padding: 15px;
+    margin: 10px;
+  }
+ 
+  .card-body h3 {
+    font-size: 16px;
+  }
+ 
+  .card-body p {
+    font-size: 12px;
+  }
+ 
+  .card-body strong {
+    font-size: 16px;
+  }
+ 
+  .card-body button {
+    font-size: 14px;
+    padding: 6px;
+  }
+}
+ 
