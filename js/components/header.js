@@ -18,7 +18,10 @@ export function Header() {
                 </div>
  
                 <div class="acciones">
-                    <button class="btn-carrito">🛒</button>
+                    <a href="#/carrito" class="carrito-icono">
+                        🛒
+                        <span id="contador-carrito" class="contador">0</span>
+                    </a>
                     <button class="contenedor-login">Ingresar</button>
                 </div>
                
