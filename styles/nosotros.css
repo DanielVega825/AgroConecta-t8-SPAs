@@ -1,178 +1,193 @@
 /* ============================= */
 /* BASE */
 /* ============================= */
- 
+
 body {
- 
     font-family: var(--font-family-base);
- 
-    background:
-        linear-gradient(
-            to bottom,
-            var(--color-white),
-            var(--color-primary-100)
-        );
- 
+    background: linear-gradient(
+        180deg,
+        var(--bg-section),
+        var(--bg-main)
+    );
+    color: var(--color-text-primary);
+    overflow-x: hidden;
 }
- 
+
+/* FIX MÓVIL (centrado real) */
+.container {
+    padding-left: 16px;
+    padding-right: 16px;
+}
+
+@media (max-width: 768px) {
+    .row {
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+    }
+}
+
+/* SECCIONES */
+.section {
+    padding: 60px 0;
+}
+
 /* ============================= */
-/* TITULOS */
+/* TIPOGRAFÍA */
 /* ============================= */
- 
-.titulo-principal {
- 
-    color: var(--color-primary-600);
- 
+
+.heading-xl {
+    font-size: var(--font-size-h1);
     font-weight: var(--font-weight-bold);
- 
+    color: var(--color-primary-600);
+}
+
+.heading-lg {
     font-size: var(--font-size-h2);
- 
-    text-align: center;
- 
-    margin-bottom: 20px;
- 
-}
- 
-/* ============================= */
-/* NOSOTROS */
-/* ============================= */
- 
-.texto-nosotros {
- 
-    color: var(--color-text-primary);
- 
-    line-height: 1.7;
- 
-}
- 
-.imagen-nosotros {
- 
-    border-radius: var(--border-radius-lg);
- 
-    box-shadow: var(--shadow-md);
- 
-}
- 
-/* ============================= */
-/* TARJETAS (REUTILIZABLES) */
-/* ============================= */
- 
-.tarjeta-info,
-.tarjeta-equipo,
-.caja-impacto {
- 
-    background:
-        linear-gradient(
-            to bottom,
-            var(--color-white),
-            var(--color-primary-100)
-        );
- 
-    border-radius: var(--border-radius-lg);
- 
-    border: 1px solid var(--border-color);
- 
-    box-shadow: var(--shadow-md);
- 
-    padding: 20px;
- 
-    transition: var(--transition-normal);
- 
-}
- 
-.tarjeta-info:hover,
-.tarjeta-equipo:hover,
-.caja-impacto:hover {
- 
-    transform: translateY(-8px);
- 
-}
- 
-/* ============================= */
-/* TEXTO TARJETAS */
-/* ============================= */
- 
-.nombre-equipo,
-.caja-impacto h4 {
- 
-    color: var(--color-primary-600);
- 
     font-weight: var(--font-weight-bold);
- 
+    color: var(--color-primary-600);
 }
- 
-.rol-equipo {
- 
+
+.text-muted {
     color: var(--color-text-secondary);
- 
-    font-size: 14px;
- 
+    margin-bottom: 12px;
 }
- 
-.texto-equipo {
- 
-    color: var(--color-text-primary);
- 
-    max-width: 750px;
- 
-    margin: auto;
- 
+
+/* ============================= */
+/* IMAGEN PRINCIPAL */
+/* ============================= */
+
+.img-rounded {
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow-md);
 }
- 
+
 /* ============================= */
-/* TEXTO EXPANDIBLE */
+/* CARDS UNIFICADAS */
 /* ============================= */
- 
-.texto-expandible {
- 
-    opacity: 0;
- 
-    max-height: 0;
- 
-    overflow: hidden;
- 
+
+.card-custom,
+.card-impact,
+.card-team {
+
+    background: linear-gradient(
+        145deg,
+        var(--card-bg),
+        var(--bg-section)
+    );
+
+    padding: 20px;
+    border-radius: var(--card-radius);
+    border: 1px solid var(--border-color);
+
+    box-shadow: var(--shadow-sm);
+
     transition: var(--transition-normal);
- 
+    position: relative;
+    overflow: hidden;
+    width: 100%;
 }
- 
-.tarjeta-info:hover .texto-expandible {
- 
-    opacity: 1;
- 
-    max-height: 220px;
- 
-    margin-top: 15px;
- 
+
+/* LÍNEA SUPERIOR */
+.card-custom::before,
+.card-impact::before,
+.card-team::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+
+    background: linear-gradient(
+        90deg,
+        var(--color-primary-600),
+        var(--color-primary-500)
+    );
 }
- 
+
+/* HOVER GENERAL */
+.card-custom:hover,
+.card-impact:hover,
+.card-team:hover {
+    transform: translateY(-6px);
+    box-shadow: var(--shadow-md);
+}
+
+/* ============================= */
+/* IMPACTO */
+/* ============================= */
+
+.card-impact h4 {
+    color: var(--color-primary-600);
+    font-weight: var(--font-weight-bold);
+}
+
+/* ============================= */
+/* EQUIPO (SIN OVERLAY OPACO) */
+/* ============================= */
+
+/* CONTENEDOR FOTO */
+.img-wrapper {
+    width: 80px;
+    height: 80px;
+    margin: auto;
+    border-radius: 50%;
+    overflow: hidden;
+
+    border: 3px solid var(--color-primary-500);
+
+    transition: var(--transition-normal);
+}
+
+/* IMAGEN */
+.img-team {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+
+    transition: var(--transition-normal);
+}
+
+/* HOVER LIMPIO (✨ PRO) */
+.card-team:hover .img-wrapper {
+    transform: scale(1.08);
+    border-color: var(--color-primary-600);
+
+    box-shadow: 0 0 0 4px var(--color-primary-focus);
+}
+
+.card-team:hover .img-team {
+    transform: scale(1.1);
+}
+
+/* TEXTO EQUIPO */
+.card-team h5 {
+    margin-top: 10px;
+    font-weight: var(--font-weight-bold);
+}
+
+.card-team p {
+    color: var(--color-text-secondary);
+}
+
 /* ============================= */
 /* RESPONSIVE */
 /* ============================= */
- 
+
 @media (max-width: 768px) {
- 
-    .titulo-principal {
- 
-        font-size: 24px;
- 
-    }
- 
-    .texto-nosotros,
-    .texto-equipo {
- 
+
+    .heading-xl {
+        font-size: 28px;
         text-align: center;
- 
-        font-size: 14px;
- 
     }
- 
-    .texto-expandible {
- 
-        opacity: 1;
- 
-        max-height: 500px;
- 
+
+    .heading-lg {
+        text-align: center;
     }
- 
+
+    .card-team,
+    .card-impact,
+    .card-custom {
+        text-align: center;
+    }
 }
- 
