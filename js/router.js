@@ -4,6 +4,7 @@ import { Contacto, initContactForm } from "./views/contacto.js"; // Importas amb
 import { Nosotros } from "./views/nosotros.js";
 import { Panel, gestionPanel } from "./views/panel.js";
 import { AddProduct, initAddProductLogic } from "./views/addProductos.js";
+import { Carrito, initCarrito } from "./views/carrito.js"; //  NUEVO: Importamos la vista del carrito
 
 const routes = {
     "/": Home,
@@ -12,7 +13,8 @@ const routes = {
     "/contacto": Contacto,
     "/nosotros": Nosotros,
     "/addProduct": AddProduct,
-    "/panel": { view: Panel, init: gestionPanel }
+    "/panel": { view: Panel, init: gestionPanel },
+    "/carrito": { view: Carrito, init: initCarrito },  //  NUEVO: Ruta del carrito con su lógica
 };
 
 export function router() {
@@ -30,6 +32,7 @@ export function router() {
     if (path === "/nosotros") cssPath = "styles/nosotros.css";
     if (path === "/addProduct") cssPath = "styles/addProduct.css";
     if (path === "/panel") cssPath = "styles/panel.css";
+    if (path === "/carrito") cssPath = "styles/carrito.css"; //  NUEVO: Estilos del carrito
 
     const linkTag = document.getElementById("page-style");
     if (linkTag) {
@@ -54,4 +57,5 @@ export function router() {
     if (path === "/addProduct") {
         initAddProductLogic();
     }
+
 }

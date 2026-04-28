@@ -83,3 +83,29 @@
     border: 1px solid var(--color-primary-hover);
   }
 }
+.carrito-icono {
+    position: relative;
+    font-size: 24px;
+    text-decoration: none;
+}
+
+.contador {
+    position: absolute;
+    top: -8px;
+    right: -10px;
+    background: red;
+    color: white;
+    font-size: 12px;
+    padding: 3px 7px;
+    border-radius: 50%;
+    font-weight: bold;
+
+    /* Animación */
+    transform: scale(1);
+    transition: transform 0.2s ease;
+}
+
+/* 💥 Animación cuando cambia */
+.contador.animar {
+    transform: scale(1.4);
+}

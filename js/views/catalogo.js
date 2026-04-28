@@ -1,3 +1,5 @@
+import { actualizarContadorCarrito } from "../main.js";
+
 const productos = [
     { nombre: "Semillas de Chía", cat: "SEMILLAS", precio: 25000, stock: "50", img: "semillas-chia.jpg", desc: "Premium para siembra." },
     { nombre: "Semillas de Arroz", cat: "SEMILLAS", precio: 38000, stock: "30", img: "semillas-arroz.jpg", desc: "Variedad de rendimiento." },
@@ -15,41 +17,34 @@ const productos = [
 
 export function Catalogo() {
 
-    setTimeout(() => initCatalogo(), 0); // 👈 importante
+    setTimeout(() => initCatalogo(), 0);
 
     return `
     <section class="catalogo-container">
- 
         <aside class="filtros">
             <h3>Filtros</h3>
- 
+
             <p>Categoría</p>
-            <label><input type="radio" name="cat" value="TODOS" checked><span>Todos</span></label>
-            <label><input type="radio" name="cat" value="SEMILLAS"><span>Semillas</span></label>
-            <label><input type="radio" name="cat" value="CONCENTRADOS"><span>Concentrados</span></label>
-            <label><input type="radio" name="cat" value="HERRAMIENTAS"><span>Herramientas</span></label>
- 
+            <label><input type="radio" name="cat" value="TODOS" checked> Todos</label>
+            <label><input type="radio" name="cat" value="SEMILLAS"> Semillas</label>
+            <label><input type="radio" name="cat" value="CONCENTRADOS"> Concentrados</label>
+            <label><input type="radio" name="cat" value="HERRAMIENTAS"> Herramientas</label>
+
             <p>Precio</p>
-            <label><input type="radio" name="price" value="ALL" checked><span>Todos</span></label>
-            <label><input type="radio" name="price" value="LOW"><span>Menos de $50.000</span></label>
-            <label><input type="radio" name="price" value="MID"><span>$50k - $100k</span></label>
-            <label><input type="radio" name="price" value="HIGH"><span>Más de $100k</span></label>
+            <label><input type="radio" name="price" value="ALL" checked> Todos</label>
+            <label><input type="radio" name="price" value="LOW"> Menos de $50.000</label>
+            <label><input type="radio" name="price" value="MID"> $50k - $100k</label>
+            <label><input type="radio" name="price" value="HIGH"> Más de $100k</label>
         </aside>
- 
+
         <div>
-            <h1>Catálogo de productos</h1>
-            <p>Explora nuestros productos agrícolas</p>
- 
+            <h1>Catálogo</h1>
             <div id="contenedor-productos" class="productos"></div>
         </div>
- 
     </section>
     `;
 }
 
-/* =========================
-   🔥 LÓGICA DE FILTROS
-========================= */
 function initCatalogo() {
 
     const contenedor = document.getElementById('contenedor-productos');
@@ -60,78 +55,57 @@ function initCatalogo() {
             <div class="card">
                 <div class="card-img">
                     <img src="assets/imgs/${p.img}" alt="${p.nombre}">
-                    <span class="stock">${p.stock} en stock</span>
                 </div>
                 <div class="card-body">
-                    <small>${p.cat}</small>
                     <h3>${p.nombre}</h3>
-                    <p>${p.desc}</p>
-                    <strong>$${p.precio.toLocaleString('es-CO')}</strong>
-                    <button>Agregar</button>
+                    <p>$${p.precio.toLocaleString('es-CO')}</p>
+                    <button 
+                        class="btn-agregar"
+                        data-nombre="${p.nombre}" 
+                        data-precio="${p.precio}"
+                        data-img="${p.img}">
+                        Agregar
+                    </button>
                 </div>
             </div>
         `).join('');
     };
 
-    // 1. Obtener y parsear la lista desde localStorage (usando un arreglo vacío como respaldo si no hay nada guardado)
-    const productosRecuperados = JSON.parse(localStorage.getItem('listaProducts')) || [];
+    render(productos);
+}
 
-    const render2 = (lista) => {
-    const htmlProductos = lista.map(p => {
-        // Obtenemos el valor de la imagen (sea array o string)
-        const imagenGuardada = Array.isArray(p.imagen) ? p.imagen[0] : p.imagen;
-        
-        // Evaluamos si es Base64 o si es un archivo normal
-        // Si empieza con "data:image", es Base64 y se usa directo. Si no, es un archivo local.
-        const srcImagen = imagenGuardada.startsWith('data:image') 
-            ? imagenGuardada 
-            : `assets/imgs/${imagenGuardada}`;
+//
+// 🔥 EVENTO GLOBAL (SOLUCIONA DUPLICADOS)
+//
+if (!window.eventoCarritoActivo) {
 
-        return `
-            <div class="card">
-                <div class="card-img">
-                    <img src="${srcImagen}" alt="${p.nombre}">
-                    <span class="stock">${p.cantidad} en stock</span>
-                </div>
-                <div class="card-body">
-                    <small>${p.tipoProducto}</small>
-                    <h3>${p.nombre}</h3>
-                    <p>${p.descripcion}</p>
-                    <strong>$${p.precio.toLocaleString('es-CO')}</strong>
-                    <button>Agregar</button>
-                </div>
-            </div>
-        `;
-    }).join('');
+    document.addEventListener("click", (e) => {
 
-    contenedor.insertAdjacentHTML('beforeend', htmlProductos);
-};
+        if (e.target.classList.contains("btn-agregar")) {
 
-    const filtrar = () => {
-        const cat = document.querySelector('input[name="cat"]:checked').value;
-        const price = document.querySelector('input[name="price"]:checked').value;
+            const producto = {
+                nombre: e.target.dataset.nombre,
+                precio: Number(e.target.dataset.precio),
+                img: e.target.dataset.img
+            };
 
-        let filtrados = productos;
+            let carrito = JSON.parse(localStorage.getItem("carrito")) || [];
 
-        if (cat !== "TODOS") {
-            filtrados = filtrados.filter(p => p.cat === cat);
+            const existe = carrito.find(p => p.nombre === producto.nombre);
+
+            if (existe) {
+                existe.cantidad++;
+            } else {
+                carrito.push({ ...producto, cantidad: 1 });
+            }
+
+            localStorage.setItem("carrito", JSON.stringify(carrito));
+
+            actualizarContadorCarrito();
+
+            console.log("✅ Producto agregado:", producto);
         }
-
-        if (price === "LOW") {
-            filtrados = filtrados.filter(p => p.precio < 50000);
-        } else if (price === "MID") {
-            filtrados = filtrados.filter(p => p.precio >= 50000 && p.precio <= 100000);
-        } else if (price === "HIGH") {
-            filtrados = filtrados.filter(p => p.precio > 100000);
-        }
-
-        render(filtrados);
-    };
-
-    document.querySelectorAll('input[name="cat"], input[name="price"]').forEach(el => {
-        el.addEventListener("change", filtrar);
     });
 
-    render(productos);
-    render2(productosRecuperados)
+    window.eventoCarritoActivo = true;
 }

@@ -27,5 +27,26 @@ function renderLayout() {
 console.log("Iniciando aplicación SPA...");
 renderLayout();
 router();
+
+actualizarContadorCarrito();
  
 window.addEventListener("hashchange", router);
+
+export function actualizarContadorCarrito() {
+    const carrito = JSON.parse(localStorage.getItem("carrito")) || [];
+
+    const total = carrito.reduce((acc, p) => acc + p.cantidad, 0);
+
+    const contador = document.getElementById("contador-carrito");
+
+    if (contador) {
+        contador.textContent = total;
+
+        // 💥 animación
+        contador.classList.add("animar");
+
+        setTimeout(() => {
+            contador.classList.remove("animar");
+        }, 200);
+    }
+}
