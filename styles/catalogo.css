@@ -398,3 +398,113 @@
     .modal-agro-body { grid-template-columns: 1fr; }
     .productos { grid-template-columns: repeat(2, 1fr); }
 }
+
+/* Notificación Toast AgroConecta */
+.agro-toast {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    background: #198754;
+    color: white;
+    padding: 18px 25px;
+    border-radius: 15px;
+    z-index: 10000;
+    min-width: 280px;
+    animation: agroSlideIn 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+}
+
+@keyframes agroSlideIn {
+    from { transform: translateX(120%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+.agro-toast-exit {
+    animation: agroSlideOut 0.4s ease forwards;
+}
+
+@keyframes agroSlideOut {
+    to { transform: translateX(120%); opacity: 0; }
+}
+
+.quantity-btn-group .btn {
+    transition: all 0.2s;
+}
+.quantity-btn-group .btn:hover {
+    background: #e9ecef !important;
+}
+/* ✅ DISEÑO DE PÍLDORA PARA CANTIDAD */
+.quantity-pill, .quantity-pill-cart {
+    border: 1px solid #e2e8f0;
+    border-radius: 50px;
+    overflow: hidden;
+    background: #fff;
+    display: inline-flex;
+    align-items: center;
+}
+
+.btn-qty, .quantity-pill .btn {
+    border: none;
+    background: #f8fafc;
+    color: #475569;
+    font-weight: bold;
+    padding: 8px 16px;
+    transition: 0.2s;
+}
+
+.btn-qty:hover, .quantity-pill .btn:hover {
+    background: #f1f5f9;
+    color: #198754;
+}
+
+.qty-val {
+    min-width: 40px;
+    text-align: center;
+    color: #334155;
+}
+
+/* ✅ BOTÓN DE ELIMINAR PRO */
+.btn-delete-pro {
+    background: #fff1f2;
+    color: #e11d48;
+    border: 1px solid #fecdd3;
+    padding: 8px 16px;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: 0.3s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-delete-pro:hover {
+    background: #e11d48;
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(225, 29, 72, 0.2);
+}
+
+/* ✅ BOTÓN AGREGAR EN MODAL */
+.btn-success.rounded-4 {
+    border-radius: 16px !important;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.btn-success.rounded-4:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(25, 135, 84, 0.3);
+}
+
+/* ✅ ESTILOS MODAL MEJORADOS */
+.modal-badge-cat {
+    background: #dcfce7;
+    color: #16a34a;
+    padding: 4px 12px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: bold;
+}
+
+.modal-trust-box {
+    background: #f8fafc;
+    border: 1px solid #f1f5f9;
+}
