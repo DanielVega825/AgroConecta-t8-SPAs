@@ -109,7 +109,7 @@ export function initCarrito() {
                 <div class="row align-items-center g-3">
                     <div class="col-4 col-md-2">
                         <div class="rounded-3 overflow-hidden border shadow-sm bg-white">
-                            <img src="${p.img}" class="img-fluid w-100" style="aspect-ratio: 1/1; object-fit: cover;" alt="${p.nombre}">
+                            <img src="${p.img.includes('assets') || p.img.includes('data:image') ? p.img : `assets/imgs/${p.img}`}" class="img-fluid w-100" style="aspect-ratio: 1/1; object-fit: cover;" alt="${p.nombre}">
                         </div>
                     </div>
                     
