@@ -25,7 +25,8 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 20px;
+  padding: 20px 60px;
+  
 }
 
 .logo {
@@ -47,7 +48,11 @@ body {
 .contenedor-nav a {
   padding: 10px;
   text-decoration: none;
-  color: #333;
+  color: var(--color-text-primary);
+}
+
+.contenedor-nav a:hover {
+  color: var(--color-text-secondary);
 }
 
 .contenedor-buscar {
@@ -56,7 +61,7 @@ body {
 
 .acciones {
   display: flex;
-  gap: 10px;
+  gap: 30px;
 }
 
 .contenedor-login {
@@ -79,27 +84,7 @@ body {
   border: 1px solid var(--color-primary-hover);
 }
 
-@media (min-width: 935px) {
 
-  .contenedor-nav {
-    display: flex;
-    position: static;
-    flex-direction: row;
-    gap: 20px;
-    width: auto;
-    background: none;
-  }
-
-  .contenedor-buscar {
-    display: block;
-  }
-
-  .contenedor-buscar input {
-    padding: 6px 10px;
-    border-radius: 20px;
-    border: 1px solid var(--color-primary-hover);
-  }
-}
 .carrito-icono {
     position: relative;
     font-size: 24px;
@@ -125,4 +110,74 @@ body {
 /* 💥 Animación cuando cambia */
 .contador.animar {
     transform: scale(1.4);
+}
+
+
+/* Oculto por defecto en móvil */
+@media (max-width: 768px) {
+
+  .contenedor-header {
+    gap: 20px;
+  }
+
+  .logo a img {
+    width: 120px;
+  }
+  .acciones {
+    margin-left: auto;
+  }
+    .contenedor-nav {
+        display: none; /* O puedes usar transform: translateX(100%) para animar */
+        flex-direction: column;
+        position: absolute;
+        top: 60px;
+        left: 0;
+        width: 100%;
+        background: #fff;
+        padding: 20px;
+    }
+
+    .contenedor-nav.active {
+        display: flex;
+    }
+
+    .menu-toggle {
+        display: block;
+        cursor: pointer;
+        background: none;
+        border: none;
+    }
+
+    .menu-toggle span {
+        display: block;
+        width: 25px;
+        height: 3px;
+        background: #333;
+        margin: 5px 0;
+    }
+}
+
+@media (min-width: 769px) {
+
+  .menu-toggle { display: none; }
+  .contenedor-nav { display: flex; }
+
+  .contenedor-nav {
+    display: flex;
+    position: static;
+    flex-direction: row;
+    gap: 20px;
+    width: auto;
+    background: none;
+  }
+
+  .contenedor-buscar {
+    display: block;
+  }
+
+  .contenedor-buscar input {
+    padding: 6px 10px;
+    border-radius: 20px;
+    border: 1px solid var(--color-primary-hover);
+  }
 }
