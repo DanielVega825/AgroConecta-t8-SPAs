@@ -1,111 +1,90 @@
-/* CONTENEDOR GENERAL */
-.carrito-container {
-    padding: 20px;
+/* DISEÑO DE TARJETAS TIPO CARRITO */
+.carrito-item-card {
+    background: #ffffff;
+    border-radius: 16px;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    transition: transform 0.3s ease;
 }
 
-/* TITULO */
-.carrito-titulo {
-    color: #198754;
-    font-weight: bold;
-    margin-bottom: 20px;
+.carrito-item-card:hover {
+    transform: translateX(8px);
+    border-color: var(--color-primary-300);
 }
 
-/* CARD PRODUCTO */
-.carrito-item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 15px;
-
-    background: #fff;
+.img-container-carrito {
+    background: var(--bg-section);
     border-radius: 12px;
-    padding: 15px;
-    margin-bottom: 15px;
-
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-}
-
-/* IMAGEN */
-.carrito-img {
-    width: 80px;
+    padding: 5px;
     height: 80px;
-    border-radius: 10px;
-    object-fit: cover;
-}
-
-/* INFO PRODUCTO */
-.carrito-info {
-    flex: 1;
-}
-
-.carrito-info h6 {
-    margin: 0;
-    font-weight: 600;
-}
-
-.carrito-precio {
-    color: #198754;
-    margin: 5px 0;
-}
-
-/* CONTROLES */
-.carrito-controles {
     display: flex;
     align-items: center;
-    gap: 10px;
+    justify-content: center;
 }
 
-.carrito-btn {
-    border: 1px solid #ccc;
-    background: #f8f9fa;
-    padding: 3px 8px;
-    border-radius: 6px;
-    cursor: pointer;
+.img-container-carrito img {
+    max-height: 100%;
+    object-fit: contain;
 }
 
-.carrito-btn:hover {
-    background: #e2e6ea;
+/* RESUMEN DE COMPRA */
+.carrito-resumen-card {
+    background: #ffffff;
+    border-radius: 20px;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
 }
 
-/* BOTON ELIMINAR */
-.carrito-eliminar {
-    background: #dc3545;
-    color: white;
-    border: none;
-    padding: 5px 10px;
-    border-radius: 6px;
-    cursor: pointer;
-}
-
-.carrito-eliminar:hover {
-    background: #bb2d3b;
-}
-
-/* RESUMEN */
-.carrito-resumen {
-    background: #fff;
+.btn-pagar-agro {
     border-radius: 12px;
-    padding: 20px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    transition: all 0.3s ease;
 }
 
-.carrito-total {
-    font-size: 18px;
+.btn-pagar-agro:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(25, 135, 84, 0.3);
+}
+
+/* SELECTOR DE CANTIDAD PULIDO */
+.quantity-selector .btn {
+    border-color: #dee2e6;
+    background: #f8f9fa;
+    color: #495057;
     font-weight: bold;
 }
 
-/* BOTON PAGAR */
-.btn-pagar {
-    width: 100%;
-    margin-top: 15px;
+.quantity-selector .input-group-text {
+    min-width: 45px;
+    font-weight: bold;
+    color: var(--color-primary-600);
+}
+
+/* NOTIFICACIÓN TOAST (Añadido al carrito) */
+.agro-toast {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
     background: #198754;
     color: white;
-    border: none;
-    padding: 10px;
-    border-radius: 8px;
-    cursor: pointer;
+    padding: 16px 25px;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    z-index: 9999;
+    animation: agroSlideIn 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
 }
 
-.btn-pagar:hover {
-    background: #157347;
+@keyframes agroSlideIn {
+    from { transform: translateX(100%) scale(0.5); opacity: 0; }
+    to { transform: translateX(0) scale(1); opacity: 1; }
+}
+
+.agro-toast-exit {
+    animation: agroSlideOut 0.4s ease forwards;
+}
+
+@keyframes agroSlideOut {
+    to { transform: translateX(120%); opacity: 0; }
 }

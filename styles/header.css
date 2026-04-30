@@ -4,6 +4,23 @@
   box-sizing: border-box;
 }
 
+/* HEADER FIJO */
+header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000;
+  background-color: white;
+  color: white;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+/* Para que no tape el contenido */
+body {
+  margin-top: 90px;
+}
+
 .contenedor-header {
   display: flex;
   align-items: center;
