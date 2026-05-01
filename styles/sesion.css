@@ -1,0 +1,190 @@
+
+:root {
+    --color-primary-600: #16A34A;
+    --color-primary-light: #DCFCE7;
+    --bg-main: #f4f7f6;
+    --card-bg: #ffffff;
+    --card-shadow: 0 15px 35px rgba(0,0,0,0.1);
+    --card-radius: 20px;
+    --transition-normal: all 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+body {
+    font-family: var(--font-family-base);
+    background: var(--bg-main);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+}
+
+.card {
+    position: relative;
+    width: 850px;
+    max-width: 95%;
+    height: 650px; 
+    background: var(--card-bg);
+    border-radius: var(--card-radius);
+    box-shadow: var(--card-shadow);
+    overflow: hidden;
+    display: flex;
+}
+
+.card-bg {
+    position: absolute;
+    top: 0;
+    left: 50%; /* Posición inicial para Login (derecha) */
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(90deg, var(--color-primary-light), var(--color-primary-600) );
+    transition: var(--transition-normal);
+    z-index: 2;
+}
+
+/* Cambios registr */
+.card.signup-mode .card-bg {
+    left: 0; /* Se mueve a la izquierda */
+    background: linear-gradient(90deg, var(--color-primary-600), var(--color-primary-light));
+}
+
+.form {
+    position: absolute;
+    top: 0;
+    width: 50%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 40px;
+    transition: var(--transition-normal);
+    z-index: 5;
+    box-sizing: border-box;
+}
+
+/* Posiciones de los formularios */
+.form.signin {
+    left: 0;
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.form.signup {
+    left: 50%;
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* Transición de formularios al cambiar de modo */
+.card.signup-mode .form.signin {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.card.signup-mode .form.signup {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* Elementos internos del Form */
+.form form {
+    width: 100%;
+    max-width: 320px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.form-logo {
+    width: 100px;
+    margin: 0 auto 10px;
+    display: block;
+}
+
+.form h2 {
+    color: var(--color-primary-600);
+    text-align: center;
+    margin-bottom: 15px;
+    font-size: 1.8rem;
+}
+
+.form input {
+    width: 100%;
+    padding: 14px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    background: #f9f9f9;
+    font-size: 14px;
+    box-sizing: border-box;
+    transition: 0.3s;
+}
+
+.form input:focus {
+    border-color: var(--color-primary-600);
+    outline: none;
+    background: #fff;
+}
+
+.form button {
+    margin-top: 10px;
+    padding: 14px;
+    border: none;
+    border-radius: 10px;
+    background: var(--color-primary-600);
+    color: white;
+    font-weight: bold;
+    font-size: 16px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.form button:hover {
+    background: #16a34a;
+    transform: translateY(-2px);
+}
+
+.form p {
+    text-align: center;
+    font-size: 14px;
+    color: #666;
+    margin-top: 20px;
+}
+
+.form p em {
+    color: #006909;
+    font-style: normal;
+    font-weight: bold;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.form p em:hover {
+    text-decoration: underline;
+}
+
+@media (max-width: 768px) {
+    .card {
+        width: 400px;
+        height: auto;
+        min-height: 700px;
+        flex-direction: column;
+    }
+ /* Oculta el bloque animado en móvil por espacio */
+    .card-bg {
+        display: none;
+    }
+
+    .form {
+        position: relative;
+        width: 100%;
+        left: 0 !important;
+        opacity: 1 !important;
+        pointer-events: auto !important;
+        display: none;
+    }
+
+    /* En móvil solo mostrar el que no está oculto */
+    .card:not(.signup-mode) .form.signin { display: flex; }
+    .card.signup-mode .form.signup { display: flex; }
+}

@@ -22,7 +22,7 @@ export function Header() {
                         🛒
                         <span id="contador-carrito" class="contador">0</span>
                     </a>
-                    <button class="contenedor-login">Ingresar</button>
+                    <a href="#/sesion" class="contenedor-login">Ingresar</a>
                 </div>
                
             </div>

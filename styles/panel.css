@@ -76,21 +76,12 @@
 
 .seccion-crud input,
 .seccion-crud select,
-<<<<<<< HEAD
-.seccion-crud button {
-=======
 .seccion-crud > div:nth-child(2) button {
->>>>>>> develop
     padding: 10px;
     border-radius: 8px;
     border: 1px solid var(--color-gray-200);
 }
 
-<<<<<<< HEAD
-.seccion-crud button {
-    background: var(--color-primary-600);
-    color: white;
-=======
 .seccion-crud > div:nth-child(2) button {
     background: var(--color-primary-600);
     color: white;
@@ -162,23 +153,10 @@
     display: flex;
     justify-content: center;
     overflow-x: auto;
->>>>>>> develop
 }
 
 table {
     width: 100%;
-<<<<<<< HEAD
-    background: white;
-    border-radius: 10px;
-}
-
-thead {
-    background: var(--color-gray-300);
-}
-
-th, td {
-    padding: 10px;
-=======
     max-width: 100%;
     background: white;
     border-radius: 10px;
@@ -435,7 +413,6 @@ tbody tr:last-child td {
 
 .modal-btn--cancel:hover {
     background: var(--color-gray-300);
->>>>>>> develop
 }
 
 /*scroll horizontal en móvil */

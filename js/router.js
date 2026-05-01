@@ -5,6 +5,7 @@ import { Nosotros } from "./views/nosotros.js";
 import { Panel, gestionPanel } from "./views/panel.js";
 import { AddProduct, initAddProductLogic } from "./views/addProductos.js";
 import { Carrito, initCarrito } from "./views/carrito.js"; //  NUEVO: Importamos la vista del carrito
+import { Sesion, gestionSesion } from "./views/sesion.js";
 
 const routes = {
     "/": Home,
@@ -15,6 +16,7 @@ const routes = {
     "/addProduct": AddProduct,
     "/panel": { view: Panel, init: gestionPanel },
     "/carrito": { view: Carrito, init: initCarrito },  //  NUEVO: Ruta del carrito con su lógica
+    "/sesion": {view: Sesion, init: gestionSesion},
 };
 
 export function router() {
@@ -33,6 +35,7 @@ export function router() {
     if (path === "/addProduct") cssPath = "styles/addProduct.css";
     if (path === "/panel") cssPath = "styles/panel.css";
     if (path === "/carrito") cssPath = "styles/carrito.css"; //  NUEVO: Estilos del carrito
+    if (path === "/sesion") cssPath = "styles/sesion.css";
 
     const linkTag = document.getElementById("page-style");
     if (linkTag) {
@@ -41,7 +44,17 @@ export function router() {
 
     // 2. Inyectar la vista en el HTML
     const appContainer = document.getElementById("app");
-    appContainer.innerHTML = route.view();
+    //appContainer.innerHTML = route.view();
+    if (path === "/sesion") {
+        appContainer.innerHTML = `
+            <div class="sesion-container">
+                ${route.view()}
+            </div>
+        `;
+    } else {
+        appContainer.innerHTML = route.view();
+    }
+
 
     // 3. Ejecuta la función init que trae la lógica del componente si existe
     if (route.init) {
