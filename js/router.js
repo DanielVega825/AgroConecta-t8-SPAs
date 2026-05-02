@@ -28,6 +28,17 @@ export function router() {
         ? { view: matched, init: null }
         : matched;
 
+    const header = document.getElementById("main-header");
+    const footer = document.getElementById("main-footer");
+
+    if (path === "/sesion") {
+        if (header) header.style.display = "none";
+        if(footer) footer.style.display = "none";
+    } else {
+        if (header) header.style.display = "block";
+        if(footer) footer.style.display = "block";
+    }
+
     // 1. Manejo del CSS dinámico
     let cssPath = "";
     if (path === "/contacto") cssPath = "styles/contact.css";
@@ -47,7 +58,7 @@ export function router() {
     //appContainer.innerHTML = route.view();
     if (path === "/sesion") {
         appContainer.innerHTML = `
-            <div class="sesion-container">
+            <div class="sesion-full-page">
                 ${route.view()}
             </div>
         `;

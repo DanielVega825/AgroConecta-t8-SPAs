@@ -1,8 +1,33 @@
 export function Sesion() {
     return `
         <section class="card" id="authCard">
-            <!-- El fondo que se mueve -->
-            <div class="card-bg"></div>
+
+            <a href="#/" class="back-home" title="Volver al inicio">
+                <i class="bi bi-arrow-left-circle-fill"></i>
+            </a>
+
+            <div class="card-bg">
+                
+                <div class="overlay-panel overlay-right">
+                    <h3>Beneficios de tener tu cuenta</h3>
+                    <ul class="benefits-list">
+                        <li><i class="bi bi-gift"></i> Accede a tarifas especiales.</li>
+                        <li><i class="bi bi-star-fill"></i> Guardar medios de pago y datos.</li>
+                        <li><i class="bi bi-bookmark-heart"></i> Recomendaciones personalizadas.</li>
+                    </ul>
+                </div>
+
+                
+                <div class="overlay-panel overlay-left">
+                    <h3>Crea tu cuenta, si aún no la tienes</h3>
+                    <p>Vive una experiencia completa de compra:</p>
+                    <ul class="benefits-list">
+                        <li><i class="bi bi-receipt"></i> Revisa tus compras.</li>
+                        <li><i class="bi bi-geo-alt"></i> Guardar tus direcciones de envío.</li>
+                        <li><i class="bi bi-cart-check-fill"></i> Gestiona tu post venta.</li>
+                    </ul>
+                </div>
+            </div>
 
             <div class="form signin active">
                 <form id="loginForm">
@@ -17,14 +42,28 @@ export function Sesion() {
 
             <div class="form signup">
                 <form id="signupForm">
-                    <img src="assets/imgs/logo2.png" class="form-logo">
                     <h2>Registrarse</h2>
                     <input type="text" id="nombre" placeholder="Nombre" required>
                     <input type="text" id="apellido" placeholder="Apellido" required>
                     <input type="tel" id="telefono" placeholder="Número de teléfono" required>
                     <input type="email" id="email" placeholder="Correo electrónico" required>
-                    <input type="password" id="password" placeholder="Contraseña" required>
-                    <button type="submit">REGISTRARSE</button>
+                    
+                    <div class="password-wrapper">
+                        <input type="password" id="password" placeholder="Contraseña" required>
+                        <div class="strength-meter">
+                            <div id="strength-bar"></div>
+                        </div>
+                        <small id="strength-text">Seguridad de la contraseña</small>
+                    </div>
+
+                    <div class="terms-wrapper">
+                        <input type="checkbox" id="terms" required>
+                        <label for="terms">
+                            Acepto los <a href="#">términos y condiciones</a> y el tratamiento de datos.
+                        </label>
+                    </div>
+
+                    <button type="submit" id="btn-registrar">REGISTRARSE</button>
                     <p>¿Ya tienes cuenta? <em id="goToSignin">Iniciar sesión</em></p>
                 </form>
             </div>
@@ -33,35 +72,89 @@ export function Sesion() {
 }
 
 export function gestionSesion() {
+    
     const card = document.getElementById("authCard");
     const btnSignup = document.getElementById("goToSignup");
     const btnSignin = document.getElementById("goToSignin");
-    
     const formRegistro = document.getElementById("signupForm");
     const formLogin = document.getElementById("loginForm");
 
+    const termsCheckbox = document.getElementById("terms");
+
+    const passwordInput = document.getElementById("password");
+    const strengthBar = document.getElementById("strength-bar");
+    const strengthText = document.getElementById("strength-text");
+    const btnRegistrar = document.getElementById("btn-registrar");
+
+    // Cambio de vista entre Login y Registro
     const toggleView = () => {
         card.classList.toggle("signup-mode");
     };
 
-    if(btnSignup) btnSignup.addEventListener("click", toggleView);
-    if(btnSignin) btnSignin.addEventListener("click", toggleView);
+    if (btnSignup) btnSignup.addEventListener("click", toggleView);
+    if (btnSignin) btnSignin.addEventListener("click", toggleView);
+
+    if (passwordInput) {
+        passwordInput.addEventListener("input", () => {
+            const val = passwordInput.value;
+            let nivel = 0;
+
+            if (val.length >= 8) nivel++;
+            if (/[A-Z]/.test(val)) nivel++;
+            if (/[0-9]/.test(val)) nivel++;
+
+            strengthBar.className = ""; // Resetear clases anteriores
+            
+            if (val.length === 0) {
+                strengthBar.style.width = "0%";
+                strengthText.textContent = "Seguridad de la contraseña";
+            } else if (nivel <= 1) {
+                strengthBar.classList.add("weak");
+                strengthText.textContent = "Débil: usa 8+ caracteres, mayúsculas y números";
+            } else if (nivel === 2) {
+                strengthBar.classList.add("medium");
+                strengthText.textContent = "Media: casi segura";
+            } else if (nivel === 3) {
+                strengthBar.classList.add("strong");
+                strengthText.textContent = "¡Contraseña Segura!";
+            }
+        });
+    }
 
     formRegistro.addEventListener("submit", (e) => {
         e.preventDefault();
+        
         const nombre = document.getElementById("nombre").value.trim();
         const email = document.getElementById("email").value.trim();
-        const password = document.getElementById("password").value.trim();
+        const password = passwordInput.value.trim();
 
-        if (password.length < 6) {
-            alert("La contraseña debe tener al menos 6 caracteres");
+        if(!termsCheckbox.checked) {
+            alert("Acepta terminos para continuar");
+        }
+
+        if (password.length < 8 || !/[A-Z]/.test(password) || !/[0-9]/.test(password)) {
+            strengthText.style.color = "red";
+            strengthText.textContent = "8 caracteres minímo, 1 Mayuscula y 1 numero";
             return;
         }
 
-        const usuario = { nombre, email, password };
-        localStorage.setItem("usuario", JSON.stringify(usuario));
-        alert("Registro exitoso");
-        toggleView();
+        const originalText = btnRegistrar.innerHTML;
+        btnRegistrar.innerHTML = 'REGISTRADO CON ÉXITO ✓';
+        btnRegistrar.classList.add("btn-success-anim");
+        btnRegistrar.disabled = true;
+
+        // Simulación de guardado y transición
+        setTimeout(() => {
+            const usuario = { nombre, email, password };
+            localStorage.setItem("usuario", JSON.stringify(usuario));
+
+            // Resetear botón y volver al Login
+            btnRegistrar.innerHTML = originalText;
+            btnRegistrar.classList.remove("btn-success-anim");
+            btnRegistrar.disabled = false;
+            
+            toggleView();
+        }, 2500);
     });
 
     formLogin.addEventListener("submit", (e) => {
@@ -71,7 +164,7 @@ export function gestionSesion() {
         const usuarioGuardado = JSON.parse(localStorage.getItem("usuario"));
 
         if (usuarioGuardado && usuarioGuardado.email === email && usuarioGuardado.password === password) {
-            window.location.href = "index.html";
+            window.location.hash = "#/home"; 
         } else {
             alert("Credenciales incorrectas o usuario no existe");
         }
