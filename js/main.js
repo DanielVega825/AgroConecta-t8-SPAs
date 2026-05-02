@@ -15,9 +15,9 @@ function renderLayout() {
     }
  
     root.innerHTML = `
-        ${Header()}
+        <header id="main-header">${Header()}</header>
         <main id="app" class="flex-fill"></main>
-        ${Footer()}
+        <footer id="main-footer">${Footer()}</footer>
     `;
     console.log("renderLayout completado");
 }
@@ -42,7 +42,6 @@ export function actualizarContadorCarrito() {
     if (contador) {
         contador.textContent = total;
 
-        // 💥 animación
         contador.classList.add("animar");
 
         setTimeout(() => {
