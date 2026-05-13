@@ -38,6 +38,13 @@ function setupMenu() {
         btn.onclick = () => { // Usamos .onclick para asegurar que no se dupliquen
             nav.classList.toggle("active");
         };
+
+        // Cerramos el menú cuando se hace click en cualquier enlace
+        nav.querySelectorAll("a").forEach(link => {
+            link.onclick = () => {
+                nav.classList.remove("active");
+            };
+        });
     }
 }
  
@@ -45,9 +52,8 @@ function setupMenu() {
 // por lo que el DOM root ya estará disponible.
 console.log("Iniciando aplicación SPA...");
 renderLayout();
-
 router();
-
+setupMenu(); // <--- Llamada inicial para que el menú funcione al cargar la página
 actualizarContadorCarrito();
  
 window.addEventListener("hashchange", () => {

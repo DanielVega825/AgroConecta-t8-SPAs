@@ -20,7 +20,7 @@ export function Header() {
                     <span></span>
                 </button>
 
-                <nav class="contenedor-nav">
+                <nav class="contenedor-nav" id="nav-menu">
                     <a href="#/">Inicio</a>
                     <a href="#/catalogo">Catalogo</a>
                     <a href="#/nosotros">Nosotros</a>
@@ -59,7 +59,7 @@ export function Header() {
                     <span></span>
                     <span></span>
                 </button>
-                <nav class="contenedor-nav">
+                <nav class="contenedor-nav" id="nav-menu">
                     <a href="#/">Inicio</a>
                     <a href="#/catalogo">Catalogo</a>
                     <a href="#/nosotros">Nosotros</a>
