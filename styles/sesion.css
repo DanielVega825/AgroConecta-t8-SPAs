@@ -22,6 +22,12 @@
     text-decoration: none;
 }
 
+body{
+    background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('../assets/imgs/fondo-sesion.png') center/cover no-repeat !important;
+}
+
+
+
 .back-home:hover {
     transform: scale(1.1);
     color: var(--color-gray-500);
@@ -55,9 +61,20 @@
     color: #666;
 }
 
-.weak { width: 33% !important; background-color: #ff4d4d !important; }
-.medium { width: 66% !important; background-color: #ffd11a !important; }
-.strong { width: 100% !important; background-color: #22c55e !important; }
+.weak {
+    width: 33% !important;
+    background-color: #ff4d4d !important;
+}
+
+.medium {
+    width: 66% !important;
+    background-color: #ffd11a !important;
+}
+
+.strong {
+    width: 100% !important;
+    background-color: #22c55e !important;
+}
 
 .btn-success-anim {
     background-color: #28a745 !important;
@@ -74,6 +91,8 @@
     align-items: center;
     margin: 0;
     padding: 0;
+    
+    
 }
 
 body:has(.sesion-full-page) {
@@ -90,16 +109,23 @@ body {
     margin: 0;
 }
 
-.card {
+.card-sesion {
     position: relative;
     width: 850px;
     max-width: 95%;
-    height: 650px; 
-    background: linear-gradient(90deg, var(--color-white-soft), var(--color-primary-light) );
+    height: 650px;
+    background: rgba(255, 255, 255, 0.8); /* Más opaco para ver el fondo */
     border-radius: var(--card-radius);
     box-shadow: var(--card-shadow);
     overflow: hidden;
     display: flex;
+    border: none; /* Quitar bordes */
+    transition: box-shadow 0.3s ease, transform 0.3s ease; /* Animación */
+}
+
+.card-sesion:hover {
+    box-shadow: 0 12px 40px rgba(255, 255, 255, 0.4); /* Sombreado al estar encima */
+    transform: translateY(-5px);
 }
 
 .card-bg {
@@ -108,15 +134,15 @@ body {
     left: 50%;
     width: 50%;
     height: 100%;
-    background: linear-gradient(90deg, var(--color-primary-light), var(--color-primary-600) );
+    background: rgba(22, 163, 74, 0.85); /* Verde semi-transparente */
     transition: var(--transition-normal);
     z-index: 2;
 }
 
 /* Cambios registr */
-.card.signup-mode .card-bg {
+.card-sesion.signup-mode .card-bg {
     left: 0;
-    background: linear-gradient(90deg, var(--color-primary-600), var(--color-primary-light));
+    background: rgba(22, 163, 74, 0.85);
 }
 
 .form {
@@ -145,16 +171,16 @@ body {
     left: 50%;
     opacity: 0;
     pointer-events: none;
-        background: linear-gradient(90deg, var(--color-primary-light), var(--color-white-soft) );
+    background: transparent;
 }
 
 /* Transicion de formularios al cambiar de modo */
-.card.signup-mode .form.signin {
+.card-sesion.signup-mode .form.signin {
     opacity: 0;
     pointer-events: none;
 }
 
-.card.signup-mode .form.signup {
+.card-sesion.signup-mode .form.signup {
     opacity: 1;
     pointer-events: auto;
 }
@@ -211,7 +237,7 @@ body {
 }
 
 .form button:hover {
-    background: var( --color-primary-hover);
+    background: var(--color-primary-hover);
     transform: translateY(-2px);
 }
 
@@ -241,7 +267,7 @@ body {
     align-items: center;
     justify-content: center;
     text-align: left;
-    color: #222;
+    color: #fff;
     font-weight: bold;
     padding: 0 40px;
     box-sizing: border-box;
@@ -267,13 +293,13 @@ body {
     transform: translateX(-20%);
 }
 
-.card.signup-mode .overlay-right {
+.card-sesion.signup-mode .overlay-right {
     opacity: 0;
     visibility: hidden;
     transform: translateX(20%);
 }
 
-.card.signup-mode .overlay-left {
+.card-sesion.signup-mode .overlay-left {
     opacity: 1;
     visibility: visible;
     transform: translateX(0);
@@ -314,7 +340,8 @@ body {
 }
 
 .terms-wrapper input[type="checkbox"] {
-    width: auto; /* Evita que herede el width 100% de los otros inputs */
+    width: auto;
+    /* Evita que herede el width 100% de los otros inputs */
     cursor: pointer;
 }
 
@@ -331,13 +358,14 @@ body {
 /*-----------------------------------------------*/
 
 @media (max-width: 768px) {
-    .card {
+    .card-sesion {
         width: 400px;
         height: auto;
         min-height: 700px;
         flex-direction: column;
     }
- /* Oculta el bloque animado en movil por espacio */
+
+    /* Oculta el bloque animado en movil por espacio */
     .card-bg {
         display: none;
     }
@@ -352,6 +380,11 @@ body {
     }
 
     /* En movil solo mostrar el que no esta oculto */
-    .card:not(.signup-mode) .form.signin { display: flex; }
-    .card.signup-mode .form.signup { display: flex; }
+    .card-sesion:not(.signup-mode) .form.signin {
+        display: flex;
+    }
+
+    .card-sesion.signup-mode .form.signup {
+        display: flex;
+    }
 }

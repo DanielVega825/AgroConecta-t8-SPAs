@@ -137,7 +137,15 @@ export function initCarrito() {
                 </div>
             `;
 
-            item.querySelector(".aumentar").onclick = () => { carrito[index].cantidad++; guardar(); };
+            item.querySelector(".aumentar").onclick = () => { 
+                const pStock = carrito[index].stock || 999;
+                if (carrito[index].cantidad >= pStock) {
+                    alert("Límite de stock alcanzado.");
+                    return;
+                }
+                carrito[index].cantidad++; 
+                guardar(); 
+            };
             item.querySelector(".disminuir").onclick = () => { if (carrito[index].cantidad > 1) carrito[index].cantidad--; else carrito.splice(index, 1); guardar(); };
             item.querySelector(".eliminar").onclick = () => { carrito.splice(index, 1); guardar(); };
             contenedor.appendChild(item);

@@ -1,6 +1,6 @@
 export function Sesion() {
     return `
-        <section class="card" id="authCard">
+        <section class="card card-sesion" id="authCard">
 
             <a href="#/" class="back-home" title="Volver al inicio">
                 <i class="bi bi-arrow-left-circle-fill"></i>
@@ -34,7 +34,11 @@ export function Sesion() {
                     <img src="assets/imgs/logo2.png" class="form-logo">
                     <h2>Iniciar sesión</h2>
                     <input type="email" id="loginEmail" placeholder="Correo electrónico" required>
-                    <input type="password" id="loginPassword" placeholder="Contraseña" required>
+                    <div class="password-wrapper" style="position: relative;">
+                        <input type="password" id="loginPassword" placeholder="Contraseña" required style="padding-right: 40px;">
+                        <i class="bi bi-eye-slash text-muted" id="togglePasswordLogin" style="position: absolute; right: 15px; top: 15px; cursor: pointer; font-size: 1.2rem; z-index: 10;"></i>
+                        
+                    </div>
                     <button type="submit">INICIAR SESIÓN</button>
                     <p>¿No tienes cuenta? <em id="goToSignup">Registrarse</em></p>
                 </form>
@@ -48,8 +52,9 @@ export function Sesion() {
                     <input type="tel" id="telefono" placeholder="Número de teléfono" required>
                     <input type="email" id="email" placeholder="Correo electrónico" required>
                     
-                    <div class="password-wrapper">
-                        <input type="password" id="password" placeholder="Contraseña" required>
+                    <div class="password-wrapper" style="position: relative;">
+                        <input type="password" id="password" placeholder="Contraseña" required style="padding-right: 40px;">
+                        <i class="bi bi-eye-slash text-muted" id="togglePassword" style="position: absolute; right: 15px; top: 15px; cursor: pointer; font-size: 1.2rem; z-index: 10;"></i>
                         <div class="strength-meter">
                             <div id="strength-bar"></div>
                         </div>
@@ -90,6 +95,26 @@ export function gestionSesion() {
     const toggleView = () => {
         card.classList.toggle("signup-mode");
     };
+
+    const togglePassword = document.getElementById("togglePassword");
+    if (togglePassword && passwordInput) {
+        togglePassword.addEventListener('click', function () {
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            this.classList.toggle('bi-eye');
+            this.classList.toggle('bi-eye-slash');
+        });
+    }
+
+    const togglePasswordLogin = document.getElementById("togglePasswordLogin");
+    if (togglePasswordLogin && document.getElementById("loginPassword")) {
+        togglePasswordLogin.addEventListener('click', function () {
+            const type = document.getElementById("loginPassword").getAttribute('type') === 'password' ? 'text' : 'password';
+            document.getElementById("loginPassword").setAttribute('type', type);
+            this.classList.toggle('bi-eye');
+            this.classList.toggle('bi-eye-slash');
+        });
+    }
 
     if (btnSignup) btnSignup.addEventListener("click", toggleView);
     if (btnSignin) btnSignin.addEventListener("click", toggleView);
