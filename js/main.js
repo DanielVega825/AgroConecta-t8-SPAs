@@ -48,17 +48,34 @@ function setupMenu() {
     }
 }
  
+function setupLogout() {
+    const logoutBtn = document.getElementById("logoutBtn");
+    if (logoutBtn) {
+        logoutBtn.onclick = (e) => {
+            e.preventDefault();
+            localStorage.removeItem("userLogged");
+            window.location.hash = "#/";
+            // Forzar actualización de la vista al hacer logout
+            updateHeader();
+            setupMenu();
+            setupLogout();
+        };
+    }
+}
+
 // Al usar type="module", el script se carga de forma diferida (defer),
 // por lo que el DOM root ya estará disponible.
 console.log("Iniciando aplicación SPA...");
 renderLayout();
 router();
 setupMenu(); // <--- Llamada inicial para que el menú funcione al cargar la página
+setupLogout(); // <--- Inicializar el botón de salir
 actualizarContadorCarrito();
  
 window.addEventListener("hashchange", () => {
     updateHeader();
     setupMenu();
+    setupLogout();
     router();    
 });
 

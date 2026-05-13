@@ -16,7 +16,7 @@ const routes = {
     "/addProduct": AddProduct,
     "/panel": { view: Panel, init: gestionPanel },
     "/carrito": { view: Carrito, init: initCarrito },  //  NUEVO: Ruta del carrito con su lógica
-    "/sesion": {view: Sesion, init: gestionSesion},
+    "/sesion": { view: Sesion, init: gestionSesion },
 };
 
 export function router() {
@@ -28,16 +28,7 @@ export function router() {
         ? { view: matched, init: null }
         : matched;
 
-    const header = document.getElementById("main-header");
-    const footer = document.getElementById("main-footer");
 
-    if (path === "/sesion") {
-        if (header) header.style.display = "none";
-        if(footer) footer.style.display = "none";
-    } else {
-        if (header) header.style.display = "block";
-        if(footer) footer.style.display = "block";
-    }
 
     // 1. Manejo del CSS dinámico
     let cssPath = "";
@@ -56,13 +47,21 @@ export function router() {
     // 2. Inyectar la vista en el HTML
     const appContainer = document.getElementById("app");
     //appContainer.innerHTML = route.view();
+    const header = document.querySelector("header");
+    const footer = document.getElementById("main-footer");
+
+
     if (path === "/sesion") {
+        if (header) header.style.display = "none";
+        if (footer) footer.style.display = "none";
         appContainer.innerHTML = `
             <div class="sesion-full-page">
                 ${route.view()}
             </div>
         `;
     } else {
+        if (header) header.style.display = "block";
+        if (footer) footer.style.display = "block";
         appContainer.innerHTML = route.view();
     }
 

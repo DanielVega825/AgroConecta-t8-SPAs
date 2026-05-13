@@ -72,6 +72,9 @@ body {
   border-radius: 20px;
   cursor: pointer;
   text-decoration: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .contenedor-login:hover {
@@ -92,7 +95,7 @@ body {
 
 .carrito-icono {
   position: relative;
-  font-size: 24px;
+  font-size: 34px;
   text-decoration: none;
 }
 

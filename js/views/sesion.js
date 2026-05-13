@@ -161,12 +161,24 @@ export function gestionSesion() {
         e.preventDefault();
         const email = document.getElementById("loginEmail").value;
         const password = document.getElementById("loginPassword").value;
+
+        // 1. Validar usuario administrador hardcodeado
+        if (email === "admin@admin.com" && password === "admin123") {
+            alert("Inicio de sesión exitoso. Bienvenido Administrador.");
+            localStorage.setItem("userLogged", JSON.stringify({ email: "admin@admin.com", nombre: "Administrador", role: "admin" }));
+            window.location.hash = "#/panel";
+            return;
+        }
+
+        // 2. Validar usuario almacenado en local storage
         const usuarioGuardado = JSON.parse(localStorage.getItem("usuario"));
 
         if (usuarioGuardado && usuarioGuardado.email === email && usuarioGuardado.password === password) {
-            window.location.hash = "#/home"; 
+            alert("Inicio de sesión exitoso. Bienvenido " + usuarioGuardado.nombre);
+            localStorage.setItem("userLogged", JSON.stringify({ email: usuarioGuardado.email, nombre: usuarioGuardado.nombre, role: "user" }));
+            window.location.hash = "#/"; 
         } else {
-            alert("Credenciales incorrectas o usuario no existe");
+            alert("Nombre de usuario o contraseña inválidos.");
         }
     });
 }
