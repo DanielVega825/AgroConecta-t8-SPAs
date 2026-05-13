@@ -21,16 +21,48 @@ function renderLayout() {
     `;
     console.log("renderLayout completado");
 }
+
+function updateHeader() {
+    const headerElement = document.querySelector("header"); // Selecciona el tag header
+    if (headerElement) {
+        headerElement.outerHTML = Header(); 
+    }
+    actualizarContadorCarrito(); // Importante: re-vincular el contador
+}
+
+function setupMenu() {
+    const btn = document.getElementById("menu-toggle");
+    const nav = document.getElementById("nav-menu");
+
+    if (btn && nav) {
+        btn.onclick = () => { // Usamos .onclick para asegurar que no se dupliquen
+            nav.classList.toggle("active");
+        };
+
+        // Cerramos el menú cuando se hace click en cualquier enlace
+        nav.querySelectorAll("a").forEach(link => {
+            link.onclick = () => {
+                nav.classList.remove("active");
+            };
+        });
+    }
+}
  
 // Al usar type="module", el script se carga de forma diferida (defer),
 // por lo que el DOM root ya estará disponible.
 console.log("Iniciando aplicación SPA...");
 renderLayout();
 router();
-
+setupMenu(); // <--- Llamada inicial para que el menú funcione al cargar la página
 actualizarContadorCarrito();
  
-window.addEventListener("hashchange", router);
+window.addEventListener("hashchange", () => {
+    updateHeader();
+    setupMenu();
+    router();    
+});
+
+
 
 export function actualizarContadorCarrito() {
     const carrito = JSON.parse(localStorage.getItem("carrito")) || [];
