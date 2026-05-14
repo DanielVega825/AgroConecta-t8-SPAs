@@ -1,6 +1,9 @@
 import { Producto } from '../../models/productos.js';
 import { products } from '../../data/products.js';
 
+//Eliminar Disponible y Agotado por ahora, solo se manejará el estado activo/inactivo para simplificar la lógica de esta vista. Se pueden reintroducir más adelante si se desea.
+//Agregar al model Escribe detalles adicionales... 'descripcionLong y id
+
 export function AddProduct() {
     return `
         <section class="product-form py-5">
