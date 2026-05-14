@@ -7,9 +7,11 @@ export function Footer() {
                     <div class="colum__footer col-md-3 col-lg-4 col-xl-3 mx-auto mb-4">
                         <div class="d-flex align-items-center justify-content-center justify-content-md-start mb-3">
                             <!-- Reemplaza con tu logo -->
-                            <img src="/assets/imgs/logo.svg" alt="Logo" width="40" height="32"
+                            <img src="/assets/imgs/logo3.png" alt="Logo" width="40" 
                                 class="footer__logo me-2">
-                            <span class="fw-bold text-uppercase h5 mb-0">AgroConecta</span>
+                            <a href="#/" class="text-reset text-decoration-none">
+                                <span class="fw-bold text-uppercase h5 mb-0">AgroConecta</span>
+                            </a>
                         </div>
                         <p>
                             Conectando productores rurales con insumos esenciales de forma rápida, segura y confiable.

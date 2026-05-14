@@ -13,7 +13,7 @@ header {
   z-index: 1000;
   background-color: white;
   color: white;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 /* Para que no tape el contenido */
@@ -25,7 +25,8 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 20px;
+  padding: 20px 60px;
+
 }
 
 .logo {
@@ -47,7 +48,11 @@ body {
 .contenedor-nav a {
   padding: 10px;
   text-decoration: none;
-  color: #333;
+  color: var(--color-text-primary);
+}
+
+.contenedor-nav a:hover {
+  color: var(--color-text-secondary);
 }
 
 .contenedor-buscar {
@@ -56,7 +61,7 @@ body {
 
 .acciones {
   display: flex;
-  gap: 10px;
+  gap: 30px;
 }
 
 .contenedor-login {
@@ -66,6 +71,14 @@ body {
   padding: 6px 12px;
   border-radius: 20px;
   cursor: pointer;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.contenedor-login:hover {
+  background: var(--color-primary-hover);
 }
 
 .contenedor-nav.active {
@@ -79,7 +92,91 @@ body {
   border: 1px solid var(--color-primary-hover);
 }
 
-@media (min-width: 935px) {
+
+.carrito-icono {
+  position: relative;
+  font-size: 34px;
+  text-decoration: none;
+}
+
+.contador {
+  position: absolute;
+  top: -8px;
+  right: -10px;
+  background: red;
+  color: white;
+  font-size: 12px;
+  padding: 3px 7px;
+  border-radius: 50%;
+  font-weight: bold;
+
+  /* Animación */
+  transform: scale(1);
+  transition: transform 0.2s ease;
+}
+
+/* 💥 Animación cuando cambia */
+.contador.animar {
+  transform: scale(1.4);
+}
+
+
+/* Oculto por defecto en móvil */
+@media (max-width: 768px) {
+
+  .contenedor-header {
+    gap: 20px;
+  }
+
+  .logo a img {
+    width: 120px;
+  }
+
+  .acciones {
+    margin-left: auto;
+  }
+
+  .contenedor-nav {
+    display: none;
+    /* O puedes usar transform: translateX(100%) para animar */
+    flex-direction: column;
+    position: absolute;
+    top: 60px;
+    left: 0;
+    width: 100%;
+    background: #fff;
+    padding: 20px;
+  }
+
+  .contenedor-nav.active {
+    display: flex;
+  }
+
+  .menu-toggle {
+    display: block;
+    cursor: pointer;
+    background: none;
+    border: none;
+  }
+
+  .menu-toggle span {
+    display: block;
+    width: 25px;
+    height: 3px;
+    background: #333;
+    margin: 5px 0;
+  }
+}
+
+@media (min-width: 769px) {
+
+  .menu-toggle {
+    display: none;
+  }
+
+  .contenedor-nav {
+    display: flex;
+  }
 
   .contenedor-nav {
     display: flex;
@@ -99,30 +196,4 @@ body {
     border-radius: 20px;
     border: 1px solid var(--color-primary-hover);
   }
-}
-.carrito-icono {
-    position: relative;
-    font-size: 24px;
-    text-decoration: none;
-}
-
-.contador {
-    position: absolute;
-    top: -8px;
-    right: -10px;
-    background: red;
-    color: white;
-    font-size: 12px;
-    padding: 3px 7px;
-    border-radius: 50%;
-    font-weight: bold;
-
-    /* Animación */
-    transform: scale(1);
-    transition: transform 0.2s ease;
-}
-
-/* 💥 Animación cuando cambia */
-.contador.animar {
-    transform: scale(1.4);
 }

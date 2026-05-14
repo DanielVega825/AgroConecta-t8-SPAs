@@ -71,8 +71,8 @@ export function Nosotros() {
             <div class="row g-4">
                 ${[
                     ["Cesar España", "Full Stack Developer", "fotoCesar.jpeg"],
-                    ["Ivan Chavez", "Desarrollador Frontend", "fotoIvan.jpeg"],
-                    ["José Vega", "Back-end Engineer", "fotoJose.jpeg"],
+                    ["Ivan Chavez", "Software Developer", "fotoIvan.jpeg"],
+                    ["José Vega", "Back-end Engineer", "fotojose.jpeg"],
                     ["Juan Castro", "Full Stack Developer", "fotoJuan.jpeg"]
                 ].map(p => `
                     <div class="col-6 col-md-3">

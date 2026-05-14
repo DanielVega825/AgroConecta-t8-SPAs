@@ -20,3 +20,25 @@ Para mantener la integridad del código y un desarrollo organizado, seguiremos e
  
  
 ## Arquitectura SPAs construida a mano con vanilla Js
+
+mi-proyecto-spa/
+├── index.html                # Archivo base con <div id="app"></div>
+├── assets/
+│   ├── css/
+│   │   └── style.css         # Estilos globales
+│   └── img/
+│       └── logo.svg          # Imágenes y assets
+└── src/
+    ├── main.js               # Punto de entrada (inicializa el router)
+    ├── router/
+    │   └── index.js          # Definición de rutas y lógica de navegación
+    ├── views/
+    │   ├── Home.js           # Vista de inicio
+    │   └── Contact.js        # Vista de contacto
+    ├── components/
+    │   ├── Navbar.js         # Componente de navegación común
+    │   └── Footer.js         # Pie de página
+    ├── services/
+    │   └── api.js            # Llamadas a Fetch API o Axios
+    └── helpers/
+        └── formatter.js      # Utilidades de formato de fechas o moneda

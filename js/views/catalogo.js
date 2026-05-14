@@ -123,7 +123,14 @@ function initCatalogo() {
     if (!contenedor || !modal) return;
 
     // Lógica +/- Modal
-    document.getElementById('modal-plus').onclick = () => inputQty.value = parseInt(inputQty.value) + 1;
+    document.getElementById('modal-plus').onclick = () => {
+        const stock = Number(document.getElementById('modal-stock').dataset.stock);
+        if (parseInt(inputQty.value) < stock) {
+            inputQty.value = parseInt(inputQty.value) + 1;
+        } else {
+            alert("Límite de stock alcanzado.");
+        }
+    };
     document.getElementById('modal-minus').onclick = () => { if (inputQty.value > 1) inputQty.value = parseInt(inputQty.value) - 1; };
 
     const productosBase = [
@@ -171,7 +178,8 @@ function initCatalogo() {
                         <button class="btn btn-success btn-sm w-100 btn-agregar" 
                                 data-nombre="${p.nombre}" 
                                 data-precio="${p.precio}" 
-                                data-img="${srcImagen}">
+                                data-img="${srcImagen}"
+                                data-stock="${p.stock}">
                             Agregar al Carrito
                         </button>
                     </div>
@@ -219,7 +227,8 @@ function initCatalogo() {
                     pData = {
                         nombre: document.getElementById('modal-nombre').textContent,
                         precio: cleanPrice,
-                        img: document.getElementById('modal-img').src
+                        img: document.getElementById('modal-img').src,
+                        stock: Number(document.getElementById('modal-stock').dataset.stock)
                     };
                     cant = Number(document.getElementById('modal-qty').value);
                     modal.classList.remove('active');
@@ -227,14 +236,29 @@ function initCatalogo() {
                     pData = {
                         nombre: e.target.dataset.nombre,
                         precio: Number(e.target.dataset.precio),
-                        img: e.target.dataset.img
+                        img: e.target.dataset.img,
+                        stock: Number(e.target.dataset.stock)
                     };
                 }
 
                 let carrito = JSON.parse(localStorage.getItem("carrito")) || [];
                 const existe = carrito.find(p => p.nombre === pData.nombre);
-                if (existe) existe.cantidad += cant;
-                else carrito.push({ ...pData, cantidad: cant });
+                
+                let cantidadFinal = cant;
+                if (existe) {
+                    if (existe.cantidad + cant > pData.stock) {
+                        alert("No puedes agregar más productos. Límite de stock alcanzado.");
+                        return;
+                    }
+                    existe.cantidad += cant;
+                    existe.stock = pData.stock; // Actualizar por si cambió
+                } else {
+                    if (cant > pData.stock) {
+                        alert("No puedes agregar más productos. Límite de stock alcanzado.");
+                        return;
+                    }
+                    carrito.push({ ...pData, cantidad: cant });
+                }
 
                 localStorage.setItem("carrito", JSON.stringify(carrito));
                 actualizarContadorCarrito();
@@ -251,7 +275,9 @@ function initCatalogo() {
         document.getElementById('modal-cat').textContent = p.cat;
         document.getElementById('modal-desc').textContent = p.desc;
         document.getElementById('modal-precio').textContent = formatPrice(p.precio);
-        document.getElementById('modal-stock').textContent = `(${p.stock} disponibles)`;
+        const modalStock = document.getElementById('modal-stock');
+        modalStock.textContent = `(${p.stock} disponibles)`;
+        modalStock.dataset.stock = p.stock;
         document.getElementById('modal-qty').value = 1;
         modal.classList.add('active');
     };
