@@ -1,0 +1,154 @@
+/* ==========================================================================
+   VISTA DE CONTACTO - AgroConecta
+   ========================================================================== */
+
+.hero {
+    text-align: center;
+    padding: 80px 20px;
+    background: linear-gradient(to bottom, var(--color-primary-100), var(--color-white));
+}
+
+.badge {
+    background: var(--color-primary-100);
+    color: var(--color-primary-600);
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.hero h1 {
+    font-size: var(--font-size-h1);
+    color: var(--color-primary-600);
+    margin: 20px 0;
+}
+
+.contact-container {
+    display: grid;
+    grid-template-columns: 380px 1fr;
+    gap: 40px;
+    max-width: 1200px;
+    margin: -40px auto 80px;
+    padding: 0 20px;
+    position: relative;
+    z-index: 10;
+}
+
+/* Info Cards */
+.info-card {
+    background: var(--card-bg);
+    padding: 30px;
+    border-radius: var(--card-radius);
+    margin-bottom: 24px;
+    border: 1px solid var(--card-border);
+    box-shadow: var(--card-shadow);
+    transition: var(--transition-normal);
+}
+
+.info-card:hover {
+    transform: translateY(-5px);
+}
+
+.icon-box {
+    width: 50px;
+    height: 50px;
+    border-radius: var(--border-radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: var(--color-white);
+    margin-bottom: 20px;
+}
+
+.icon-box.green { background-color: var(--color-primary-600); }
+.icon-box.yellow { background-color: var(--color-secondary-yellow-500); }
+.icon-box.orange { background-color: var(--color-secondary-orange-500); }
+
+/* Form Card */
+.card-form {
+    background: var(--card-bg);
+    padding: 40px;
+    border-radius: var(--card-radius);
+    box-shadow: var(--card-shadow);
+    border: 1px solid var(--card-border);
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.form-group { margin-bottom: 20px; }
+.form-group label { display: block; margin-bottom: 8px; font-weight: 500; }
+
+.form-group input, .form-group select, .form-group textarea {
+    width: 100%;
+    padding: 12px;
+    border-radius: var(--border-radius-md);
+    border: 1px solid var(--border-color);
+    background: var(--color-white-soft);
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: var(--color-primary-500);
+    box-shadow: 0 0 0 3px var(--color-primary-focus);
+}
+
+.btn-send {
+    background: var(--button-primary-bg);
+    color: white;
+    border: none;
+    width: 100%;
+    padding: 14px;
+    border-radius: var(--button-radius);
+    font-weight: bold;
+    cursor: pointer;
+    transition: var(--transition-fast);
+}
+
+.btn-send:hover { background: var(--button-primary-hover); transform: translateY(-2px); }
+
+/* WhatsApp Card */
+.whatsapp-card {
+    margin-top: 40px;
+    background: #DCFCE7; /* Verde muy suave */
+    padding: 30px;
+    border-radius: var(--card-radius);
+    border: 1px solid var(--color-primary-500);
+    text-align: center;
+}
+
+.btn-whatsapp {
+    background: #25D366;
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 30px;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 15px;
+    transition: var(--transition-normal);
+}
+
+.btn-whatsapp:hover { transform: scale(1.05); background: #128C7E; }
+
+/* Map */
+.map-section { padding: 60px 0; background: var(--bg-main); }
+.map-container {
+    width: 100%;
+    border-radius: var(--card-radius);
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-md);
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+    .contact-container { grid-template-columns: 1fr; }
+    .form-grid { grid-template-columns: 1fr; }
+}
