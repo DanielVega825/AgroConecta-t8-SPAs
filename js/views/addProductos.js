@@ -1,8 +1,13 @@
 import { Producto } from '../../models/productos.js';
 import { products } from '../../data/products.js';
 
+<<<<<<< HEAD
 const LIMITE_MB_IMAGEN = 2;
 const LIMITE_BYTES_IMAGEN = LIMITE_MB_IMAGEN * 1024 * 1024;
+=======
+//Eliminar Disponible y Agotado por ahora, solo se manejará el estado activo/inactivo para simplificar la lógica de esta vista. Se pueden reintroducir más adelante si se desea.
+//Agregar al model Escribe detalles adicionales... 'descripcionLong y id
+>>>>>>> dbb16a77926b9d5abe2be716374e96bc9afc83ff
 
 export function AddProduct() {
 

@@ -1,3 +1,7 @@
+/**
+ * añadir:
+    descripcionLong = ""
+ */
 export class Producto {
   constructor({
     id,
@@ -10,7 +14,7 @@ export class Producto {
     tipoProducto,
     fechaDeIngreso,
     activo = true,
-    stockMinimo = 5
+    stockMinimo = 5,
   }) {
     if (!nombre || nombre.trim() === '') throw new Error("El nombre es requerido");
     if (!precio || isNaN(precio) || precio <= 0) throw new Error("El precio debe ser un número válido mayor a 0");
