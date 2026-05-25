@@ -27,7 +27,7 @@ CREATE TABLE pedidos (
     id SERIAL,
 	--columnas de relacion
     usuario_id INT NOT NULL,
-    estado_id INT NOT NULL,
+    estado_id INT NOT NULL,git add .
 
 	--columnas propias de la tabla
     total DECIMAL(10,2) NOT NULL DEFAULT 0.00,
