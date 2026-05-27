@@ -313,7 +313,7 @@ export function initAddProductLogic() {
                 nuevoProducto.descuento = checkPromotion?.checked ? parseFloat(discountInput.value) : 0;
 
                 //Subir los productos al backend
-                uploadProduct(nuevoProducto);
+                // uploadProduct(nuevoProducto);
 
                 products.push(nuevoProducto);
                 console.log("Producto Agregado:", products);
@@ -336,17 +336,17 @@ export function initAddProductLogic() {
     }
 }
 
-async function uploadProduct(product) {
-    console.log(JSON.stringify(product));
-    try {
-        await fetch('http://localhost:8080/api/productos', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(product),
-        });
-    } catch (error) {
-        console.error("Error al subir el producto:", error);
-    }
-}
+// async function uploadProduct(product) {
+//     console.log(JSON.stringify(product));
+//     try {
+//         await fetch('http://localhost:8080/api/productos', {
+//             method: 'POST',
+//             headers: {
+//                 'Content-Type': 'application/json',
+//             },
+//             body: JSON.stringify(product),
+//         });
+//     } catch (error) {
+//         console.error("Error al subir el producto:", error);
+//     }
+// }
