@@ -38,8 +38,8 @@ export function Footer() {
                     <!-- Columna 4: Contacto -->
                     <div class="colum__footer col-md-4 col-lg-3 col-xl-3 mx-auto mb-md-0 mb-4">
                         <h6 class="text-uppercase fw-bold mb-4">Contacto</h6>
-                        <p><i class="fas fa-phone me-3"></i> info@agroconecta.com</p>
-                        <p><i class="fas fa-envelope me-3"></i>+57 123 456 7890</p>
+                        <p><i class="fas fa-phone me-3"></i> agroconecta.generation@gmail.com</p>
+                        <p><i class="fas fa-envelope me-3"></i>+57 310 588 5140</p>
                     </div>
                 </div>
             </div>

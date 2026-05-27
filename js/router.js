@@ -51,6 +51,7 @@ export function router() {
     if (path === "/panel") cssPath = "styles/panel.css";
     if (path === "/carrito") cssPath = "styles/carrito.css"; //  NUEVO: Estilos del carrito
     if (path === "/sesion") cssPath = "styles/sesion.css";
+    if (path === "/" || path === "/home") cssPath = "styles/home.css";
 
     const appContainer = document.getElementById("app");
     const header = document.querySelector("header");
