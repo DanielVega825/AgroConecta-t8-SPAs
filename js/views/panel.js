@@ -219,7 +219,157 @@ export function gestionPanel() {
         if (tab === "pedidos") renderPedidos();
         if (tab === "usuarios") renderUsuarios();
     };
+    function cargarPedidos() {
 
+        const pedidos =
+            JSON.parse(localStorage.getItem("listaPedidos")) || [];
+
+        const filasPedidos =
+            document.getElementById("filas-pedidos");
+
+        if (!filasPedidos) return;
+
+        filasPedidos.innerHTML = "";
+
+        if (pedidos.length === 0) {
+
+            filasPedidos.innerHTML = `
+         <tr>
+            <td colspan="6" class="text-center p-4">
+               No hay pedidos registrados
+            </td>
+         </tr>
+      `;
+
+            return;
+        }
+
+        pedidos.forEach((pedido) => {
+
+            filasPedidos.innerHTML += `
+         <tr>
+
+            <td>#${pedido.id}</td>
+
+            <td>
+               <strong>${pedido.cliente}</strong>
+               <br>
+               <small>${pedido.email}</small>
+            </td>
+
+            <td>
+               <span class="badge bg-warning text-dark">
+                  ${pedido.estado}
+               </span>
+            </td>
+
+            <td>
+               ${pedido.total.toLocaleString('es-CO', {
+                style: 'currency',
+                currency: 'COP'
+            })}
+            </td>
+
+            <td>${pedido.fecha}</td>
+
+            <td>
+               <button
+                  class="btn btn-success btn-sm"
+                  onclick='verPedido(${JSON.stringify(pedido)})'
+               >
+                  Ver
+               </button>
+            </td>
+
+         </tr>
+      `;
+        });
+    }
+    window.verPedido = function (pedido) {
+
+        let productosHTML = "";
+
+        pedido.productos.forEach((p) => {
+
+            productosHTML += `
+         • ${p.nombre}
+         | Cantidad: ${p.cantidad}
+         | Precio: ${p.precio}
+      <br>
+      `;
+        });
+
+        alert(`
+Pedido de: ${pedido.cliente}
+
+Productos:
+${productosHTML}
+
+Total:
+${pedido.total.toLocaleString('es-CO', {
+            style: 'currency',
+            currency: 'COP'
+        })}
+   `);
+    };
+    function cargarUsuarios() {
+
+        const usuarios =
+            JSON.parse(localStorage.getItem("listaUsuarios")) || [];
+
+        const filasUsuarios =
+            document.getElementById("filas-usuarios");
+
+        if (!filasUsuarios) return;
+
+        filasUsuarios.innerHTML = "";
+
+        if (usuarios.length === 0) {
+
+            filasUsuarios.innerHTML = `
+         <tr>
+            <td colspan="7" class="text-center p-4">
+               No hay usuarios registrados
+            </td>
+         </tr>
+      `;
+
+            return;
+        }
+
+        usuarios.forEach((usuario, index) => {
+
+            filasUsuarios.innerHTML += `
+         <tr>
+
+            <td>${index + 1}</td>
+
+            <td>${usuario.nombre}</td>
+
+            <td>${usuario.email}</td>
+
+            <td>${usuario.telefono || "No registrado"}</td>
+
+            <td>
+               <span class="badge bg-primary">
+                  ${usuario.role || "CLIENTE"}
+               </span>
+            </td>
+
+            <td>
+               <span class="text-success fw-bold">
+                  Activo
+               </span>
+            </td>
+
+            <td>
+               Usuario registrado correctamente
+            </td>
+
+         </tr>
+      `;
+        });
+    }
     // ============================================================
     // 🔽 DROPDOWN COLUMNAS
     // ============================================================
@@ -669,15 +819,15 @@ export function gestionPanel() {
         const stock = parseInt(document.getElementById("edit-stockMinimo").value);
 
         if (isNaN(precio) || precio < 0) { alert("El precio debe ser un número positivo."); return; }
-        if (isNaN(cant)   || cant < 0)   { alert("La cantidad no puede ser negativa."); return; }
-        if (isNaN(stock)  || stock < 0)  { alert("El stock mínimo no puede ser negativo."); return; }
+        if (isNaN(cant) || cant < 0) { alert("La cantidad no puede ser negativa."); return; }
+        if (isNaN(stock) || stock < 0) { alert("El stock mínimo no puede ser negativo."); return; }
         const activo = document.getElementById("edit-activo").value === "true";
         const promo = document.getElementById("edit-promocion").checked;
         const desc = document.getElementById("edit-descuento").value;
 
         if (!isNaN(precio)) p.precio = precio;
-        if (!isNaN(cant))   p.cantidad = cant;
-        if (!isNaN(stock))  p.stockMinimo = stock;
+        if (!isNaN(cant)) p.cantidad = cant;
+        if (!isNaN(stock)) p.stockMinimo = stock;
         p.activo = activo;
         p.enPromocion = promo;
         if (p.detalles) p.detalles.enPromocion = promo;
@@ -720,11 +870,25 @@ export function gestionPanel() {
     const selRol = document.getElementById("filtro-rol-usuario");
     if (selRol) selRol.addEventListener("change", renderUsuarios);
 
-    // ============================================================
-    // ⏱️ INICIALIZAR
-    // ============================================================
-    renderCheckboxesColumnas();
-    poblarCategorias();
-    renderTabla();
-    renderEstadisticas();
+ // ============================================================
+// ⏱️ INICIALIZAR
+// ============================================================
+
+renderCheckboxesColumnas();
+
+poblarCategorias();
+
+renderTabla();
+
+renderEstadisticas();
+
+
+// ======================================
+// PEDIDOS Y USUARIOS
+// ======================================
+
+cargarPedidos();
+
+cargarUsuarios();
+
 }

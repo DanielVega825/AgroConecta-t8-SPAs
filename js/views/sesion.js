@@ -77,7 +77,7 @@ export function Sesion() {
 }
 
 export function gestionSesion() {
-    
+
     const card = document.getElementById("authCard");
     const btnSignup = document.getElementById("goToSignup");
     const btnSignin = document.getElementById("goToSignin");
@@ -129,7 +129,7 @@ export function gestionSesion() {
             if (/[0-9]/.test(val)) nivel++;
 
             strengthBar.className = ""; // Resetear clases anteriores
-            
+
             if (val.length === 0) {
                 strengthBar.style.width = "0%";
                 strengthText.textContent = "Seguridad de la contraseña";
@@ -148,62 +148,155 @@ export function gestionSesion() {
 
     formRegistro.addEventListener("submit", (e) => {
         e.preventDefault();
-        
+
         const nombre = document.getElementById("nombre").value.trim();
         const email = document.getElementById("email").value.trim();
         const password = passwordInput.value.trim();
 
-        if(!termsCheckbox.checked) {
-            alert("Acepta terminos para continuar");
+        if (!termsCheckbox.checked) {
+            alert("Acepta términos para continuar");
+            return;
         }
 
-        if (password.length < 8 || !/[A-Z]/.test(password) || !/[0-9]/.test(password)) {
+        if (
+            password.length < 8 ||
+            !/[A-Z]/.test(password) ||
+            !/[0-9]/.test(password)
+        ) {
             strengthText.style.color = "red";
-            strengthText.textContent = "8 caracteres minímo, 1 Mayuscula y 1 numero";
+            strengthText.textContent =
+                "8 caracteres mínimo, 1 mayúscula y 1 número";
+            return;
+        }
+
+        const usuarios =
+            JSON.parse(localStorage.getItem("listaUsuarios")) || [];
+
+        // Validar correo existente
+        const correoExistente = usuarios.find(
+            (u) => u.email.toLowerCase() === email.toLowerCase()
+        );
+
+        if (correoExistente) {
+            alert("Ya existe una cuenta registrada con este correo.");
+            return;
+        }
+
+        // Validar nombre existente
+        const nombreExistente = usuarios.find(
+    (u) =>
+        u.name.trim().toLowerCase() ===
+        nombre.trim().toLowerCase()
+);
+
+        if (nombreExistente) {
+            alert("Ya existe un usuario con este nombre.");
             return;
         }
 
         const originalText = btnRegistrar.innerHTML;
-        btnRegistrar.innerHTML = 'REGISTRADO CON ÉXITO ✓';
+
+        btnRegistrar.innerHTML = "REGISTRADO CON ÉXITO ✓";
         btnRegistrar.classList.add("btn-success-anim");
         btnRegistrar.disabled = true;
 
-        // Simulación de guardado y transición
         setTimeout(() => {
-            const usuario = { nombre, email, password };
-            localStorage.setItem("usuario", JSON.stringify(usuario));
 
-            // Resetear botón y volver al Login
+            const nuevoUsuario = {
+                clienteId: Date.now(),
+                name: nombre,
+                email: email,
+                telefono: document.getElementById("telefono").value,
+                password: password,
+                rol: "CLIENTE",
+                activo: true,
+                pedidos: []
+            };
+
+            usuarios.push(nuevoUsuario);
+
+            localStorage.setItem(
+                "listaUsuarios",
+                JSON.stringify(usuarios)
+            );
+
             btnRegistrar.innerHTML = originalText;
             btnRegistrar.classList.remove("btn-success-anim");
             btnRegistrar.disabled = false;
-            
+
+            formRegistro.reset();
+
+            strengthBar.className = "";
+            strengthBar.style.width = "0%";
+            strengthText.textContent =
+                "Seguridad de la contraseña";
+
+            alert("Usuario registrado correctamente.");
+
             toggleView();
+
         }, 2500);
     });
 
-    formLogin.addEventListener("submit", (e) => {
-        e.preventDefault();
-        const email = document.getElementById("loginEmail").value;
-        const password = document.getElementById("loginPassword").value;
+    if (formLogin) {
+        formLogin.addEventListener("submit", (e) => {
+            e.preventDefault();
 
-        // 1. Validar usuario administrador hardcodeado
-        if (email === "admin@admin.com" && password === "admin123") {
-            alert("Inicio de sesión exitoso. Bienvenido Administrador.");
-            localStorage.setItem("userLogged", JSON.stringify({ email: "admin@admin.com", nombre: "Administrador", role: "admin" }));
-            window.location.hash = "#/panel";
-            return;
-        }
+            const email = document
+                .getElementById("loginEmail")
+                .value
+                .trim()
+                .toLowerCase();
 
-        // 2. Validar usuario almacenado en local storage
-        const usuarioGuardado = JSON.parse(localStorage.getItem("usuario"));
+            const password = document
+                .getElementById("loginPassword")
+                .value;
 
-        if (usuarioGuardado && usuarioGuardado.email === email && usuarioGuardado.password === password) {
-            alert("Inicio de sesión exitoso. Bienvenido " + usuarioGuardado.nombre);
-            localStorage.setItem("userLogged", JSON.stringify({ email: usuarioGuardado.email, nombre: usuarioGuardado.nombre, role: "user" }));
-            window.location.hash = "#/"; 
-        } else {
-            alert("Nombre de usuario o contraseña inválidos.");
-        }
-    });
+            // 1. Validar usuario administrador hardcodeado
+            if (
+                email === "admin@admin.com" &&
+                password === "admin123"
+            ) {
+                alert("Inicio de sesión exitoso. Bienvenido Administrador.");
+
+                localStorage.setItem(
+                    "userLogged",
+                    JSON.stringify({
+                        email: "admin@admin.com",
+                        nombre: "Administrador",
+                        role: "admin"
+                    })
+                );
+
+                window.location.hash = "#/panel";
+                return;
+            }
+
+            // 2. Validar usuario almacenado en local storage
+
+            const usuarios = JSON.parse(localStorage.getItem("listaUsuarios")) || [];
+
+            const usuarioEncontrado = usuarios.find(
+                (u) =>
+                    u.email.trim().toLowerCase() ===
+                    email.trim().toLowerCase() &&
+                    u.password === password
+            );
+            if (usuarioEncontrado) {
+                alert("Inicio de sesión exitoso. Bienvenido " + usuarioEncontrado.name);
+
+                localStorage.setItem("userLogged", JSON.stringify({
+                    email: usuarioEncontrado.email,
+                    nombre: usuarioEncontrado.name,
+                    role: "user"
+                }));
+
+                window.location.hash = "#/home";
+                location.reload();
+
+            } else {
+                alert("Nombre de usuario o contraseña inválidos.");
+            }
+        });
+    }
 }

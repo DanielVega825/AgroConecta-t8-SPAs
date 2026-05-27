@@ -98,7 +98,7 @@ export function initCarrito() {
                     <a href="#/catalogo" class="btn btn-success px-5 py-2 fw-bold rounded-pill">Ir al Catálogo</a>
                 </div>
             `;
-            actualizarCalculos(0); 
+            actualizarCalculos(0);
             return;
         }
 
@@ -137,14 +137,14 @@ export function initCarrito() {
                 </div>
             `;
 
-            item.querySelector(".aumentar").onclick = () => { 
+            item.querySelector(".aumentar").onclick = () => {
                 const pStock = carrito[index].stock || 999;
                 if (carrito[index].cantidad >= pStock) {
                     alert("Límite de stock alcanzado.");
                     return;
                 }
-                carrito[index].cantidad++; 
-                guardar(); 
+                carrito[index].cantidad++;
+                guardar();
             };
             item.querySelector(".disminuir").onclick = () => { if (carrito[index].cantidad > 1) carrito[index].cantidad--; else carrito.splice(index, 1); guardar(); };
             item.querySelector(".eliminar").onclick = () => { carrito.splice(index, 1); guardar(); };
@@ -158,7 +158,7 @@ export function initCarrito() {
         const subtotal = forzarCero === 0 ? 0 : carrito.reduce((acc, p) => acc + (p.precio * p.cantidad), 0);
         const meta = 150000;
         let envio = (subtotal > 0 && subtotal < meta) ? 15000 : 0;
-        
+
         document.getElementById("subtotal").textContent = formatoMoneda(subtotal);
         document.getElementById("envio").textContent = envio === 0 ? (subtotal === 0 ? "$0,00" : "Gratis") : formatoMoneda(envio);
         document.getElementById("total").textContent = formatoMoneda(subtotal + envio);
@@ -166,7 +166,7 @@ export function initCarrito() {
         const mensaje = document.getElementById("mensaje-envio");
         const barra = document.getElementById("barra-envio");
         const contenedorMeta = document.getElementById("container-envio-gratis");
-        
+
         if (subtotal === 0) {
             contenedorMeta.classList.add('d-none');
         } else {
@@ -194,16 +194,96 @@ export function initCarrito() {
 
     // Manejo de Proceed to Checkout
     const btnProcederPago = document.getElementById("btn-proceder-pago");
+
     if (btnProcederPago) {
+
+        // Elimina eventos anteriores
+        btnProcederPago.onclick = null;
+
+        // Nuevo evento único
         btnProcederPago.onclick = (e) => {
             e.preventDefault();
+
             const userLoggedStr = localStorage.getItem("userLogged");
             const userLogged = userLoggedStr ? JSON.parse(userLoggedStr) : null;
+
+            // VALIDAR ADMIN
             if (userLogged && userLogged.role === "admin") {
-                alert("Un usuario de tipo administrador no puede realizar compras o pagos.");
-            } else {
-                alert("¡Procediendo al pago seguro de AgroConecta! Gracias por su preferencia.");
+                alert("Un administrador no puede comprar.");
+                return;
             }
+
+            // VALIDAR LOGIN
+            if (!userLogged) {
+                alert("Debes iniciar sesión.");
+                window.location.hash = "#/sesion";
+                return;
+            }
+
+            // VALIDAR CARRITO
+            if (carrito.length === 0) {
+                alert("Tu carrito está vacío.");
+                return;
+            }
+
+            // CALCULAR
+            const subtotal = carrito.reduce((acc, p) => acc + (p.precio * p.cantidad), 0);
+            const envio = subtotal >= 150000 ? 0 : 15000;
+            const total = subtotal + envio;
+
+            // STORAGE CORRECTO
+            const pedidos = JSON.parse(localStorage.getItem("listaPedidos")) || [];
+            const usuarios = JSON.parse(localStorage.getItem("listaUsuarios")) || [];
+
+            // CREAR PEDIDO
+            const nuevoPedido = {
+                id: Date.now(),
+                clienteNombre: userLogged.nombre,
+                email: userLogged.email,
+                estadoActual: "PENDIENTE",
+                total: total,
+                creadoAt: new Date().toISOString(),
+                detalles: carrito.map(p => ({
+                    nombre: p.nombre,
+                    cantidad: p.cantidad,
+                    precio: p.precio
+                }))
+            };
+
+            // GUARDAR PEDIDO
+            pedidos.push(nuevoPedido);
+            localStorage.setItem("listaPedidos", JSON.stringify(pedidos));
+
+            // VINCULAR USUARIO
+            const usuario = usuarios.find(u => u.email === userLogged.email);
+
+            if (usuario) {
+                if (!usuario.pedidos) usuario.pedidos = [];
+                usuario.pedidos.push(nuevoPedido);
+            }
+
+            localStorage.setItem("listaUsuarios", JSON.stringify(usuarios));
+
+            // LIMPIAR CARRITO
+            carrito = [];
+            localStorage.removeItem("carrito");
+
+            actualizarContadorCarrito();
+            render();
+
+            // MENSAJE 
+            contenedor.innerHTML = `
+        <div class="text-center p-5 bg-white rounded-4 shadow-sm border">
+            <div style="font-size: 5rem;">✅</div>
+            <h2 class="fw-bold text-success mt-3">¡Compra realizada!</h2>
+            <p class="text-muted mt-3">Gracias por comprar en AgroConecta 🌿</p>
+            <a href="#/catalogo" class="btn btn-success mt-4 px-5 py-2 rounded-pill">
+                Seguir comprando
+            </a>
+        </div>
+        `;
+
+            actualizarCalculos(0);
         };
     }
 }
