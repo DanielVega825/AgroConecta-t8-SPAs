@@ -1,39 +1,44 @@
-/**
- * añadir:
-    descripcionLong = ""
- */
 export class Producto {
   constructor({
-    id,
     nombre,
     precio,
     descripcion,
-    imagen = [],
-    detalles = {},
+    imagenes = [],
+    detalles = { enDescuento: false, porcentajeDescuento: null },
     cantidad = 0,
-    tipoProducto,
-    fechaDeIngreso,
-    activo = true,
-    stockMinimo = 5,
+    stockMinimo = 6,
+    descripcionLong = "",
+    categoriaId // Único campo identificador numérico (Long en Java)
   }) {
+    // Validaciones básicas de negocio
     if (!nombre || nombre.trim() === '') throw new Error("El nombre es requerido");
-    if (!precio || isNaN(precio) || precio <= 0) throw new Error("El precio debe ser un número válido mayor a 0");
+    if (!precio || isNaN(precio) || precio <= 0) throw new Error("El precio debe ser mayor a 0");
     if (!descripcion || descripcion.trim() === '') throw new Error("La descripción es requerida");
-    if (!tipoProducto || tipoProducto === 'Seleccionar tipo') throw new Error("Debe seleccionar un tipo de producto");
-    if (cantidad < 0) throw new Error("La cantidad no puede ser menor a 0");
-    if (!Array.isArray(imagen) || imagen.length === 0) throw new Error("Debe proporcionar un arreglo con al menos una imagen");
 
-    this.id = id;
+    // Validación del índice (debe existir y ser un número entero válido)
+    if (!categoriaId || isNaN(categoriaId) || !Number.isInteger(Number(categoriaId))) {
+      throw new Error("Debe seleccionar una categoría válida (ID numérico requerido)");
+    }
+
+    if (stockMinimo <= 5) throw new Error("El stock mínimo debe ser mayor a 5");
+    if (!Array.isArray(imagenes) || imagenes.length === 0) throw new Error("Debe proporcionar al menos una imagen");
+
+    // Validación condicional del JSON de detalles
+    if (detalles.enDescuento && (!detalles.porcentajeDescuento || detalles.porcentajeDescuento <= 0)) {
+      throw new Error("Si el producto está en descuento, debe ingresar un porcentaje válido");
+    }
+
+    // Asignación de propiedades alineadas con el DTO
+
     this.nombre = nombre;
     this.precio = precio;
     this.descripcion = descripcion;
-    this.imagen = imagen;
+    this.imagenes = imagenes;
     this.detalles = detalles;
     this.cantidad = cantidad;
-    this.tipoProducto = tipoProducto;
-    this.fechaDeIngreso = fechaDeIngreso;
-    this.activo = activo;
     this.stockMinimo = stockMinimo;
+    this.descripcionLong = descripcionLong;
+    this.categoriaId = Number(categoriaId); // Forzamos el tipo numérico
   }
 
   obtenerEstado() {

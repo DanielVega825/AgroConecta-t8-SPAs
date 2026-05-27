@@ -42,3 +42,14 @@ mi-proyecto-spa/
     │   └── api.js            # Llamadas a Fetch API o Axios
     └── helpers/
         └── formatter.js      # Utilidades de formato de fechas o moneda
+
+
+Notas de mejora:
+
+- En el panel de admin (http://127.0.0.1:5503/#/panel): No mostrar boton cerrar sesion.
+- Al hacer click en el carrito y despues en proceder con el pago un usuario de tipo administrador mostrar una alerta de que no puede realizar el pago
+- Mostrar más pequeño el boton de salir cuando esta logueado
+- No permitir el acceso a vistas admin a clientes
+- Mejorar el seleccionador de columnas y aplicar filtros a las columnas segun su tipo de dato
+- DescripcionLong debe permitir agregar negrilla, tener structura de word en la que se puede añadir listas..etc y que estas propiedades puedan ser rastreables al pasarlo al 
+back para que siga teniendo los mismos estilos al mostrar en el front de vuelta.

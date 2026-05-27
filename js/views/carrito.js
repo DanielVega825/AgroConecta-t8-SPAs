@@ -51,7 +51,7 @@ export function Carrito() {
                             <span id="total" class="h5 fw-bold text-success m-0">$0,00</span>
                         </div>
 
-                        <button class="btn btn-success w-100 py-3 fw-bold rounded-3 shadow-sm mb-3">
+                        <button id="btn-proceder-pago" class="btn btn-success w-100 py-3 fw-bold rounded-3 shadow-sm mb-3">
                             <i class="bi bi-credit-card me-2"></i> Proceder al Pago
                         </button>
                         
@@ -191,4 +191,19 @@ export function initCarrito() {
     }
 
     render();
+
+    // Manejo de Proceed to Checkout
+    const btnProcederPago = document.getElementById("btn-proceder-pago");
+    if (btnProcederPago) {
+        btnProcederPago.onclick = (e) => {
+            e.preventDefault();
+            const userLoggedStr = localStorage.getItem("userLogged");
+            const userLogged = userLoggedStr ? JSON.parse(userLoggedStr) : null;
+            if (userLogged && userLogged.role === "admin") {
+                alert("Un usuario de tipo administrador no puede realizar compras o pagos.");
+            } else {
+                alert("¡Procediendo al pago seguro de AgroConecta! Gracias por su preferencia.");
+            }
+        };
+    }
 }
