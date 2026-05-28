@@ -73,6 +73,7 @@ setupLogout(); // <--- Inicializar el botón de salir
 actualizarContadorCarrito();
  
 window.addEventListener("hashchange", () => {
+    window.scrollTo(0, 0); // <--- AÑADE ESTA LÍNEA AQUÍ (Lleva el scroll al inicio)
     updateHeader();
     setupMenu();
     setupLogout();

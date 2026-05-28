@@ -232,17 +232,8 @@
     background: var(--color-primary-hover);
 }
 
-/* Responsive */
-@media (max-width: 1024px) {
-    .productos { grid-template-columns: repeat(2, 1fr); }
-    .catalogo-container { grid-template-columns: 240px 1fr; }
-}
 
-@media (max-width: 768px) {
-    .catalogo-container { grid-template-columns: 1fr; }
-    .productos { grid-template-columns: 1fr; }
-    .filtros { position: static; }
-}
+
 
 /* ==========================================================================
    MODAL DE PRODUCTO (FLOTANTE)
@@ -291,6 +282,8 @@
     position: sticky;
     top: 20px;
 }
+
+
 
 /* Grilla 4 Columnas */
 .productos {
@@ -341,6 +334,7 @@
 
 .modal-agro-content {
     background: #fff;
+    height: 80%;
     width: 90%;
     max-width: 850px;
     border-radius: 24px;
@@ -348,6 +342,8 @@
     padding: 40px;
     animation: modalScale 0.3s ease-out;
 }
+
+
 
 @keyframes modalScale {
     from { transform: scale(0.9); opacity: 0; }
@@ -385,6 +381,30 @@
 
 .modal-qty { width: 60px; padding: 10px; border-radius: 8px; border: 1px solid #ddd; }
 
+/* Responsive */ 
+@media (max-width: 1024px) { 
+  .productos { 
+    grid-template-columns: repeat(2, 1fr); 
+  } 
+  .catalogo-container { 
+    grid-template-columns: 240px 1fr; 
+  } 
+} 
+
+@media (max-width: 768px) { 
+  .catalogo-container { 
+    grid-template-columns: 1fr; /* Pasa a una sola columna */
+  } 
+  .productos { 
+    grid-template-columns: 1fr; 
+  } 
+  .filtros { 
+    display: none; /* Oculta el elemento por completo */
+  } 
+  .modal-agro-img {
+    display: none;
+  }
+}
 .btn-add-modal {
     flex: 1;
     background: var(--color-primary-600);
