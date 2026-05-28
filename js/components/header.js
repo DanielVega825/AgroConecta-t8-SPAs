@@ -25,7 +25,7 @@ export function Header() {
  
                 <div class="logo">
                     <a href="#/">
-                    <img src="/assets/imgs/logo2.png" alt="AgroConecta logo" width="160">
+                    <img src="assets/imgs/logo2.png" alt="AgroConecta logo" width="160">
                     </a>
                        
                 </div>
@@ -66,7 +66,7 @@ export function Header() {
  
                 <div class="logo">
                     <a href="#/">
-                    <img src="/assets/imgs/logo2.png" alt="AgroConecta logo" width="160">
+                    <img src="assets/imgs/logo2.png" alt="AgroConecta logo" width="160">
                     </a>
                        
                 </div>
