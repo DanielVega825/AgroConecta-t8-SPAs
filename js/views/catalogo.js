@@ -133,45 +133,32 @@ function initCatalogo() {
     };
     document.getElementById('modal-minus').onclick = () => { if (inputQty.value > 1) inputQty.value = parseInt(inputQty.value) - 1; };
 
-    const productosBase = [
-        { id: 1, nombre: "Semillas de Chía", cat: "SEMILLAS", precio: 25000.00, stock: 50, img: "semillas-chia.jpg", desc: "Semillas premium ricas en Omega-3 para alto rendimiento." },
-        { id: 2, nombre: "Semillas de Arroz", cat: "SEMILLAS", precio: 38000.00, stock: 30, img: "semillas-arroz.jpg", desc: "Variedad certificada de gran rendimiento y alta germinación." },
-        { id: 3, nombre: "Semillas de Maíz", cat: "SEMILLAS", precio: 42000.00, stock: 25, img: "semillas-maiz.jpg", desc: "Híbrido optimizado para climas cálidos y templados." },
-        { id: 4, nombre: "Semillas de Frijol", cat: "SEMILLAS", precio: 35000.00, stock: 40, img: "semillas-frijol.jpg", desc: "Grano seleccionado con excelente resistencia a plagas." },
-        { id: 5, nombre: "Concentrado Ceba", cat: "CONCENTRADOS", precio: 85000.00, stock: 15, img: "concentrado-ceba.jpg", desc: "Suplemento para ganancia de peso acelerada en bovinos." },
-        { id: 6, nombre: "Concentrado Ganado", cat: "CONCENTRADOS", precio: 85000.00, stock: 28, img: "concentrado-ganado.jpg", desc: "Equilibrio nutricional para ganado de leche de calidad." },
-        { id: 7, nombre: "Concentrado Pollos", cat: "CONCENTRADOS", precio: 55000.00, stock: 40, img: "concentrado-aves.jpg", desc: "Alimento balanceado para engorde rápido y saludable." },
-        { id: 8, nombre: "Concentrado Cerdos", cat: "CONCENTRADOS", precio: 78000.00, stock: 20, img: "concentrado-cerdos.jpg", desc: "Fórmula para desarrollo muscular y salud digestiva óptima." },
-        { id: 9, nombre: "Kit Herramientas", cat: "HERRAMIENTAS", precio: 120000.00, stock: 15, img: "kit-herramientas.jpg", desc: "Herramientas manuales básicas reforzadas." },
-        { id: 10, nombre: "Esparcidor", cat: "HERRAMIENTAS", precio: 95000.00, stock: 8, img: "esparcidor.jpg", desc: "Herramienta de precisión para distribución de abono." },
-        { id: 11, nombre: "Sistema Ordeño", cat: "HERRAMIENTAS", precio: 450000.00, stock: 3, img: "sistema-ordeno.jpg", desc: "Equipo de alta eficiencia para medianas fincas." },
-        { id: 12, nombre: "Pala Profesional", cat: "HERRAMIENTAS", precio: 35000.00, stock: 22, img: "pala-profesional.jpg", desc: "Acero de alta resistencia con mango ergonómico." }
-    ];
-
-    const productosNuevosRaw = JSON.parse(localStorage.getItem('listaProducts')) || [];
-    console.log("Productos nuevos cargados:", productosNuevosRaw);
-    const productosNuevos = productosNuevosRaw.map((p, index) => {
-    // 1. Corregir el acceso a la propiedad (imagenes en vez de imagen)
-    const imagenData = Array.isArray(p.imagenes) ? p.imagenes[0] : p.imagenes;
     
-    // 2. Validar que la imagen exista para evitar errores de lectura
-    const imagenSegura = imagenData || 'placeholder.jpg'; 
-    const esBase64 = imagenSegura.startsWith('data:image');
 
-    return {
-        id: `custom-${index}`,
-        nombre: p.nombre,
-        cat: (p.tipoProducto || "VARIOS").toUpperCase(), // Evita errores si tipoProducto es undefined
-        precio: Number(p.precio) || 0,
-        stock: Number(p.cantidad) || 0,
-        img: imagenSegura,
-        desc: p.descripcion || "",
-        esBase64: esBase64
-    };
-});
+        const productosNuevosRaw = JSON.parse(localStorage.getItem('listaProducts')) || [];
+        console.log("Productos nuevos cargados:", productosNuevosRaw);
+        const productosNuevos = productosNuevosRaw.map((p, index) => {
+        // 1. Corregir el acceso a la propiedad (imagenes en vez de imagen)
+        const imagenData = Array.isArray(p.imagenes) ? p.imagenes[0] : p.imagenes;
+        
+        // 2. Validar que la imagen exista para evitar errores de lectura
+        const imagenSegura = imagenData || 'placeholder.jpg'; 
+        const esBase64 = imagenSegura.startsWith('data:image');
+
+        return {
+            id: `custom-${index}`,
+            nombre: p.nombre,
+            cat: (p.tipoProducto || "VARIOS").toUpperCase(), // Evita errores si tipoProducto es undefined
+            precio: Number(p.precio) || 0,
+            stock: Number(p.cantidad) || 0,
+            img: imagenSegura,
+            desc: p.descripcion || "",
+            esBase64: esBase64
+        };
+    });
     console.log("Productos nuevos procesados:", productosNuevos);
 
-    const todosLosProductos = [...productosBase, ...productosNuevos];
+    const todosLosProductos = [...productosNuevos];
 
     const render = (lista) => {
         contenedor.innerHTML = lista.map(p => {

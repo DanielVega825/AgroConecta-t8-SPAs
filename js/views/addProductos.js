@@ -287,10 +287,12 @@ export function initAddProductLogic() {
 
             try {
                 const tipoValue = document.getElementById('productType').value;
-                let catId = 1;
-                if (tipoValue === "Semillas") catId = 1;
-                else if (tipoValue === "Concentrados") catId = 2;
-                else if (tipoValue === "Herramientas") catId = 3;
+                console.log("Tipo de producto seleccionado:", tipoValue);
+                let catId = "Semillas";
+                if (tipoValue === "Semillas") catId = "SEMILLAS";
+                else if (tipoValue === "Concentrados") catId = "CONCENTRADOS";
+                else if (tipoValue === "Herramientas") catId = "HERRAMIENTAS";
+                console.log("Categoría ID asignada:", catId);
 
                 const nuevoProducto = new Producto({
                     nombre: document.getElementById('productName').value,
@@ -308,9 +310,10 @@ export function initAddProductLogic() {
                 });
 
                 // Campos para compatibilidad con el panel
-                nuevoProducto.tipoProducto = tipoValue;
+                nuevoProducto.categoriaId = catId;
                 nuevoProducto.enPromocion = checkPromotion?.checked || false;
                 nuevoProducto.descuento = checkPromotion?.checked ? parseFloat(discountInput.value) : 0;
+                nuevoProducto.activo = true;
 
                 //Subir los productos al backend
                 // uploadProduct(nuevoProducto);

@@ -11,7 +11,7 @@ export function Header() {
     if (userLogged) {
         userAction = `
             <span class="user-greeting" style="font-weight: bold; margin-right: 15px; color: var(--color-primary-600);">Hola, ${userLogged.nombre}</span>
-            <button id="logoutBtn" class="contenedor-login" style="background-color: var(--color-error, #dc3545); border: none; width: auto; font-size: 0.75rem; padding: 4px 10px; min-width: unset; height: auto;">Salir</button>
+            <button id="logoutBtn" class="contenedor-login" style="background-color: var(--color-error, #dc3545); border: none; width: auto; font-size: 0.75rem; padding: 4px 19px; min-width: unset; height: auto;">Salir</button>
         `;
         if (userLogged.role === "admin") {
             adminLink = `<a href="#/panel">Panel Admin</a>`;
@@ -22,28 +22,35 @@ export function Header() {
         return `
         <header>
             <div class="contenedor-header">
- 
-                <div class="logo">
-                    <a href="#/">
-                    <img src="assets/imgs/logo2.png" alt="AgroConecta logo" width="160">
-                    </a>
-                       
-                </div>
-
                 <!-- BOTÓN HAMBURGUESA -->
                 <button class="menu-toggle" id="menu-toggle">
                     <span></span>
                     <span></span>
                     <span></span>
                 </button>
+ 
+                <div class="logo">
+                    <a href="#/">
+                    <img src="assets/imgs/logo2.png" alt="AgroConecta logo" width="160">
+                    </a>
+                </div>
 
                 <nav class="contenedor-nav" id="nav-menu">
-                    <a href="#/">Inicio</a>
-                    <a href="#/catalogo">Catalogo</a>
-                    <a href="#/nosotros">Nosotros</a>
-                    <a href="#/contacto">Contacto</a>
-                    ${adminLink}
+                    <div class="user-info-mobile">
+                        ${userLogged ? `<span class="user-name-mobile">${userLogged.nombre}</span>` : `<a href="#/sesion" class="login-mobile">Ingresar</a>`}
+                    </div>
+                    <div class="nav-links">
+                        <a href="#/">Inicio</a>
+                        <a href="#/catalogo">Catalogo</a>
+                        <a href="#/nosotros">Nosotros</a>
+                        <a href="#/contacto">Contacto</a>
+                        ${adminLink}
+                    </div>
+                    <div class="user-logout-mobile">
+                        ${userLogged ? `<button id="logoutBtnMobile" class="logout-mobile">Salir</button>` : ``}
+                    </div>
                 </nav>
+
                 <div class="contenedor-buscar">
                     <input type="text" placeholder="Buscar..."/>
                 </div>
@@ -63,28 +70,38 @@ export function Header() {
         return `
         <header>
             <div class="contenedor-header">
- 
-                <div class="logo">
-                    <a href="#/">
-                    <img src="assets/imgs/logo2.png" alt="AgroConecta logo" width="160">
-                    </a>
-                       
-                </div>
-
                 <!-- BOTÓN HAMBURGUESA -->
                 <button class="menu-toggle" id="menu-toggle">
                     <span></span>
                     <span></span>
                     <span></span>
                 </button>
+ 
+                <div class="logo">
+                    <a href="#/">
+                    <img src="assets/imgs/logo2.png" alt="AgroConecta logo" width="160">
+                    </a>
+                </div>
+
                 <nav class="contenedor-nav" id="nav-menu">
-                    <a href="#/">Inicio</a>
-                    <a href="#/catalogo">Catalogo</a>
-                    <a href="#/nosotros">Nosotros</a>
-                    <a href="#/contacto">Contacto</a>
-                    ${adminLink}
+                    <div class="user-info-mobile">
+                        ${userLogged ? `<span class="user-name-mobile">${userLogged.nombre}</span>` : `<a href="#/sesion" class="login-mobile">Ingresar</a>`}
+                    </div>
+                    <div class="nav-links">
+                        <a href="#/">Inicio</a>
+                        <a href="#/catalogo">Catalogo</a>
+                        <a href="#/nosotros">Nosotros</a>
+                        <a href="#/contacto">Contacto</a>
+                        ${adminLink}
+                    </div>
+                    <div class="user-logout-mobile">
+                        ${userLogged ? `<button id="logoutBtnMobile" class="logout-mobile">Salir</button>` : ``}
+                    </div>
                 </nav>
                 
+                <div class="contenedor-buscar">
+                    <input type="text" placeholder="Buscar..."/>
+                </div>
  
                 <div class="acciones">
                     <a href="#/carrito" class="carrito-icono">

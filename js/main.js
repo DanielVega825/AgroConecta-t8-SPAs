@@ -1,9 +1,13 @@
 import { Header } from "./components/header.js";
 import { Footer } from "./components/footer.js";
 import { router } from "./router.js";
+import { products } from "../data/products.js";
+
  
 console.log("main.js cargado");
- 
+
+localStorage.setItem("listaProducts", JSON.stringify(products))
+
 function renderLayout() {
     console.log("renderLayout iniciado");
     const root = document.getElementById("root");
@@ -50,15 +54,31 @@ function setupMenu() {
  
 function setupLogout() {
     const logoutBtn = document.getElementById("logoutBtn");
+    const logoutBtnMobile = document.getElementById("logoutBtnMobile");
+    
+    const handleLogout = (e) => {
+        e.preventDefault();
+        localStorage.removeItem("userLogged");
+        window.location.hash = "#/";
+        // Forzar actualización de la vista al hacer logout
+        updateHeader();
+        setupMenu();
+        setupLogout();
+    };
+    
     if (logoutBtn) {
-        logoutBtn.onclick = (e) => {
-            e.preventDefault();
-            localStorage.removeItem("userLogged");
-            window.location.hash = "#/";
-            // Forzar actualización de la vista al hacer logout
-            updateHeader();
-            setupMenu();
-            setupLogout();
+        logoutBtn.onclick = handleLogout;
+    }
+    
+    if (logoutBtnMobile) {
+        logoutBtnMobile.onclick = handleLogout;
+        // Cerrar el menú cuando se hace logout en móvil
+        logoutBtnMobile.onclick = (e) => {
+            handleLogout(e);
+            const nav = document.getElementById("nav-menu");
+            if (nav) {
+                nav.classList.remove("active");
+            }
         };
     }
 }

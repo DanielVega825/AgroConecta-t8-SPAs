@@ -183,7 +183,7 @@ export function gestionPanel() {
 
     const columnasDisponibles = [
         { clave: "nombre", label: "Producto", tipo: "texto" },
-        { clave: "tipoProducto", label: "Tipo", tipo: "categoria" },
+        { clave: "categoriaId", label: "Categoría", tipo: "categoria" },
         { clave: "precio", label: "Precio", tipo: "numero" },
         { clave: "cantidad", label: "Cantidad", tipo: "numero" },
         { clave: "stockMinimo", label: "Stock Mín.", tipo: "numero" },
@@ -194,10 +194,10 @@ export function gestionPanel() {
         { clave: "fechaDeIngreso", label: "Fecha Ingreso", tipo: "fecha" },
     ];
 
-    let columnasVisibles = ["nombre", "tipoProducto", "precio", "cantidad", "stockMinimo", "activo", "enPromocion", "descuento"];
+    let columnasVisibles = ["nombre", "categoriaId", "precio", "cantidad", "stockMinimo", "activo", "enPromocion", "descuento"];
 
     const filtrosActivos = {
-        nombre: "", tipoProducto: "",
+        nombre: "", categoriaId: "",
         precio: { operacion: ">=", valor: "" },
         cantidad: { operacion: ">=", valor: "" },
         stockMinimo: { operacion: ">=", valor: "" },
@@ -486,7 +486,7 @@ ${pedido.total.toLocaleString('es-CO', {
 
         return productos.filter(p => {
             if (!p.nombre.toLowerCase().includes(q)) return false;
-            if (cat && (p.tipoProducto || "") !== cat) return false;
+            if (cat && (p.categoriaId || "") !== cat) return false;
 
             for (const col of columnasDisponibles) {
                 const clave = col.clave;

@@ -8,7 +8,8 @@ export class Producto {
     cantidad = 0,
     stockMinimo = 6,
     descripcionLong = "",
-    categoriaId // Único campo identificador numérico (Long en Java)
+    categoriaId, // Único campo identificador numérico (Long en Java)
+    activo = true
   }) {
     // Validaciones básicas de negocio
     if (!nombre || nombre.trim() === '') throw new Error("El nombre es requerido");
@@ -16,11 +17,11 @@ export class Producto {
     if (!descripcion || descripcion.trim() === '') throw new Error("La descripción es requerida");
 
     // Validación del índice (debe existir y ser un número entero válido)
-    if (!categoriaId || isNaN(categoriaId) || !Number.isInteger(Number(categoriaId))) {
-      throw new Error("Debe seleccionar una categoría válida (ID numérico requerido)");
-    }
+    // if (!categoriaId || isNaN(categoriaId) || !Number.isInteger(Number(categoriaId))) {
+    //   throw new Error("Debe seleccionar una categoría válida (ID numérico requerido)");
+    // }
 
-    if (stockMinimo <= 5) throw new Error("El stock mínimo debe ser mayor a 5");
+    if (stockMinimo <= 4) throw new Error("El stock mínimo debe ser mayor a 5");
     if (!Array.isArray(imagenes) || imagenes.length === 0) throw new Error("Debe proporcionar al menos una imagen");
 
     // Validación condicional del JSON de detalles
@@ -39,12 +40,8 @@ export class Producto {
     this.stockMinimo = stockMinimo;
     this.descripcionLong = descripcionLong;
     this.categoriaId = Number(categoriaId); // Forzamos el tipo numérico
+    this.activo = activo;
   }
 
-  obtenerEstado() {
-    if (!this.activo) return "inactivo";
-    if (this.cantidad === 0) return "agotado";
-    if (this.cantidad <= this.stockMinimo) return "stock bajo";
-    return "activo";
-  }
+  
 }
