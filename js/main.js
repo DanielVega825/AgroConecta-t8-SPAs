@@ -37,28 +37,52 @@ function updateHeader() {
 function setupMenu() {
     const btn = document.getElementById("menu-toggle");
     const nav = document.getElementById("nav-menu");
+    const backdrop = document.getElementById("menu-backdrop");
 
     if (btn && nav) {
-        btn.onclick = () => { // Usamos .onclick para asegurar que no se dupliquen
+        btn.onclick = () => { 
             nav.classList.toggle("active");
+            if (backdrop) {
+                backdrop.classList.toggle("active");
+            }
         };
 
         // Cerramos el menú cuando se hace click en cualquier enlace
         nav.querySelectorAll("a").forEach(link => {
             link.onclick = () => {
                 nav.classList.remove("active");
+                if (backdrop) {
+                    backdrop.classList.remove("active");
+                }
             };
         });
+    }
+
+    // Cerrar menú al hacer click en el backdrop
+    if (backdrop) {
+        backdrop.onclick = () => {
+            nav.classList.remove("active");
+            backdrop.classList.remove("active");
+        };
     }
 }
  
 function setupLogout() {
     const logoutBtn = document.getElementById("logoutBtn");
     const logoutBtnMobile = document.getElementById("logoutBtnMobile");
+    const nav = document.getElementById("nav-menu");
+    const backdrop = document.getElementById("menu-backdrop");
     
     const handleLogout = (e) => {
         e.preventDefault();
         localStorage.removeItem("userLogged");
+        // Cerrar menú y backdrop
+        if (nav) {
+            nav.classList.remove("active");
+        }
+        if (backdrop) {
+            backdrop.classList.remove("active");
+        }
         window.location.hash = "#/";
         // Forzar actualización de la vista al hacer logout
         updateHeader();
@@ -72,14 +96,6 @@ function setupLogout() {
     
     if (logoutBtnMobile) {
         logoutBtnMobile.onclick = handleLogout;
-        // Cerrar el menú cuando se hace logout en móvil
-        logoutBtnMobile.onclick = (e) => {
-            handleLogout(e);
-            const nav = document.getElementById("nav-menu");
-            if (nav) {
-                nav.classList.remove("active");
-            }
-        };
     }
 }
 

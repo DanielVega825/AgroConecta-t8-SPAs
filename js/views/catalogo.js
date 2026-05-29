@@ -14,6 +14,8 @@ export function Catalogo() {
     setTimeout(() => initCatalogo(), 0);
 
     return `
+        <button id="btn-scroll-top" class="btn-scroll-top" title="Ir hacia arriba">↑</button>
+
         <section class="hero">
             <span class="badge">Productos</span>
             <h1>Catálogo de Productos</h1>
@@ -119,6 +121,22 @@ function initCatalogo() {
     const contenedor = document.getElementById('contenedor-productos');
     const modal = document.getElementById('modal-producto');
     const inputQty = document.getElementById('modal-qty');
+    const scrollTopBtn = document.getElementById('btn-scroll-top');
+    
+    // Lógica para botón scroll-to-top
+    if (scrollTopBtn) {
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 400) {
+                scrollTopBtn.classList.add('active');
+            } else {
+                scrollTopBtn.classList.remove('active');
+            }
+        });
+        
+        scrollTopBtn.addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+    }
     
     if (!contenedor || !modal) return;
 

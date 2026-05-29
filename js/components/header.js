@@ -20,6 +20,7 @@ export function Header() {
 
     if (hash === '#/catalogo') {
         return `
+        <div id="menu-backdrop" class="menu-backdrop"></div>
         <header>
             <div class="contenedor-header">
                 <!-- BOTÓN HAMBURGUESA -->
@@ -68,6 +69,7 @@ export function Header() {
     `;
     } else {
         return `
+        <div id="menu-backdrop" class="menu-backdrop"></div>
         <header>
             <div class="contenedor-header">
                 <!-- BOTÓN HAMBURGUESA -->
@@ -98,10 +100,6 @@ export function Header() {
                         ${userLogged ? `<button id="logoutBtnMobile" class="logout-mobile">Salir</button>` : ``}
                     </div>
                 </nav>
-                
-                <div class="contenedor-buscar">
-                    <input type="text" placeholder="Buscar..."/>
-                </div>
  
                 <div class="acciones">
                     <a href="#/carrito" class="carrito-icono">
