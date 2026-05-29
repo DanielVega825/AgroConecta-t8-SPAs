@@ -7,36 +7,7 @@ const formatPrice = (valor) => {
 };
 
 export function Home() {
-
-   const productosPromo = [
-      {
-         nombre: "Semillas de Maíz",
-         precio: 42000,
-         descuento: 20,
-         imagen: "semillas-maiz.jpg",
-         categoria: "SEMILLAS CERTIFICADAS",
-         descripcion:
-            "Incrementa el rendimiento de tu cultivo con semillas seleccionadas para una producción más fuerte y rentable."
-      },
-      {
-         nombre: "Concentrado Ganado",
-         precio: 85000,
-         descuento: 15,
-         imagen: "concentrado-ganado.jpg",
-         categoria: "NUTRICIÓN ANIMAL",
-         descripcion:
-            "Mejora la alimentación de tu ganado con nutrición balanceada diseñada para aumentar peso y vitalidad."
-      },
-      {
-         nombre: "Kit Herramientas",
-         precio: 120000,
-         descuento: 30,
-         imagen: "kit-herramientas.jpg",
-         categoria: "HERRAMIENTAS AGRÍCOLAS",
-         descripcion:
-            "Herramientas resistentes y eficientes para trabajar el campo con mayor comodidad y productividad."
-      }
-   ];
+   setTimeout(() => initHome(), 0);
 
    return `
    <section class="hero-home">
@@ -152,75 +123,12 @@ export function Home() {
 
          </div>
 
-         <div class="promo-grid">
-
-            ${productosPromo.map(producto => {
-
-               const precioFinal =
-                  producto.precio -
-                  (producto.precio * producto.descuento / 100);
-
-               return `
-               <article class="promo-card">
-
-                  <div class="promo-discount">
-
-                     <strong>
-                        -${producto.descuento}%
-                     </strong>
-
-                     <span>
-                        
-                     </span>
-
-                  </div>
-
-                  <div class="promo-image">
-
-                     <img
-                        src="assets/imgs/${producto.imagen}"
-                        alt="${producto.nombre}"
-                        loading="lazy"
-                     >
-
-                  </div>
-
-                  <div class="promo-content">
-
-                     <small>
-                        ${producto.categoria}
-                     </small>
-
-                     <h3>
-                        ${producto.nombre}
-                     </h3>
-
-                     <p class="promo-description">
-                        ${producto.descripcion}
-                     </p>
-
-                     <div class="promo-prices">
-
-                        <span class="old-price">
-                           ${formatPrice(producto.precio)}
-                        </span>
-
-                        <span class="new-price">
-                           ${formatPrice(precioFinal)}
-                        </span>
-
-                     </div>
-
-                     <a href="#/catalogo" class="promo-btn">
-                        Comprar ahora
-                     </a>
-
-                  </div>
-
-               </article>
-               `;
-            }).join("")}
-
+         <div class="carousel-container">
+            <button class="carousel-btn carousel-btn-prev" id="carousel-prev">&#10094;</button>
+            <div class="carousel-wrapper">
+               <div class="carousel-track" id="carousel-track"></div>
+            </div>
+            <button class="carousel-btn carousel-btn-next" id="carousel-next">&#10095;</button>
          </div>
 
       </div>
@@ -297,4 +205,129 @@ export function Home() {
 
    </section>
    `;
+}
+
+function initHome() {
+   // Obtener productos del localStorage
+   const productosRaw = JSON.parse(localStorage.getItem('listaProducts')) || [];
+   
+   // Filtrar solo los productos en descuento
+   const productosDescuento = productosRaw.filter(p => p.detalles && p.detalles.enDescuento);
+   
+   const carouselTrack = document.getElementById('carousel-track');
+   if (!carouselTrack || productosDescuento.length === 0) return;
+
+   // Renderizar tarjetas del carrusel
+   const renderCarousel = () => {
+      carouselTrack.innerHTML = productosDescuento.map((p, index) => {
+         const imagenData = Array.isArray(p.imagenes) ? p.imagenes[0] : p.imagenes;
+         const esBase64 = imagenData && imagenData.startsWith('data:image');
+         const srcImg = esBase64 ? imagenData : `assets/imgs/${imagenData || 'placeholder.jpg'}`;
+         const precioOriginal = p.precio;
+         const descuento = p.detalles.porcentajeDescuento || 0;
+         const precioConDescuento = precioOriginal * (1 - descuento / 100);
+
+         return `
+            <div class="carousel-card" data-index="${index}">
+               <div class="carousel-card-image">
+                  <img src="${srcImg}" alt="${p.nombre}">
+                  <div class="discount-badge">${descuento}% OFF</div>
+               </div>
+               <div class="carousel-card-content">
+                  <h4>${p.nombre}</h4>
+                  <p class="carousel-card-desc">${p.descripcion}</p>
+                  <div class="carousel-prices">
+                     <span class="price-original">$${formatPrice(precioOriginal)}</span>
+                     <span class="price-discount">$${formatPrice(precioConDescuento)}</span>
+                  </div>
+                  <button class="carousel-card-btn" data-nombre="${p.nombre}" data-precio="${precioConDescuento}" data-img="${srcImg}" data-stock="${p.cantidad}">
+                     Agregar al carrito
+                  </button>
+               </div>
+            </div>
+         `;
+      }).join('');
+   };
+
+   renderCarousel();
+
+   // Lógica del carrusel
+   let currentIndex = 0;
+   const cardWidth = 280;
+   const gap = 20;
+   
+   const updateCarousel = () => {
+      const offset = -(currentIndex * (cardWidth + gap));
+      carouselTrack.style.transform = `translateX(${offset}px)`;
+   };
+
+   const nextSlide = () => {
+      const maxIndex = Math.max(0, productosDescuento.length - 1);
+      if (currentIndex < maxIndex) {
+         currentIndex++;
+         updateCarousel();
+      }
+   };
+
+   const prevSlide = () => {
+      if (currentIndex > 0) {
+         currentIndex--;
+         updateCarousel();
+      }
+   };
+
+   document.getElementById('carousel-next').addEventListener('click', nextSlide);
+   document.getElementById('carousel-prev').addEventListener('click', prevSlide);
+
+   // Agregar productos al carrito desde el carrusel
+   document.addEventListener('click', (e) => {
+      if (e.target.classList.contains('carousel-card-btn')) {
+         const nombre = e.target.dataset.nombre;
+         const precio = parseFloat(e.target.dataset.precio);
+         const img = e.target.dataset.img;
+         const stock = parseInt(e.target.dataset.stock);
+
+         let carrito = JSON.parse(localStorage.getItem('carrito')) || [];
+         const existe = carrito.find(p => p.nombre === nombre);
+
+         if (existe) {
+            if (existe.cantidad + 1 > stock) {
+               alert('No puedes agregar más productos. Límite de stock alcanzado.');
+               return;
+            }
+            existe.cantidad += 1;
+         } else {
+            carrito.push({ nombre, precio, img, stock, cantidad: 1 });
+         }
+
+         localStorage.setItem('carrito', JSON.stringify(carrito));
+         
+         // Actualizar contador
+         const contador = document.getElementById('contador-carrito');
+         if (contador) {
+            const total = carrito.reduce((acc, p) => acc + p.cantidad, 0);
+            contador.textContent = total;
+            contador.classList.add('animar');
+            setTimeout(() => contador.classList.remove('animar'), 200);
+         }
+
+         // Mostrar notificación
+         const toast = document.createElement('div');
+         toast.className = 'agro-toast shadow-lg';
+         toast.innerHTML = `
+            <div class="d-flex align-items-center gap-3">
+               <i class="bi bi-cart-check-fill fs-3 text-white"></i>
+               <div>
+                  <h6 class="m-0 fw-bold text-white">¡Añadido!</h6>
+                  <p class="m-0 small text-white opacity-75">${nombre}</p>
+               </div>
+            </div>
+         `;
+         document.body.appendChild(toast);
+         setTimeout(() => {
+            toast.classList.add('agro-toast-exit');
+            setTimeout(() => toast.remove(), 500);
+         }, 3000);
+      }
+   });
 }
