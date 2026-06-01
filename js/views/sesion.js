@@ -75,7 +75,7 @@ export function Sesion() {
                         <div class="terms-wrapper">
                             <input type="checkbox" id="terms">
                             <label for="terms">
-                                Acepto los <a href="#">términos y condiciones</a> y el tratamiento de datos.
+                                Acepto los <a href="Docs/terminos_y_condiciones_agroconecta.pdf" download>términos y condiciones</a> y el tratamiento de datos.
                             </label>
                         </div>
                         <span class="field-error" id="error-terms"></span>
