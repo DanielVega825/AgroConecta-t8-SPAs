@@ -21,6 +21,19 @@ const routes = {
 
 export function router() {
     const path = location.hash.slice(1) || "/";
+
+    // Restricción de acceso a vistas de administración
+    const adminRoutes = ["/addProduct", "/panel"];
+    if (adminRoutes.includes(path)) {
+        const userLoggedStr = localStorage.getItem("userLogged");
+        const userLogged = userLoggedStr ? JSON.parse(userLoggedStr) : null;
+        if (!userLogged || userLogged.role !== "admin") {
+            alert("Acceso denegado: Esta vista es exclusiva para administradores.");
+            window.location.hash = "#/";
+            return;
+        }
+    }
+
     const matched = routes[path] || Home;
 
     // Normalizar: si la ruta es una función, convertirla a objeto {view, init}
@@ -38,6 +51,7 @@ export function router() {
     if (path === "/panel") cssPath = "styles/panel.css";
     if (path === "/carrito") cssPath = "styles/carrito.css"; //  NUEVO: Estilos del carrito
     if (path === "/sesion") cssPath = "styles/sesion.css";
+    if (path === "/" || path === "/home") cssPath = "styles/home.css";
 
     const appContainer = document.getElementById("app");
     const header = document.querySelector("header");

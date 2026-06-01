@@ -149,16 +149,27 @@ function initCatalogo() {
     ];
 
     const productosNuevosRaw = JSON.parse(localStorage.getItem('listaProducts')) || [];
-    const productosNuevos = productosNuevosRaw.map((p, index) => ({
+    console.log("Productos nuevos cargados:", productosNuevosRaw);
+    const productosNuevos = productosNuevosRaw.map((p, index) => {
+    // 1. Corregir el acceso a la propiedad (imagenes en vez de imagen)
+    const imagenData = Array.isArray(p.imagenes) ? p.imagenes[0] : p.imagenes;
+    
+    // 2. Validar que la imagen exista para evitar errores de lectura
+    const imagenSegura = imagenData || 'placeholder.jpg'; 
+    const esBase64 = imagenSegura.startsWith('data:image');
+
+    return {
         id: `custom-${index}`,
         nombre: p.nombre,
-        cat: p.tipoProducto.toUpperCase(),
-        precio: p.precio,
-        stock: p.cantidad,
-        img: Array.isArray(p.imagen) ? p.imagen[0] : p.imagen,
-        desc: p.descripcion,
-        esBase64: (Array.isArray(p.imagen) ? p.imagen[0] : p.imagen).startsWith('data:image')
-    }));
+        cat: (p.tipoProducto || "VARIOS").toUpperCase(), // Evita errores si tipoProducto es undefined
+        precio: Number(p.precio) || 0,
+        stock: Number(p.cantidad) || 0,
+        img: imagenSegura,
+        desc: p.descripcion || "",
+        esBase64: esBase64
+    };
+});
+    console.log("Productos nuevos procesados:", productosNuevos);
 
     const todosLosProductos = [...productosBase, ...productosNuevos];
 

@@ -164,3 +164,30 @@
     font-weight: bold;
     text-align: center;
 }
+
+/* Editor placeholder and styling */
+.editor-content:empty:before {
+    content: attr(placeholder);
+    color: #6c757d;
+    cursor: text;
+}
+.editor-content ul, .editor-content ol {
+    padding-left: 20px !important;
+    margin-bottom: 10px !important;
+    list-style-position: inside !important;
+}
+.editor-content ul {
+    list-style-type: disc !important;
+}
+.editor-content ol {
+    list-style-type: decimal !important;
+}
+.editor-content b, .editor-content strong {
+    font-weight: bold !important;
+}
+.editor-content i, .editor-content em {
+    font-style: italic !important;
+}
+.editor-content u {
+    text-decoration: underline !important;
+}
