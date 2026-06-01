@@ -341,6 +341,7 @@
     position: relative;
     padding: 40px;
     animation: modalScale 0.3s ease-out;
+    overflow: hidden;
 }
 
 
@@ -362,6 +363,8 @@
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 40px;
+    height: 100%;
+    overflow: hidden;
 }
 
 .modal-agro-img {
@@ -369,15 +372,23 @@
     border-radius: 15px;
     padding: 20px;
     display: flex; align-items: center; justify-content: center;
+    overflow: hidden;
+    min-height: 0;
 }
 
-.modal-agro-img img { max-width: 100%; max-height: 380px; object-fit: contain; }
+.modal-agro-img img {
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+}
 
 .modal-agro-info h2 { font-size: 2rem; color: var(--color-primary-600); margin: 10px 0; }
 .modal-agro-info p { color: var(--color-text-secondary); line-height: 1.6; margin: 15px 0; }
 .modal-agro-info strong { font-size: 1.8rem; display: block; margin: 20px 0; }
 
-.modal-agro-actions { display: flex; gap: 15px; }
+.modal-agro-actions { display: flex; flex-direction: column; gap: 10px; }
 
 .modal-qty { width: 60px; padding: 10px; border-radius: 8px; border: 1px solid #ddd; }
 
@@ -440,6 +451,10 @@
 
 .agro-toast-exit {
     animation: agroSlideOut 0.4s ease forwards;
+}
+
+.agro-toast-error {
+    background: #dc3545;
 }
 
 @keyframes agroSlideOut {

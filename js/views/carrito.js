@@ -1,5 +1,21 @@
 import { actualizarContadorCarrito } from "../main.js";
 
+const mostrarToast = (titulo, mensaje, tipo = 'success') => {
+    const iconos = { success: 'bi-cart-check-fill', error: 'bi-exclamation-circle-fill', warning: 'bi-exclamation-triangle-fill' };
+    const toast = document.createElement('div');
+    toast.className = `agro-toast agro-toast-${tipo} shadow-lg`;
+    toast.innerHTML = `
+        <div class="d-flex align-items-center gap-3">
+            <i class="bi ${iconos[tipo]} fs-3 text-white"></i>
+            <div>
+                <h6 class="m-0 fw-bold text-white">${titulo}</h6>
+                <p class="m-0 small text-white opacity-75">${mensaje}</p>
+            </div>
+        </div>`;
+    document.body.appendChild(toast);
+    setTimeout(() => { toast.classList.add('agro-toast-exit'); setTimeout(() => toast.remove(), 500); }, 3000);
+};
+
 const formatoMoneda = (valor) => {
     return valor.toLocaleString('es-CO', {
         style: 'currency',
@@ -140,7 +156,7 @@ export function initCarrito() {
             item.querySelector(".aumentar").onclick = () => {
                 const pStock = carrito[index].stock || 999;
                 if (carrito[index].cantidad >= pStock) {
-                    alert("Límite de stock alcanzado.");
+                    mostrarToast('Stock insuficiente', 'Has alcanzado el límite disponible.', 'error');
                     return;
                 }
                 carrito[index].cantidad++;
@@ -209,20 +225,20 @@ export function initCarrito() {
 
             // VALIDAR ADMIN
             if (userLogged && userLogged.role === "admin") {
-                alert("Un administrador no puede comprar.");
+                mostrarToast('Acción no permitida', 'Un administrador no puede realizar compras.', 'warning');
                 return;
             }
 
             // VALIDAR LOGIN
             if (!userLogged) {
-                alert("Debes iniciar sesión.");
-                window.location.hash = "#/sesion";
+                mostrarToast('Inicia sesión', 'Debes iniciar sesión para continuar con el pago.', 'warning');
+                setTimeout(() => { window.location.hash = "#/sesion"; }, 1500);
                 return;
             }
 
             // VALIDAR CARRITO
             if (carrito.length === 0) {
-                alert("Tu carrito está vacío.");
+                mostrarToast('Carrito vacío', 'Agrega productos antes de proceder al pago.', 'warning');
                 return;
             }
 

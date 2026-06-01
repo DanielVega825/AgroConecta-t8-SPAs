@@ -237,8 +237,8 @@ function initHome() {
                   <h4>${p.nombre}</h4>
                   <p class="carousel-card-desc">${p.descripcion}</p>
                   <div class="carousel-prices">
-                     <span class="price-original">$${formatPrice(precioOriginal)}</span>
-                     <span class="price-discount">$${formatPrice(precioConDescuento)}</span>
+                     <span class="price-original">${formatPrice(precioOriginal)}</span>
+                     <span class="price-discount">${formatPrice(precioConDescuento)}</span>
                   </div>
                   <button class="carousel-card-btn" data-nombre="${p.nombre}" data-precio="${precioConDescuento}" data-img="${srcImg}" data-stock="${p.cantidad}">
                      Agregar al carrito
@@ -251,21 +251,35 @@ function initHome() {
 
    renderCarousel();
 
-   // Lógica del carrusel
+   // Clonar tarjetas al final para loop infinito sin salto visible
+   Array.from(carouselTrack.children).forEach(card => {
+      carouselTrack.appendChild(card.cloneNode(true));
+   });
+
+   const total = productosDescuento.length;
    let currentIndex = 0;
    const cardWidth = 280;
    const gap = 20;
-   
-   const updateCarousel = () => {
-      const offset = -(currentIndex * (cardWidth + gap));
-      carouselTrack.style.transform = `translateX(${offset}px)`;
+
+   const updateCarousel = (animated = true) => {
+      if (!animated) carouselTrack.style.transition = 'none';
+      carouselTrack.style.transform = `translateX(${-(currentIndex * (cardWidth + gap))}px)`;
+      if (!animated) {
+         // Forzar reflow para que el cambio sin animación se aplique antes de reactivar
+         carouselTrack.getBoundingClientRect();
+         carouselTrack.style.transition = '';
+      }
    };
 
    const nextSlide = () => {
-      const maxIndex = Math.max(0, productosDescuento.length - 1);
-      if (currentIndex < maxIndex) {
-         currentIndex++;
-         updateCarousel();
+      currentIndex++;
+      updateCarousel();
+      // Si llegamos al clon del primero, reseteamos sin animación
+      if (currentIndex >= total) {
+         setTimeout(() => {
+            currentIndex = 0;
+            updateCarousel(false);
+         }, 400);
       }
    };
 
@@ -278,6 +292,18 @@ function initHome() {
 
    document.getElementById('carousel-next').addEventListener('click', nextSlide);
    document.getElementById('carousel-prev').addEventListener('click', prevSlide);
+
+   // Auto-play cada 2 segundos con loop infinito
+   const carouselContainer = document.querySelector('.carousel-container');
+   const autoSlide = () => nextSlide();
+
+   let autoPlay = setInterval(autoSlide, 2000);
+
+   // Pausa al pasar el mouse, reanuda al salir
+   carouselContainer.addEventListener('mouseenter', () => clearInterval(autoPlay));
+   carouselContainer.addEventListener('mouseleave', () => {
+      autoPlay = setInterval(autoSlide, 2000);
+   });
 
    // Agregar productos al carrito desde el carrusel
    document.addEventListener('click', (e) => {
