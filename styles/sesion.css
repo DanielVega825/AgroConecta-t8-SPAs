@@ -26,6 +26,32 @@ body{
     background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('../assets/imgs/fondo-sesion.png') center/cover no-repeat !important;
 }
 
+.form-field {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.field-error {
+    display: none;
+    color: #dc3545;
+    font-size: 0.72rem;
+    padding-left: 2px;
+}
+
+.field-error:not(:empty) {
+    display: block;
+}
+
+input.input-invalid {
+    border-color: #dc3545 !important;
+    background-color: #fff8f8 !important;
+}
+
+input.input-valid {
+    border-color: #16a34a !important;
+}
+
 
 
 .back-home:hover {
@@ -183,6 +209,15 @@ body {
 .card-sesion.signup-mode .form.signup {
     opacity: 1;
     pointer-events: auto;
+    justify-content: flex-start;
+    overflow-y: auto;
+    padding-top: 30px;
+    padding-bottom: 20px;
+    scrollbar-width: none;
+}
+
+.card-sesion.signup-mode .form.signup::-webkit-scrollbar {
+    display: none;
 }
 
 .form form {

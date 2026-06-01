@@ -7,7 +7,7 @@ export function Footer() {
                     <div class="colum__footer col-md-3 col-lg-4 col-xl-3 mx-auto mb-4">
                         <div class="d-flex align-items-center justify-content-center justify-content-md-start mb-3">
                             <!-- Reemplaza con tu logo -->
-                            <img src="/assets/imgs/logo3.png" alt="Logo" width="40" 
+                            <img src="assets/imgs/logo3.png" alt="Logo" width="40"
                                 class="footer__logo me-2">
                             <a href="#/" class="text-reset text-decoration-none">
                                 <span class="fw-bold text-uppercase h5 mb-0">AgroConecta</span>
@@ -21,7 +21,7 @@ export function Footer() {
                     <!-- Columna 2: Productos/Enlaces -->
                     <div class="colum__footer col-md-2 col-lg-2 col-xl-2 mx-auto mb-4">
                         <h6 class="text-uppercase fw-bold mb-4">Enlaces</h6>
-                        <p><a href="#/" class="text-reset text-decoration-none">inicio</a></p>
+                        <p><a href="#/" class="text-reset text-decoration-none">Inicio</a></p>
                         <p><a href="#/catalogo" class="text-reset text-decoration-none">Catálogo</a></p>
                         <p><a href="#/nosotros" class="text-reset text-decoration-none">Nosotros</a></p>
                         <p><a href="#/contacto" class="text-reset text-decoration-none">Contacto</a></p>
@@ -30,9 +30,9 @@ export function Footer() {
                     <!-- Columna 3: Enlaces útiles -->
                     <div class="colum__footer col-md-3 col-lg-2 col-xl-2 mx-auto mb-4">
                         <h6 class="text-uppercase fw-bold mb-4">Categorías</h6>
-                        <p><a href="#!" class="text-reset text-decoration-none">Semillas</a></p>
-                        <p><a href="#!" class="text-reset text-decoration-none">Concentrados</a></p>
-                        <p><a href="#!" class="text-reset text-decoration-none">Herramientas</a></p>
+                        <p><a href="#/catalogo" class="footer-filter-link text-reset text-decoration-none" data-categoria="SEMILLAS">Semillas</a></p>
+                        <p><a href="#/catalogo" class="footer-filter-link text-reset text-decoration-none" data-categoria="CONCENTRADOS">Concentrados</a></p>
+                        <p><a href="#/catalogo" class="footer-filter-link text-reset text-decoration-none" data-categoria="HERRAMIENTAS">Herramientas</a></p>
                     </div>
  
                     <!-- Columna 4: Contacto -->
@@ -52,4 +52,3 @@ export function Footer() {
         </footer>
     `;
 }
- 

@@ -1,4 +1,5 @@
 import { actualizarContadorCarrito } from "../main.js";
+import { products as productosEstaticos } from "../../data/products.js";
 
 // ✅ Formateador Profesional: $ 25.000,00
 const formatPrice = (valor) => {
@@ -14,6 +15,8 @@ export function Catalogo() {
     setTimeout(() => initCatalogo(), 0);
 
     return `
+        <button id="btn-scroll-top" class="btn-scroll-top" title="Ir hacia arriba">↑</button>
+
         <section class="hero">
             <span class="badge">Productos</span>
             <h1>Catálogo de Productos</h1>
@@ -82,22 +85,17 @@ export function Catalogo() {
                         </div>
 
                         <div class="modal-agro-actions">
-                            <div class="row g-3 align-items-center mb-4">
-                                <div class="col-auto">
-                                    <div class="input-group input-group-sm quantity-pill shadow-sm">
-                                        <button class="btn btn-light border-end" type="button" id="modal-minus">-</button>
-                                        <input type="number" value="1" min="1" class="form-control text-center fw-bold border-0 bg-white" id="modal-qty" readonly>
-                                        <button class="btn btn-light border-start" type="button" id="modal-plus">+</button>
-                                    </div>
+                            <div class="d-flex align-items-stretch gap-3">
+                                <div class="quantity-pill shadow-sm flex-shrink-0">
+                                    <button class="btn btn-light border-end" type="button" id="modal-minus">-</button>
+                                    <input type="number" value="1" min="1" class="form-control text-center fw-bold border-0 bg-white" id="modal-qty" style="width:65px;font-size:0.85rem" readonly>
+                                    <button class="btn btn-light border-start" type="button" id="modal-plus">+</button>
                                 </div>
-                                <div class="col">
-                                    <span id="modal-stock" class="small text-muted italic"></span>
-                                </div>
+                                <button class="btn btn-success flex-grow-1 fw-bold rounded-4 shadow d-flex align-items-center justify-content-center gap-2" id="btn-add-from-modal" style="white-space: nowrap; font-size: 0.8rem;">
+                                    <i class="bi bi-cart-plus"></i> AGREGAR AL CARRITO
+                                </button>
                             </div>
-                            
-                            <button class="btn btn-success w-100 py-3 fw-bold rounded-4 shadow d-flex align-items-center justify-content-center gap-2" id="btn-add-from-modal">
-                                <i class="bi bi-cart-plus fs-5"></i> AGREGAR AL CARRITO
-                            </button>
+                            <span id="modal-stock" class="small text-muted d-block mt-2"></span>
                         </div>
 
                         <div class="mt-4 pt-3 border-top d-flex justify-content-between">
@@ -119,6 +117,22 @@ function initCatalogo() {
     const contenedor = document.getElementById('contenedor-productos');
     const modal = document.getElementById('modal-producto');
     const inputQty = document.getElementById('modal-qty');
+    const scrollTopBtn = document.getElementById('btn-scroll-top');
+    
+    // Lógica para botón scroll-to-top
+    if (scrollTopBtn) {
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 400) {
+                scrollTopBtn.classList.add('active');
+            } else {
+                scrollTopBtn.classList.remove('active');
+            }
+        });
+        
+        scrollTopBtn.addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+    }
     
     if (!contenedor || !modal) return;
 
@@ -128,50 +142,32 @@ function initCatalogo() {
         if (parseInt(inputQty.value) < stock) {
             inputQty.value = parseInt(inputQty.value) + 1;
         } else {
-            alert("Límite de stock alcanzado.");
+            mostrarError("Has alcanzado el límite de stock disponible.");
         }
     };
     document.getElementById('modal-minus').onclick = () => { if (inputQty.value > 1) inputQty.value = parseInt(inputQty.value) - 1; };
 
-    const productosBase = [
-        { id: 1, nombre: "Semillas de Chía", cat: "SEMILLAS", precio: 25000.00, stock: 50, img: "semillas-chia.jpg", desc: "Semillas premium ricas en Omega-3 para alto rendimiento." },
-        { id: 2, nombre: "Semillas de Arroz", cat: "SEMILLAS", precio: 38000.00, stock: 30, img: "semillas-arroz.jpg", desc: "Variedad certificada de gran rendimiento y alta germinación." },
-        { id: 3, nombre: "Semillas de Maíz", cat: "SEMILLAS", precio: 42000.00, stock: 25, img: "semillas-maiz.jpg", desc: "Híbrido optimizado para climas cálidos y templados." },
-        { id: 4, nombre: "Semillas de Frijol", cat: "SEMILLAS", precio: 35000.00, stock: 40, img: "semillas-frijol.jpg", desc: "Grano seleccionado con excelente resistencia a plagas." },
-        { id: 5, nombre: "Concentrado Ceba", cat: "CONCENTRADOS", precio: 85000.00, stock: 15, img: "concentrado-ceba.jpg", desc: "Suplemento para ganancia de peso acelerada en bovinos." },
-        { id: 6, nombre: "Concentrado Ganado", cat: "CONCENTRADOS", precio: 85000.00, stock: 28, img: "concentrado-ganado.jpg", desc: "Equilibrio nutricional para ganado de leche de calidad." },
-        { id: 7, nombre: "Concentrado Pollos", cat: "CONCENTRADOS", precio: 55000.00, stock: 40, img: "concentrado-aves.jpg", desc: "Alimento balanceado para engorde rápido y saludable." },
-        { id: 8, nombre: "Concentrado Cerdos", cat: "CONCENTRADOS", precio: 78000.00, stock: 20, img: "concentrado-cerdos.jpg", desc: "Fórmula para desarrollo muscular y salud digestiva óptima." },
-        { id: 9, nombre: "Kit Herramientas", cat: "HERRAMIENTAS", precio: 120000.00, stock: 15, img: "kit-herramientas.jpg", desc: "Herramientas manuales básicas reforzadas." },
-        { id: 10, nombre: "Esparcidor", cat: "HERRAMIENTAS", precio: 95000.00, stock: 8, img: "esparcidor.jpg", desc: "Herramienta de precisión para distribución de abono." },
-        { id: 11, nombre: "Sistema Ordeño", cat: "HERRAMIENTAS", precio: 450000.00, stock: 3, img: "sistema-ordeno.jpg", desc: "Equipo de alta eficiencia para medianas fincas." },
-        { id: 12, nombre: "Pala Profesional", cat: "HERRAMIENTAS", precio: 35000.00, stock: 22, img: "pala-profesional.jpg", desc: "Acero de alta resistencia con mango ergonómico." }
-    ];
+    
+
+        const mapearProducto = (p, index, prefix) => {
+        const imagenData = Array.isArray(p.imagenes) ? p.imagenes[0] : p.imagenes;
+        const imagenSegura = imagenData || 'placeholder.jpg';
+        const esBase64 = typeof imagenSegura === 'string' && imagenSegura.startsWith('data:image');
+        return {
+            id: `${prefix}-${index}`,
+            nombre: p.nombre,
+            cat: (p.categoriaId || "VARIOS").toString().toUpperCase(),
+            precio: Number(p.precio) || 0,
+            stock: Number(p.cantidad) || 0,
+            img: imagenSegura,
+            desc: p.descripcion || "",
+            esBase64: esBase64
+        };
+    };
 
     const productosNuevosRaw = JSON.parse(localStorage.getItem('listaProducts')) || [];
-    console.log("Productos nuevos cargados:", productosNuevosRaw);
-    const productosNuevos = productosNuevosRaw.map((p, index) => {
-    // 1. Corregir el acceso a la propiedad (imagenes en vez de imagen)
-    const imagenData = Array.isArray(p.imagenes) ? p.imagenes[0] : p.imagenes;
-    
-    // 2. Validar que la imagen exista para evitar errores de lectura
-    const imagenSegura = imagenData || 'placeholder.jpg'; 
-    const esBase64 = imagenSegura.startsWith('data:image');
-
-    return {
-        id: `custom-${index}`,
-        nombre: p.nombre,
-        cat: (p.tipoProducto || "VARIOS").toUpperCase(), // Evita errores si tipoProducto es undefined
-        precio: Number(p.precio) || 0,
-        stock: Number(p.cantidad) || 0,
-        img: imagenSegura,
-        desc: p.descripcion || "",
-        esBase64: esBase64
-    };
-});
-    console.log("Productos nuevos procesados:", productosNuevos);
-
-    const todosLosProductos = [...productosBase, ...productosNuevos];
+    const fuente = productosNuevosRaw.length > 0 ? productosNuevosRaw : productosEstaticos;
+    const todosLosProductos = fuente.map((p, i) => mapearProducto(p, i, productosNuevosRaw.length > 0 ? 'custom' : 'static'));
 
     const render = (lista) => {
         contenedor.innerHTML = lista.map(p => {
@@ -205,6 +201,25 @@ function initCatalogo() {
                 abrirModal(producto);
             };
         });
+    };
+
+    const mostrarError = (mensaje) => {
+        const toast = document.createElement("div");
+        toast.className = "agro-toast agro-toast-error shadow-lg";
+        toast.innerHTML = `
+            <div class="d-flex align-items-center gap-3">
+                <i class="bi bi-exclamation-circle-fill fs-3 text-white"></i>
+                <div>
+                    <h6 class="m-0 fw-bold text-white">Stock insuficiente</h6>
+                    <p class="m-0 small text-white opacity-75">${mensaje}</p>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(toast);
+        setTimeout(() => {
+            toast.classList.add("agro-toast-exit");
+            setTimeout(() => toast.remove(), 500);
+        }, 3000);
     };
 
     const mostrarNotificacion = (nombre) => {
@@ -258,14 +273,14 @@ function initCatalogo() {
                 let cantidadFinal = cant;
                 if (existe) {
                     if (existe.cantidad + cant > pData.stock) {
-                        alert("No puedes agregar más productos. Límite de stock alcanzado.");
+                        mostrarError("No puedes agregar más. Límite de stock alcanzado.");
                         return;
                     }
                     existe.cantidad += cant;
                     existe.stock = pData.stock; // Actualizar por si cambió
                 } else {
                     if (cant > pData.stock) {
-                        alert("No puedes agregar más productos. Límite de stock alcanzado.");
+                        mostrarError("No puedes agregar más. Límite de stock alcanzado.");
                         return;
                     }
                     carrito.push({ ...pData, cantidad: cant });
@@ -308,5 +323,23 @@ function initCatalogo() {
     };
 
     document.querySelectorAll('input[name="cat"], input[name="price"]').forEach(el => el.addEventListener("change", filtrar));
-    render(todosLosProductos);
+
+    document.getElementById('btn-limpiar').onclick = () => {
+        document.querySelector('input[name="cat"][value="TODOS"]').checked = true;
+        document.querySelector('input[name="price"][value="ALL"]').checked = true;
+        filtrar();
+    };
+
+    // Aplicar filtro pendiente desde el footer
+    const filtroPendiente = localStorage.getItem('filtro_pendiente_categoria');
+    if (filtroPendiente) {
+        const radio = document.querySelector(`input[name="cat"][value="${filtroPendiente}"]`);
+        if (radio) {
+            radio.checked = true;
+            filtrar();
+        }
+        localStorage.removeItem('filtro_pendiente_categoria');
+    } else {
+        render(todosLosProductos);
+    }
 }
