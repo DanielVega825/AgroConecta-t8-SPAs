@@ -873,7 +873,6 @@ ${pedido.total.toLocaleString('es-CO', {
     // ============================================================
     // ⏱️ INICIALIZAR
     // ============================================================
->>>>>>>>> Temporary merge branch 2
     renderCheckboxesColumnas();
     poblarCategorias();
     renderTabla();
