@@ -1,4 +1,5 @@
 import { actualizarContadorCarrito } from "../main.js";
+import { createPedido, manejarErrorAPI } from "../services/api.js";
 
 const mostrarToast = (titulo, mensaje, tipo = 'success') => {
     const iconos = { success: 'bi-cart-check-fill', error: 'bi-exclamation-circle-fill', warning: 'bi-exclamation-triangle-fill' };
@@ -125,7 +126,7 @@ export function initCarrito() {
                 <div class="row align-items-center g-3">
                     <div class="col-4 col-md-2">
                         <div class="rounded-3 overflow-hidden border shadow-sm bg-white">
-                            <img src="${p.img.includes('assets') || p.img.includes('data:image') ? p.img : `assets/imgs/${p.img}`}" class="img-fluid w-100" style="aspect-ratio: 1/1; object-fit: cover;" alt="${p.nombre}">
+                            <img src="${p.img.includes('assets') || p.img.includes('data:image') ? p.img : `${p.img}`}" class="img-fluid w-100" style="aspect-ratio: 1/1; object-fit: cover;" alt="${p.nombre}">
                         </div>
                     </div>
                     
@@ -208,98 +209,82 @@ export function initCarrito() {
 
     render();
 
-    // Manejo de Proceed to Checkout
+    // ============================================================
+    // 🛒 PROCEDER AL PAGO - CREAR PEDIDO VÍA API
+    // ============================================================
     const btnProcederPago = document.getElementById("btn-proceder-pago");
 
     if (btnProcederPago) {
-
-        // Elimina eventos anteriores
-        btnProcederPago.onclick = null;
-
-        // Nuevo evento único
-        btnProcederPago.onclick = (e) => {
+        btnProcederPago.onclick = async (e) => {
             e.preventDefault();
 
-            const userLoggedStr = localStorage.getItem("userLogged");
-            const userLogged = userLoggedStr ? JSON.parse(userLoggedStr) : null;
+            // 1️⃣ VALIDAR SESIÓN
+            const token = localStorage.getItem("token");
+            const rol = localStorage.getItem("rol");
+            const clienteId = localStorage.getItem("clienteId");
 
             // VALIDAR ADMIN
-            if (userLogged && userLogged.role === "admin") {
+            if (rol === "ADMIN") {
                 mostrarToast('Acción no permitida', 'Un administrador no puede realizar compras.', 'warning');
                 return;
             }
 
             // VALIDAR LOGIN
-            if (!userLogged) {
+            if (!token || !clienteId) {
                 mostrarToast('Inicia sesión', 'Debes iniciar sesión para continuar con el pago.', 'warning');
                 setTimeout(() => { window.location.hash = "#/sesion"; }, 1500);
                 return;
             }
 
-            // VALIDAR CARRITO
+            // 2️⃣ VALIDAR CARRITO
             if (carrito.length === 0) {
                 mostrarToast('Carrito vacío', 'Agrega productos antes de proceder al pago.', 'warning');
                 return;
             }
 
-            // CALCULAR
-            const subtotal = carrito.reduce((acc, p) => acc + (p.precio * p.cantidad), 0);
-            const envio = subtotal >= 150000 ? 0 : 15000;
-            const total = subtotal + envio;
+            // 3️⃣ PREPARAR DETALLES PARA API
+            const detalles = carrito.map(p => ({
+                productId: p.productId,
+                cantidad: p.cantidad
+            }));
 
-            // STORAGE CORRECTO
-            const pedidos = JSON.parse(localStorage.getItem("listaPedidos")) || [];
-            const usuarios = JSON.parse(localStorage.getItem("listaUsuarios")) || [];
+            // 4️⃣ LLAMAR A API - CREAR PEDIDO
+            try {
+                btnProcederPago.disabled = true;
+                btnProcederPago.innerHTML = '<i class="bi bi-hourglass-split me-2"></i> Procesando...';
 
-            // CREAR PEDIDO
-            const nuevoPedido = {
-                id: Date.now(),
-                clienteNombre: userLogged.nombre,
-                email: userLogged.email,
-                estadoActual: "PENDIENTE",
-                total: total,
-                creadoAt: new Date().toISOString(),
-                detalles: carrito.map(p => ({
-                    nombre: p.nombre,
-                    cantidad: p.cantidad,
-                    precio: p.precio
-                }))
-            };
+                const response = await createPedido(clienteId, detalles);
 
-            // GUARDAR PEDIDO
-            pedidos.push(nuevoPedido);
-            localStorage.setItem("listaPedidos", JSON.stringify(pedidos));
+                // 5️⃣ ÉXITO - LIMPIAR CARRITO Y MOSTRAR CONFIRMACIÓN
+                carrito = [];
+                localStorage.removeItem("carrito");
+                actualizarContadorCarrito();
 
-            // VINCULAR USUARIO
-            const usuario = usuarios.find(u => u.email === userLogged.email);
+                contenedor.innerHTML = `
+                    <div class="text-center p-5 bg-white rounded-4 shadow-sm border">
+                        <div style="font-size: 5rem;">✅</div>
+                        <h2 class="fw-bold text-success mt-3">¡Compra realizada!</h2>
+                        <p class="text-muted mt-3">Gracias por comprar en AgroConecta 🌿</p>
+                        <p class="small text-muted">Tu pedido ID: <strong>${response.id}</strong></p>
+                        <a href="#/catalogo" class="btn btn-success mt-4 px-5 py-2 rounded-pill">
+                            Seguir comprando
+                        </a>
+                    </div>
+                `;
 
-            if (usuario) {
-                if (!usuario.pedidos) usuario.pedidos = [];
-                usuario.pedidos.push(nuevoPedido);
+                actualizarCalculos(0);
+                mostrarToast('¡Éxito!', 'Tu pedido ha sido registrado correctamente.', 'success');
+
+            } catch (error) {
+                // ❌ ERROR EN LA API
+                const err = manejarErrorAPI(error);
+                console.error("Error al crear pedido:", err);
+                
+                mostrarToast('Error al procesar', err.message || 'No pudimos procesar tu pedido. Intenta de nuevo.', 'error');
+                
+                btnProcederPago.disabled = false;
+                btnProcederPago.innerHTML = '<i class="bi bi-credit-card me-2"></i> Proceder al Pago';
             }
-
-            localStorage.setItem("listaUsuarios", JSON.stringify(usuarios));
-
-            // LIMPIAR CARRITO
-            carrito = [];
-            localStorage.removeItem("carrito");
-
-            actualizarContadorCarrito();
-            render();
-
-            // MENSAJE 
-            contenedor.innerHTML = `
-        <div class="text-center p-5 bg-white rounded-4 shadow-sm border">
-            <div style="font-size: 5rem;">✅</div>
-            <h2 class="fw-bold text-success mt-3">¡Compra realizada!</h2>
-            <p class="text-muted mt-3">Gracias por comprar en AgroConecta 🌿</p>
-            <a href="#/catalogo" class="btn btn-success mt-4 px-5 py-2 rounded-pill">
-                Seguir comprando
-            </a>
-        </div>
-        `;
-
-            actualizarCalculos(0);
         };
     }
 }

@@ -1,7 +1,7 @@
+import { getProductos, manejarErrorAPI } from '../services/api.js';
 import { actualizarContadorCarrito } from "../main.js";
 import { products as productosEstaticos } from "../../data/products.js";
 
-// ✅ Formateador Profesional: $ 25.000,00
 const formatPrice = (valor) => {
     return valor.toLocaleString('es-CO', {
         style: 'currency',
@@ -31,11 +31,8 @@ export function Catalogo() {
                 </div>
 
                 <p class="small fw-bold text-muted text-uppercase mb-3">Categoría</p>
-                <div class="filter-options">
+                <div class="filter-options" id="filter-categorias">
                     <label><input type="radio" name="cat" value="TODOS" checked><span> Todos</span></label>
-                    <label><input type="radio" name="cat" value="SEMILLAS"><span> Semillas</span></label>
-                    <label><input type="radio" name="cat" value="CONCENTRADOS"><span> Concentrados</span></label>
-                    <label><input type="radio" name="cat" value="HERRAMIENTAS"><span> Herramientas</span></label>
                 </div>
 
                 <p class="small fw-bold text-muted text-uppercase mt-4 mb-3">Precio</p>
@@ -113,67 +110,70 @@ export function Catalogo() {
     `;
 }
 
-function initCatalogo() {
+async function initCatalogo() {
     const contenedor = document.getElementById('contenedor-productos');
     const modal = document.getElementById('modal-producto');
     const inputQty = document.getElementById('modal-qty');
     const scrollTopBtn = document.getElementById('btn-scroll-top');
     
-    // Lógica para botón scroll-to-top
-    if (scrollTopBtn) {
-        window.addEventListener('scroll', () => {
-            if (window.scrollY > 400) {
-                scrollTopBtn.classList.add('active');
-            } else {
-                scrollTopBtn.classList.remove('active');
-            }
-        });
-        
-        scrollTopBtn.addEventListener('click', () => {
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        });
-    }
-    
     if (!contenedor || !modal) return;
 
-    // Lógica +/- Modal
-    document.getElementById('modal-plus').onclick = () => {
-        const stock = Number(document.getElementById('modal-stock').dataset.stock);
-        if (parseInt(inputQty.value) < stock) {
-            inputQty.value = parseInt(inputQty.value) + 1;
-        } else {
-            mostrarError("Has alcanzado el límite de stock disponible.");
+    // ============================================================
+    // 📦 CARGAR PRODUCTOS DESDE API
+    // ============================================================
+    let todosLosProductos = [];
+
+    try {
+        const productosAPI = await getProductos();
+        todosLosProductos = productosAPI.map((p, i) => mapearProducto(p, i));
+    } catch (error) {
+        console.error("Error cargando productos de la API, usando fallback:", error);
+        // Fallback a data estática
+        todosLosProductos = productosEstaticos.map((p, i) => mapearProducto(p, i));
+    }
+
+    // ============================================================
+    // 🛠️ UTILIDADES
+    // ============================================================
+    function mapearProducto(p, index) {
+        // Extraer primera imagen
+        let imagenSegura = 'placeholder.jpg';
+        if (p.imagen) {
+            const imagenes = p.imagen.split('|').filter(s => s);
+            imagenSegura = imagenes[0] || imagenSegura;
         }
-    };
-    document.getElementById('modal-minus').onclick = () => { if (inputQty.value > 1) inputQty.value = parseInt(inputQty.value) - 1; };
 
-    
-
-        const mapearProducto = (p, index, prefix) => {
-        const imagenData = Array.isArray(p.imagenes) ? p.imagenes[0] : p.imagenes;
-        const imagenSegura = imagenData || 'placeholder.jpg';
-        const esBase64 = typeof imagenSegura === 'string' && imagenSegura.startsWith('data:image');
         return {
-            id: `${prefix}-${index}`,
+            id: `prod-${p.id || index}`,
+            productId: p.id,
             nombre: p.nombre,
-            cat: (p.categoriaId || "VARIOS").toString().toUpperCase(),
+            cat: p.categoriaNombre || "Otros",
             precio: Number(p.precio) || 0,
             stock: Number(p.cantidad) || 0,
             img: imagenSegura,
             desc: p.descripcion || "",
-            esBase64: esBase64
+            esBase64: typeof imagenSegura === 'string' && imagenSegura.startsWith('data:image')
         };
-    };
+    }
 
-    const productosNuevosRaw = JSON.parse(localStorage.getItem('listaProducts')) || [];
-    const fuente = productosNuevosRaw.length > 0 ? productosNuevosRaw : productosEstaticos;
-    const todosLosProductos = fuente.map((p, i) => mapearProducto(p, i, productosNuevosRaw.length > 0 ? 'custom' : 'static'));
+    function formatoImagen(img, esBase64) {
+        if (esBase64) return img;
+        return img.startsWith('data:') ? img : `${img}`;
+    }
 
+    // ============================================================
+    // 🎨 RENDER PRODUCTOS
+    // ============================================================
     const render = (lista) => {
+        if (lista.length === 0) {
+            contenedor.innerHTML = '<div class="text-center p-5"><p class="text-muted">No hay productos disponibles</p></div>';
+            return;
+        }
+
         contenedor.innerHTML = lista.map(p => {
-            const srcImagen = p.esBase64 ? p.img : `assets/imgs/${p.img}`;
+            const srcImagen = formatoImagen(p.img, p.esBase64);
             return `
-                <div class="card" data-id="${p.id}">
+                <div class="card" data-id="${p.id}" data-product-id="${p.productId}">
                     <div class="card-img trigger-modal">
                         <img src="${srcImagen}" alt="${p.nombre}">
                         <span class="stock">${p.stock} en stock</span>
@@ -183,10 +183,11 @@ function initCatalogo() {
                         <h3 class="trigger-modal h6 fw-bold mb-2">${p.nombre}</h3>
                         <strong class="h5 text-dark d-block mb-3">${formatPrice(p.precio)}</strong>
                         <button class="btn btn-success btn-sm w-100 btn-agregar" 
-                                data-nombre="${p.nombre}" 
-                                data-precio="${p.precio}" 
-                                data-img="${srcImagen}"
-                                data-stock="${p.stock}">
+                            data-product-id="${p.productId}"
+                            data-nombre="${p.nombre}" 
+                            data-precio="${p.precio}" 
+                            data-img="${srcImagen}"
+                            data-stock="${p.stock}">
                             Agregar al Carrito
                         </button>
                     </div>
@@ -194,15 +195,19 @@ function initCatalogo() {
             `;
         }).join('');
 
+        // Bind modal
         document.querySelectorAll('.trigger-modal').forEach(el => {
             el.onclick = (e) => {
                 const card = e.target.closest('.card');
                 const producto = todosLosProductos.find(item => item.id == card.dataset.id);
-                abrirModal(producto);
+                if (producto) abrirModal(producto);
             };
         });
     };
 
+    // ============================================================
+    // 📱 MODAL Y NOTIFICACIONES
+    // ============================================================
     const mostrarError = (mensaje) => {
         const toast = document.createElement("div");
         toast.className = "agro-toast agro-toast-error shadow-lg";
@@ -241,25 +246,45 @@ function initCatalogo() {
         }, 3000);
     };
 
+    const abrirModal = (p) => {
+        const srcImg = formatoImagen(p.img, p.esBase64);
+        document.getElementById('modal-img').src = srcImg;
+        document.getElementById('modal-nombre').textContent = p.nombre;
+        document.getElementById('modal-cat').textContent = p.cat;
+        document.getElementById('modal-desc').textContent = p.desc;
+        document.getElementById('modal-precio').textContent = formatPrice(p.precio);
+        const modalStock = document.getElementById('modal-stock');
+        modalStock.textContent = `(${p.stock} disponibles)`;
+        modalStock.dataset.stock = p.stock;
+        document.getElementById('modal-qty').value = 1;
+        modal.dataset.productId = p.productId;  // ← GUARDAR PRODUCT ID
+        modal.classList.add('active');
+    };
+
+    // ============================================================
+    // 🛒 AGREGAR AL CARRITO
+    // ============================================================
     if (!window.eventoCarritoActivo) {
         document.addEventListener("click", (e) => {
             if (e.target.classList.contains("btn-agregar") || e.target.id === "btn-add-from-modal") {
                 let pData, cant = 1;
+                
                 if (e.target.id === "btn-add-from-modal") {
-                    // ✅ Lógica de precio corregida (Sin división por 100)
                     const rawPriceText = document.getElementById('modal-precio').textContent;
                     const cleanPrice = Number(rawPriceText.replace(/[^0-9]/g, "")) / 100;
                     
                     pData = {
+                        productId: Number(modal.dataset.productId) || 0,  // ← LEER DEL MODAL
                         nombre: document.getElementById('modal-nombre').textContent,
                         precio: cleanPrice,
                         img: document.getElementById('modal-img').src,
                         stock: Number(document.getElementById('modal-stock').dataset.stock)
                     };
-                    cant = Number(document.getElementById('modal-qty').value);
+                    cant = Number(document.getElementById('modal-qty').value);  // ← CAPTURAR CANTIDAD DEL MODAL
                     modal.classList.remove('active');
                 } else {
                     pData = {
+                        productId: Number(e.target.dataset.productId),
                         nombre: e.target.dataset.nombre,
                         precio: Number(e.target.dataset.precio),
                         img: e.target.dataset.img,
@@ -270,14 +295,13 @@ function initCatalogo() {
                 let carrito = JSON.parse(localStorage.getItem("carrito")) || [];
                 const existe = carrito.find(p => p.nombre === pData.nombre);
                 
-                let cantidadFinal = cant;
                 if (existe) {
                     if (existe.cantidad + cant > pData.stock) {
                         mostrarError("No puedes agregar más. Límite de stock alcanzado.");
                         return;
                     }
                     existe.cantidad += cant;
-                    existe.stock = pData.stock; // Actualizar por si cambió
+                    existe.stock = pData.stock;
                 } else {
                     if (cant > pData.stock) {
                         mostrarError("No puedes agregar más. Límite de stock alcanzado.");
@@ -294,35 +318,77 @@ function initCatalogo() {
         window.eventoCarritoActivo = true;
     }
 
-    const abrirModal = (p) => {
-        const srcImg = p.esBase64 ? p.img : `assets/imgs/${p.img}`;
-        document.getElementById('modal-img').src = srcImg;
-        document.getElementById('modal-nombre').textContent = p.nombre;
-        document.getElementById('modal-cat').textContent = p.cat;
-        document.getElementById('modal-desc').textContent = p.desc;
-        document.getElementById('modal-precio').textContent = formatPrice(p.precio);
-        const modalStock = document.getElementById('modal-stock');
-        modalStock.textContent = `(${p.stock} disponibles)`;
-        modalStock.dataset.stock = p.stock;
-        document.getElementById('modal-qty').value = 1;
-        modal.classList.add('active');
+    // ============================================================
+    // 🔎 FILTRADO
+    // ============================================================
+    const poblarCategorias = () => {
+        const container = document.getElementById('filter-categorias');
+        if (!container) return;
+
+        const categorias = [...new Set(todosLosProductos.map(p => p.cat).filter(Boolean))];
+        const html = `<label><input type="radio" name="cat" value="TODOS" checked><span> Todos</span></label>`;
+        
+        const categoriasHtml = categorias.map(cat => 
+            `<label><input type="radio" name="cat" value="${cat}"><span> ${cat}</span></label>`
+        ).join('');
+
+        container.innerHTML = html + categoriasHtml;
+
+        // Re-bind eventos
+        document.querySelectorAll('input[name="cat"], input[name="price"]').forEach(el => {
+            el.addEventListener("change", filtrar);
+        });
     };
+
+    const filtrar = () => {
+        const cat = document.querySelector('input[name="cat"]:checked')?.value || "TODOS";
+        const price = document.querySelector('input[name="price"]:checked')?.value || "ALL";
+        
+        let filtrados = todosLosProductos;
+        
+        if (cat !== "TODOS") {
+            filtrados = filtrados.filter(p => p.cat === cat);
+        }
+        
+        if (price === "LOW") filtrados = filtrados.filter(p => p.precio < 50000);
+        else if (price === "MID") filtrados = filtrados.filter(p => p.precio >= 50000 && p.precio <= 150000);
+        else if (price === "HIGH") filtrados = filtrados.filter(p => p.precio > 150000);
+        
+        render(filtrados);
+    };
+
+    // ============================================================
+    // 📌 EVENTOS Y SCROLL
+    // ============================================================
+    if (scrollTopBtn) {
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 400) {
+                scrollTopBtn.classList.add('active');
+            } else {
+                scrollTopBtn.classList.remove('active');
+            }
+        });
+        
+        scrollTopBtn.addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+    }
 
     document.getElementById('close-modal').onclick = () => modal.classList.remove('active');
     window.onclick = (e) => { if (e.target == modal) modal.classList.remove('active'); };
 
-    const filtrar = () => {
-        const cat = document.querySelector('input[name="cat"]:checked').value;
-        const price = document.querySelector('input[name="price"]:checked').value;
-        let filtrados = todosLosProductos;
-        if (cat !== "TODOS") filtrados = filtrados.filter(p => p.cat === cat);
-        if (price === "LOW") filtrados = filtrados.filter(p => p.precio < 50000);
-        else if (price === "MID") filtrados = filtrados.filter(p => p.precio >= 50000 && p.precio <= 150000);
-        else if (price === "HIGH") filtrados = filtrados.filter(p => p.precio > 150000);
-        render(filtrados);
+    document.getElementById('modal-plus').onclick = () => {
+        const stock = Number(document.getElementById('modal-stock').dataset.stock);
+        if (parseInt(inputQty.value) < stock) {
+            inputQty.value = parseInt(inputQty.value) + 1;
+        } else {
+            mostrarError("Has alcanzado el límite de stock disponible.");
+        }
     };
-
-    document.querySelectorAll('input[name="cat"], input[name="price"]').forEach(el => el.addEventListener("change", filtrar));
+    
+    document.getElementById('modal-minus').onclick = () => { 
+        if (inputQty.value > 1) inputQty.value = parseInt(inputQty.value) - 1; 
+    };
 
     document.getElementById('btn-limpiar').onclick = () => {
         document.querySelector('input[name="cat"][value="TODOS"]').checked = true;
@@ -330,16 +396,9 @@ function initCatalogo() {
         filtrar();
     };
 
-    // Aplicar filtro pendiente desde el footer
-    const filtroPendiente = localStorage.getItem('filtro_pendiente_categoria');
-    if (filtroPendiente) {
-        const radio = document.querySelector(`input[name="cat"][value="${filtroPendiente}"]`);
-        if (radio) {
-            radio.checked = true;
-            filtrar();
-        }
-        localStorage.removeItem('filtro_pendiente_categoria');
-    } else {
-        render(todosLosProductos);
-    }
+    // ============================================================
+    // ⏱️ INICIALIZAR
+    // ============================================================
+    poblarCategorias();
+    filtrar();
 }

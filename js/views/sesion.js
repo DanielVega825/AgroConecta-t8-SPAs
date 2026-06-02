@@ -1,3 +1,5 @@
+import { loginUser, registerUser, guardarSesion, obtenerRol, estaAutenticado } from '../services/api.js';
+
 export function Sesion() {
     return `
         <section class="card card-sesion" id="authCard">
@@ -39,7 +41,7 @@ export function Sesion() {
                         <i class="bi bi-eye-slash text-muted" id="togglePasswordLogin" style="position: absolute; right: 15px; top: 15px; cursor: pointer; font-size: 1.2rem; z-index: 10;"></i>
                         
                     </div>
-                    <button type="submit">INICIAR SESIÓN</button>
+                    <button type="submit" id="btn-login">INICIAR SESIÓN</button>
                     <p>¿No tienes cuenta? <em id="goToSignup">Registrarse</em></p>
                 </form>
             </div>
@@ -95,6 +97,7 @@ export function gestionSesion() {
     const btnSignin = document.getElementById("goToSignin");
     const formRegistro = document.getElementById("signupForm");
     const formLogin = document.getElementById("loginForm");
+    const btnLogin = document.getElementById("btn-login");
 
     const termsCheckbox = document.getElementById("terms");
 
@@ -140,7 +143,7 @@ export function gestionSesion() {
             if (/[A-Z]/.test(val)) nivel++;
             if (/[0-9]/.test(val)) nivel++;
 
-            strengthBar.className = ""; // Resetear clases anteriores
+            strengthBar.className = "";
 
             if (val.length === 0) {
                 strengthBar.style.width = "0%";
@@ -158,10 +161,10 @@ export function gestionSesion() {
         });
     }
 
-    // Reglas de validación (apellido es opcional)
+    // Reglas de validación
     const reglas = {
         nombre:   (v) => !v ? "El nombre es obligatorio" : v.length < 2 ? "Mínimo 2 caracteres" : !/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(v) ? "Solo se permiten letras" : "",
-        telefono: (v) => !v ? "El teléfono es obligatorio" : !/^3\d{9}$/.test(v) ? "Debe tener 10 dígitos y empezar con 3" : "",
+        telefono: (v) => !v ? "El teléfono es obligatorio" : !/^[+]?[0-9]{7,15}$/.test(v) ? "Formato válido: solo dígitos (7-15) o +número" : "",
         email:    (v) => !v ? "El correo es obligatorio" : !/^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/.test(v) ? "Ingresa un correo válido (ejemplo@correo.com)" : "",
         password: (v) => !v ? "La contraseña es obligatoria" : v.length < 8 ? "Mínimo 8 caracteres" : !/[A-Z]/.test(v) ? "Debe tener al menos una mayúscula" : !/[a-z]/.test(v) ? "Debe tener letras minúsculas" : !/[0-9]/.test(v) ? "Debe tener al menos un número" : "",
     };
@@ -176,7 +179,7 @@ export function gestionSesion() {
         }
     };
 
-    // Validación en tiempo real al salir de cada campo requerido
+    // Validación en tiempo real
     ["nombre", "telefono", "email"].forEach(id => {
         const input = document.getElementById(id);
         if (input) {
@@ -189,7 +192,8 @@ export function gestionSesion() {
         passwordInput.addEventListener("blur", () => mostrarError("password", reglas.password(passwordInput.value)));
     }
 
-    formRegistro.addEventListener("submit", (e) => {
+    // ==================== REGISTRO ====================
+    formRegistro.addEventListener("submit", async (e) => {
         e.preventDefault();
 
         const campos = {
@@ -217,114 +221,108 @@ export function gestionSesion() {
 
         if (hayErrores) return;
 
-        const usuarios = JSON.parse(localStorage.getItem("listaUsuarios")) || [];
-
-        // Validar correo existente
-        if (usuarios.find(u => u.email.toLowerCase() === campos.email.toLowerCase())) {
-            mostrarError("email", "Ya existe una cuenta con este correo");
-            return;
-        }
-
-        // Validar nombre existente
-        if (usuarios.find(u => u.name.trim().toLowerCase() === campos.nombre.toLowerCase())) {
-            mostrarError("nombre", "Ya existe un usuario con este nombre");
-            return;
-        }
-
-        const originalText = btnRegistrar.innerHTML;
-        btnRegistrar.innerHTML = "REGISTRADO CON ÉXITO ✓";
-        btnRegistrar.classList.add("btn-success-anim");
         btnRegistrar.disabled = true;
+        const originalText = btnRegistrar.innerHTML;
+        btnRegistrar.innerHTML = "Registrando...";
 
-        setTimeout(() => {
-            usuarios.push({
-                clienteId: Date.now(),
-                name: campos.nombre,
+        try {
+            // Llamar a la API para registrar
+            const response = await registerUser({
+                nombre: campos.nombre,
                 email: campos.email,
-                telefono: campos.telefono,
                 password: campos.password,
                 rol: "CLIENTE",
-                activo: true,
-                pedidos: []
+                telefono: campos.telefono
             });
-            localStorage.setItem("listaUsuarios", JSON.stringify(usuarios));
 
-            btnRegistrar.innerHTML = originalText;
-            btnRegistrar.classList.remove("btn-success-anim");
+            btnRegistrar.innerHTML = "REGISTRADO CON ÉXITO ✓";
+            btnRegistrar.classList.add("btn-success-anim");
+
+            setTimeout(() => {
+                btnRegistrar.innerHTML = originalText;
+                btnRegistrar.classList.remove("btn-success-anim");
+                btnRegistrar.disabled = false;
+                formRegistro.reset();
+                ["nombre","apellido","telefono","email","password","terms"].forEach(id => {
+                    const el = document.getElementById(`error-${id}`);
+                    if (el) el.textContent = "";
+                    const inp = document.getElementById(id);
+                    if (inp) inp.classList.remove("input-invalid", "input-valid");
+                });
+                strengthBar.className = "";
+                strengthBar.style.width = "0%";
+                strengthText.textContent = "Seguridad de la contraseña";
+                toggleView(); // Volver a login
+            }, 2500);
+
+        } catch (error) {
             btnRegistrar.disabled = false;
-            formRegistro.reset();
-            ["nombre","apellido","telefono","email","password","terms"].forEach(id => {
-                const el = document.getElementById(`error-${id}`);
-                if (el) el.textContent = "";
-                const inp = document.getElementById(id);
-                if (inp) inp.classList.remove("input-invalid", "input-valid");
-            });
-            strengthBar.className = "";
-            strengthBar.style.width = "0%";
-            strengthText.textContent = "Seguridad de la contraseña";
-            strengthText.style.color = "";
-            toggleView();
-        }, 2500);
+            btnRegistrar.innerHTML = originalText;
+            
+            // Manejo de errores desde el backend
+            if (error.data?.fields?.email) {
+                mostrarError("email", error.data.fields.email);
+            } else if (error.data?.fields?.telefono) {
+                mostrarError("telefono", error.data.fields.telefono);
+            } else if (error.data?.message) {
+                alert(`Error: ${error.data.message}`);
+            } else {
+                alert(`Error al registrarse: ${error.message}`);
+            }
+        }
     });
 
+    // ==================== LOGIN ====================
     if (formLogin) {
-        formLogin.addEventListener("submit", (e) => {
+        formLogin.addEventListener("submit", async (e) => {
             e.preventDefault();
 
-            const email = document
-                .getElementById("loginEmail")
-                .value
-                .trim()
-                .toLowerCase();
+            const email = document.getElementById("loginEmail").value.trim().toLowerCase();
+            const password = document.getElementById("loginPassword").value;
 
-            const password = document
-                .getElementById("loginPassword")
-                .value;
+            btnLogin.disabled = true;
+            const originalText = btnLogin.innerHTML;
+            btnLogin.innerHTML = "Iniciando sesión...";
+            // Limpiar patrón viejo
+            localStorage.removeItem("userLogged");
 
-            // 1. Validar usuario administrador hardcodeado
-            if (
-                email === "admin@admin.com" &&
-                password === "admin123"
-            ) {
-                alert("Inicio de sesión exitoso. Bienvenido Administrador.");
+            try {
+                // Llamar a la API para login
+                const response = await loginUser(email, password);
 
-                localStorage.setItem(
-                    "userLogged",
-                    JSON.stringify({
-                        email: "admin@admin.com",
-                        nombre: "Administrador",
-                        role: "admin"
-                    })
-                );
+                // Guardar sesión correctamente según la guía API
+                guardarSesion(response);
+                // ✅ ACTUALIZAR HEADER INMEDIATAMENTE
+                const headerElement = document.querySelector("header");
+                if (headerElement) {
+                    const { Header } = await import('../components/header.js');
+                    headerElement.outerHTML = Header();
+                }
 
-                window.location.hash = "#/panel";
-                return;
-            }
+                // Actualizar contador carrito
+                const { actualizarContadorCarrito } = await import('../main.js');
+                actualizarContadorCarrito();
 
-            // 2. Validar usuario almacenado en local storage
+                alert("Inicio de sesión exitoso. Bienvenido " + response.nombre);
 
-            const usuarios = JSON.parse(localStorage.getItem("listaUsuarios")) || [];
+                // Redirigir según el rol
+                if (response.rol === "ADMIN") {
+                    window.location.hash = "#/panel";
+                } else {
+                    window.location.hash = "#/";
+                }
 
-            const usuarioEncontrado = usuarios.find(
-                (u) =>
-                    u.email.trim().toLowerCase() ===
-                    email.trim().toLowerCase() &&
-                    u.password === password
-            );
-            if (usuarioEncontrado) {
-                alert("Inicio de sesión exitoso. Bienvenido " + usuarioEncontrado.name);
+            } catch (error) {
+                btnLogin.disabled = false;
+                btnLogin.innerHTML = originalText;
 
-                localStorage.setItem("userLogged", JSON.stringify({
-                    email: usuarioEncontrado.email,
-                    nombre: usuarioEncontrado.name,
-                    role: "user"
-                }));
-
-                window.location.hash = "#/home";
-                location.reload();
-
-            } else {
-                alert("Nombre de usuario o contraseña inválidos.");
+                if (error.status === 401) {
+                    alert("Credenciales incorrectas. Verifica tu email y contraseña.");
+                } else if (error.data?.message) {
+                    alert(`Error: ${error.data.message}`);
+                } else {
+                    alert(`Error al iniciar sesión: ${error.message}`);
+                }
             }
         });
     }

@@ -1,3 +1,6 @@
+import { getProductos } from '../services/api.js';
+import { actualizarContadorCarrito } from "../main.js";
+
 const formatPrice = (valor) => {
    return valor.toLocaleString('es-CO', {
       style: 'currency',
@@ -207,40 +210,59 @@ export function Home() {
    `;
 }
 
-function initHome() {
-   // Obtener productos del localStorage
-   const productosRaw = JSON.parse(localStorage.getItem('listaProducts')) || [];
-   
-   // Filtrar solo los productos en descuento
-   const productosDescuento = productosRaw.filter(p => p.detalles && p.detalles.enDescuento);
-   
-   const carouselTrack = document.getElementById('carousel-track');
-   if (!carouselTrack || productosDescuento.length === 0) return;
+async function initHome() {
+   // ============================================================
+   // 📦 CARGAR PRODUCTOS CON PROMOCIÓN DESDE API
+   // ============================================================
+   let productosPromocion = [];
 
-   // Renderizar tarjetas del carrusel
+   try {
+      const productosAPI = await getProductos();
+      // Filtrar solo productos en promoción (detalles.enPromocion === true)
+      productosPromocion = productosAPI.filter(p => p.detalles && p.detalles.enPromocion);
+   } catch (error) {
+      console.error("Error cargando productos promocionales:", error);
+      // Fallback: sin productos de promoción
+      productosPromocion = [];
+   }
+
+   const carouselTrack = document.getElementById('carousel-track');
+   if (!carouselTrack || productosPromocion.length === 0) return;
+
+   // ============================================================
+   // 🎨 RENDERIZAR CARRUSEL
+   // ============================================================
    const renderCarousel = () => {
-      carouselTrack.innerHTML = productosDescuento.map((p, index) => {
-         const imagenData = Array.isArray(p.imagenes) ? p.imagenes[0] : p.imagenes;
-         const esBase64 = imagenData && imagenData.startsWith('data:image');
-         const srcImg = esBase64 ? imagenData : `assets/imgs/${imagenData || 'placeholder.jpg'}`;
-         const precioOriginal = p.precio;
-         const descuento = p.detalles.porcentajeDescuento || 0;
+      carouselTrack.innerHTML = productosPromocion.map((p, index) => {
+         // Extraer primera imagen del pipe-delimited string
+         const imagenes = p.imagen ? p.imagen.split('|').filter(s => s) : [];
+         const imagenData = imagenes[0] || 'placeholder.jpg';
+         const esBase64 = imagenData.startsWith('data:image');
+         const srcImg = esBase64 ? imagenData : `${imagenData}`;
+
+         const precioOriginal = Number(p.precio) || 0;
+         const descuento = p.detalles?.descuento || 0;
          const precioConDescuento = precioOriginal * (1 - descuento / 100);
 
          return `
             <div class="carousel-card" data-index="${index}">
                <div class="carousel-card-image">
                   <img src="${srcImg}" alt="${p.nombre}">
-                  <div class="discount-badge">${descuento}% OFF</div>
+                  ${descuento > 0 ? `<div class="discount-badge">${descuento}% OFF</div>` : ''}
                </div>
                <div class="carousel-card-content">
                   <h4>${p.nombre}</h4>
-                  <p class="carousel-card-desc">${p.descripcion}</p>
+                  <p class="carousel-card-desc">${p.descripcion || ''}</p>
                   <div class="carousel-prices">
-                     <span class="price-original">${formatPrice(precioOriginal)}</span>
+                     ${descuento > 0 ? `<span class="price-original">${formatPrice(precioOriginal)}</span>` : ''}
                      <span class="price-discount">${formatPrice(precioConDescuento)}</span>
                   </div>
-                  <button class="carousel-card-btn" data-nombre="${p.nombre}" data-precio="${precioConDescuento}" data-img="${srcImg}" data-stock="${p.cantidad}">
+                  <button class="carousel-card-btn" 
+                          data-product-id="${p.id}"
+                          data-nombre="${p.nombre}" 
+                          data-precio="${precioConDescuento}" 
+                          data-img="${srcImg}" 
+                          data-stock="${p.cantidad}">
                      Agregar al carrito
                   </button>
                </div>
@@ -256,7 +278,7 @@ function initHome() {
       carouselTrack.appendChild(card.cloneNode(true));
    });
 
-   const total = productosDescuento.length;
+   const total = productosPromocion.length;
    let currentIndex = 0;
    const cardWidth = 280;
    const gap = 20;
@@ -265,7 +287,6 @@ function initHome() {
       if (!animated) carouselTrack.style.transition = 'none';
       carouselTrack.style.transform = `translateX(${-(currentIndex * (cardWidth + gap))}px)`;
       if (!animated) {
-         // Forzar reflow para que el cambio sin animación se aplique antes de reactivar
          carouselTrack.getBoundingClientRect();
          carouselTrack.style.transition = '';
       }
@@ -274,7 +295,6 @@ function initHome() {
    const nextSlide = () => {
       currentIndex++;
       updateCarousel();
-      // Si llegamos al clon del primero, reseteamos sin animación
       if (currentIndex >= total) {
          setTimeout(() => {
             currentIndex = 0;
@@ -293,21 +313,23 @@ function initHome() {
    document.getElementById('carousel-next').addEventListener('click', nextSlide);
    document.getElementById('carousel-prev').addEventListener('click', prevSlide);
 
-   // Auto-play cada 2 segundos con loop infinito
+   // Auto-play cada 2 segundos
    const carouselContainer = document.querySelector('.carousel-container');
    const autoSlide = () => nextSlide();
 
    let autoPlay = setInterval(autoSlide, 2000);
 
-   // Pausa al pasar el mouse, reanuda al salir
    carouselContainer.addEventListener('mouseenter', () => clearInterval(autoPlay));
    carouselContainer.addEventListener('mouseleave', () => {
       autoPlay = setInterval(autoSlide, 2000);
    });
 
-   // Agregar productos al carrito desde el carrusel
+   // ============================================================
+   // 🛒 AGREGAR AL CARRITO DESDE CARRUSEL
+   // ============================================================
    document.addEventListener('click', (e) => {
       if (e.target.classList.contains('carousel-card-btn')) {
+         const productId = Number(e.target.dataset.productId);
          const nombre = e.target.dataset.nombre;
          const precio = parseFloat(e.target.dataset.precio);
          const img = e.target.dataset.img;
@@ -323,19 +345,11 @@ function initHome() {
             }
             existe.cantidad += 1;
          } else {
-            carrito.push({ nombre, precio, img, stock, cantidad: 1 });
+            carrito.push({ productId, nombre, precio, img, stock, cantidad: 1 });
          }
 
          localStorage.setItem('carrito', JSON.stringify(carrito));
-         
-         // Actualizar contador
-         const contador = document.getElementById('contador-carrito');
-         if (contador) {
-            const total = carrito.reduce((acc, p) => acc + p.cantidad, 0);
-            contador.textContent = total;
-            contador.classList.add('animar');
-            setTimeout(() => contador.classList.remove('animar'), 200);
-         }
+         actualizarContadorCarrito();
 
          // Mostrar notificación
          const toast = document.createElement('div');

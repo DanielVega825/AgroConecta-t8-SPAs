@@ -1,10 +1,10 @@
 import { Home } from "./views/home.js";
 import { Catalogo } from "./views/catalogo.js";
-import { Contacto, initContactForm } from "./views/contacto.js"; // Importas ambos del mismo archivo
+import { Contacto, initContactForm } from "./views/contacto.js";
 import { Nosotros } from "./views/nosotros.js";
 import { Panel, gestionPanel } from "./views/panel.js";
 import { AddProduct, initAddProductLogic } from "./views/addProductos.js";
-import { Carrito, initCarrito } from "./views/carrito.js"; //  NUEVO: Importamos la vista del carrito
+import { Carrito, initCarrito } from "./views/carrito.js";
 import { Sesion, gestionSesion } from "./views/sesion.js";
 
 const routes = {
@@ -15,19 +15,23 @@ const routes = {
     "/nosotros": Nosotros,
     "/addProduct": AddProduct,
     "/panel": { view: Panel, init: gestionPanel },
-    "/carrito": { view: Carrito, init: initCarrito },  //  NUEVO: Ruta del carrito con su lógica
+    "/carrito": { view: Carrito, init: initCarrito },
     "/sesion": { view: Sesion, init: gestionSesion },
 };
 
 export function router() {
     const path = location.hash.slice(1) || "/";
 
-    // Restricción de acceso a vistas de administración
+    // ============================================================
+    // 🔐 RESTRICCIÓN DE ACCESO - VALIDAR ROL
+    // ============================================================
     const adminRoutes = ["/addProduct", "/panel"];
     if (adminRoutes.includes(path)) {
-        const userLoggedStr = localStorage.getItem("userLogged");
-        const userLogged = userLoggedStr ? JSON.parse(userLoggedStr) : null;
-        if (!userLogged || userLogged.role !== "admin") {
+        const token = localStorage.getItem("token");
+        const rol = localStorage.getItem("rol");
+
+        // Si no hay sesión o el rol no es ADMIN, denegar acceso
+        if (!token || rol !== "ADMIN") {
             alert("Acceso denegado: Esta vista es exclusiva para administradores.");
             window.location.hash = "#/";
             return;
@@ -41,15 +45,15 @@ export function router() {
         ? { view: matched, init: null }
         : matched;
 
-
-
-    // 1. Manejo del CSS dinámico
+    // ============================================================
+    // 🎨 MANEJO DEL CSS DINÁMICO
+    // ============================================================
     let cssPath = "";
     if (path === "/contacto") cssPath = "styles/contact.css";
     if (path === "/nosotros") cssPath = "styles/nosotros.css";
     if (path === "/addProduct") cssPath = "styles/addProduct.css";
     if (path === "/panel") cssPath = "styles/panel.css";
-    if (path === "/carrito") cssPath = "styles/carrito.css"; //  NUEVO: Estilos del carrito
+    if (path === "/carrito") cssPath = "styles/carrito.css";
     if (path === "/sesion") cssPath = "styles/sesion.css";
     if (path === "/" || path === "/home") cssPath = "styles/home.css";
 
@@ -57,7 +61,9 @@ export function router() {
     const header = document.querySelector("header");
     const footer = document.getElementById("main-footer");
 
-    // Función encargada de inyectar la vista y ejecutar lógica una vez el CSS esté listo
+    // ============================================================
+    // 🎯 RENDERIZAR VISTA
+    // ============================================================
     const renderView = () => {
         if (path === "/sesion") {
             if (header) header.style.display = "none";
@@ -73,12 +79,12 @@ export function router() {
             appContainer.innerHTML = route.view();
         }
 
-        // 3. Ejecuta la función init que trae la lógica del componente si existe
+        // Ejecuta la función init que trae la lógica del componente si existe
         if (route.init) {
             route.init();
         }
 
-        // 4. Inicializar lógica específica (DESPUÉS de inyectar el HTML)
+        // Inicializar lógica específica (DESPUÉS de inyectar el HTML)
         if (path === "/contacto") initContactForm();
         if (path === "/addProduct") initAddProductLogic();
         
@@ -88,9 +94,11 @@ export function router() {
 
     const linkTag = document.getElementById("page-style");
     
-    // 2. Manejo de FOUC: Esperar a que el CSS cargue antes de renderizar
+    // ============================================================
+    // ⏱️ MANEJO DE FOUC - ESPERAR A QUE CSS CARGUE
+    // ============================================================
     if (linkTag) {
-        // Ocultamos temporalmente para evitar FOUC
+        // Ocultamos temporalmente para evitar FOUC (Flash of Unstyled Content)
         appContainer.style.transition = "opacity 0.2s ease-in-out";
         appContainer.style.opacity = "0";
 

@@ -1,19 +1,23 @@
 export function Header() {
     const hash = window.location.hash;
 
-    //Verificar usuario logeado
-    const userLoggedStr = localStorage.getItem("userLogged");
-    const userLogged = userLoggedStr ? JSON.parse(userLoggedStr) : null;
+    // ============================================================
+    // 🔐 LEER SESIÓN DEL NUEVO PATRÓN LOCALSTORAGE
+    // ============================================================
+    const token = localStorage.getItem("token");
+    const rol = localStorage.getItem("rol");
+    const nombre = localStorage.getItem("nombre");
+    const isLoggedIn = !!token;
 
     let adminLink = "";
     let userAction = `<a href="#/sesion" class="contenedor-login">Ingresar</a>`;
 
-    if (userLogged) {
+    if (isLoggedIn && nombre) {
         userAction = `
-            <span class="user-greeting" style="font-weight: bold; margin-right: 15px; color: var(--color-primary-600);">Hola, ${userLogged.nombre}</span>
+            <span class="user-greeting" style="font-weight: bold; margin-right: 15px; color: var(--color-primary-600);">Hola, ${nombre}</span>
             <button id="logoutBtn" class="contenedor-login" style="background-color: var(--color-error, #dc3545); border: none; width: auto; font-size: 0.75rem; padding: 4px 19px; min-width: unset; height: auto;">Salir</button>
         `;
-        if (userLogged.role === "admin") {
+        if (rol === "ADMIN") {
             adminLink = `<a href="#/panel">Panel Admin</a>`;
         }
     }
@@ -38,7 +42,7 @@ export function Header() {
 
                 <nav class="contenedor-nav" id="nav-menu">
                     <div class="user-info-mobile">
-                        ${userLogged ? `<span class="user-name-mobile">${userLogged.nombre}</span>` : `<a href="#/sesion" class="login-mobile">Ingresar</a>`}
+                        ${isLoggedIn ? `<span class="user-name-mobile">${nombre}</span>` : `<a href="#/sesion" class="login-mobile">Ingresar</a>`}
                     </div>
                     <div class="nav-links">
                         <a href="#/">Inicio</a>
@@ -48,7 +52,7 @@ export function Header() {
                         ${adminLink}
                     </div>
                     <div class="user-logout-mobile">
-                        ${userLogged ? `<button id="logoutBtnMobile" class="logout-mobile">Salir</button>` : ``}
+                        ${isLoggedIn ? `<button id="logoutBtnMobile" class="logout-mobile">Salir</button>` : ``}
                     </div>
                 </nav>
 
@@ -87,7 +91,7 @@ export function Header() {
 
                 <nav class="contenedor-nav" id="nav-menu">
                     <div class="user-info-mobile">
-                        ${userLogged ? `<span class="user-name-mobile">${userLogged.nombre}</span>` : `<a href="#/sesion" class="login-mobile">Ingresar</a>`}
+                        ${isLoggedIn ? `<span class="user-name-mobile">${nombre}</span>` : `<a href="#/sesion" class="login-mobile">Ingresar</a>`}
                     </div>
                     <div class="nav-links">
                         <a href="#/">Inicio</a>
@@ -97,7 +101,7 @@ export function Header() {
                         ${adminLink}
                     </div>
                     <div class="user-logout-mobile">
-                        ${userLogged ? `<button id="logoutBtnMobile" class="logout-mobile">Salir</button>` : ``}
+                        ${isLoggedIn ? `<button id="logoutBtnMobile" class="logout-mobile">Salir</button>` : ``}
                     </div>
                 </nav>
  
@@ -112,7 +116,5 @@ export function Header() {
             </div>
         </header>
     `;
-
     }
-
 }

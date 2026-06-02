@@ -1,3 +1,5 @@
+import { getProductos, updateProducto, deleteProducto, getPedidos, getUsuarios, getCategorias } from '../services/api.js';
+
 export function Panel() {
 
     // ================================
@@ -80,10 +82,7 @@ export function Panel() {
                             <select id="filtro-estado-pedido">
                                 <option value="">Todos los estados</option>
                                 <option value="PENDIENTE">🟡 Pendiente</option>
-                                <option value="EN_PROCESO">🔵 En proceso</option>
-                                <option value="ENVIADO">🚚 Enviado</option>
-                                <option value="ENTREGADO">✅ Entregado</option>
-                                <option value="CANCELADO">❌ Cancelado</option>
+                                <option value="COMPRADO">✅ Comprado</option>
                             </select>
                         </div>
                         <div class="tabla-contenedor table-responsive shadow-sm rounded bg-white p-2">
@@ -106,7 +105,6 @@ export function Panel() {
                             <select id="filtro-rol-usuario">
                                 <option value="">Todos los roles</option>
                                 <option value="CLIENTE">Cliente</option>
-                                <option value="EMPLEADO">Empleado</option>
                                 <option value="ADMIN">Administrador</option>
                             </select>
                         </div>
@@ -115,7 +113,7 @@ export function Panel() {
                                 <thead class="table-dark">
                                     <tr>
                                         <th>#ID</th><th>Nombre</th><th>Email</th>
-                                        <th>Teléfono</th><th>Rol</th><th>Activo</th><th>Info Extra</th>
+                                        <th>Teléfono</th><th>Rol</th><th>Estado</th><th>Fecha</th>
                                     </tr>
                                 </thead>
                                 <tbody id="filas-usuarios"></tbody>
@@ -133,8 +131,8 @@ export function Panel() {
                             <div class="modal-body">
                                 <label class="modal-label">Nombre</label>
                                 <input id="edit-nombre" disabled class="modal-input modal-input--disabled">
-                                <label class="modal-label">Tipo de Producto</label>
-                                <input id="edit-tipo" disabled class="modal-input modal-input--disabled">
+                                <label class="modal-label">Categoría</label>
+                                <input id="edit-categoria" disabled class="modal-input modal-input--disabled">
                                 <label class="modal-label">Precio ($)</label>
                                 <input id="edit-precio" type="number" placeholder="Precio" class="modal-input">
                                 <label class="modal-label">Cantidad</label>
@@ -149,7 +147,7 @@ export function Panel() {
                                 <label class="modal-label modal-label--promo">
                                     <input type="checkbox" id="edit-promocion"> En promoción
                                 </label>
-                                <div id="edit-descuento-group">
+                                <div id="edit-descuento-group" style="display: none;">
                                     <label class="modal-label">Descuento (%)</label>
                                     <input id="edit-descuento" type="number" placeholder="Descuento %" min="1" max="100" class="modal-input">
                                 </div>
@@ -166,24 +164,41 @@ export function Panel() {
     `;
 }
 
-export function gestionPanel() {
+export async function gestionPanel() {
+    // ============================================================
+    // 📂 CARGAR CATEGORÍAS DESDE API
+    // ============================================================
+    let categoriasDisponibles = [];
+    try {
+        categoriasDisponibles = await getCategorias();
+    } catch (error) {
+        console.error("Error cargando categorías:", error);
+    }
 
     // ============================================================
     // 📦 DATOS
     // ============================================================
-    let productos = JSON.parse(localStorage.getItem("listaProducts")) || [];
-    let pedidos = JSON.parse(localStorage.getItem("listaPedidos")) || [];
-    let usuarios = JSON.parse(localStorage.getItem("listaUsuarios")) || [];
+    let productos = [];      // ← SOLO ESTA QUEDA
+    let pedidos = [];
+    let usuarios = [];
     let indexActual = null;
 
+    // Cargar datos iniciales desde la API
+    try {
+        productos = await getProductos(true) || [];
+    } catch (error) {
+        console.error("Error cargando productos:", error);
+        productos = [];
+    }
+
     // ============================================================
-    // 🏷️ DEFINICIÓN DE COLUMNAS — nombre y activo siempre fijas
+    // 🏷️ DEFINICIÓN DE COLUMNAS
     // ============================================================
     const COLUMNAS_FIJAS = ["nombre", "activo"];
 
     const columnasDisponibles = [
         { clave: "nombre", label: "Producto", tipo: "texto" },
-        { clave: "categoriaId", label: "Categoría", tipo: "categoria" },
+        { clave: "categoriaNombre", label: "Categoría", tipo: "texto" },
         { clave: "precio", label: "Precio", tipo: "numero" },
         { clave: "cantidad", label: "Cantidad", tipo: "numero" },
         { clave: "stockMinimo", label: "Stock Mín.", tipo: "numero" },
@@ -194,10 +209,10 @@ export function gestionPanel() {
         { clave: "fechaDeIngreso", label: "Fecha Ingreso", tipo: "fecha" },
     ];
 
-    let columnasVisibles = ["nombre", "categoriaId", "precio", "cantidad", "stockMinimo", "activo", "enPromocion", "descuento"];
+    let columnasVisibles = ["nombre", "categoriaNombre", "precio", "cantidad", "stockMinimo", "activo", "enPromocion", "descuento"];
 
     const filtrosActivos = {
-        nombre: "", categoriaId: "",
+        nombre: "", categoriaNombre: "",
         precio: { operacion: ">=", valor: "" },
         cantidad: { operacion: ">=", valor: "" },
         stockMinimo: { operacion: ">=", valor: "" },
@@ -209,167 +224,17 @@ export function gestionPanel() {
     // ============================================================
     // 🔀 CAMBIAR TAB
     // ============================================================
-    window.cambiarTab = function (tab) {
+    window.cambiarTab = async function (tab) {
         ["productos", "pedidos", "usuarios"].forEach(t => {
             const sec = document.getElementById(`seccion-${t}`);
             const btn = document.getElementById(`tab-${t}`);
             if (sec) sec.style.display = t === tab ? "" : "none";
             if (btn) btn.classList.toggle("panel-tab--active", t === tab);
         });
-        if (tab === "pedidos") renderPedidos();
-        if (tab === "usuarios") renderUsuarios();
+        if (tab === "pedidos") await renderPedidos();
+        if (tab === "usuarios") await renderUsuarios();
     };
-    function cargarPedidos() {
 
-        const pedidos =
-            JSON.parse(localStorage.getItem("listaPedidos")) || [];
-
-        const filasPedidos =
-            document.getElementById("filas-pedidos");
-
-        if (!filasPedidos) return;
-
-        filasPedidos.innerHTML = "";
-
-        if (pedidos.length === 0) {
-
-            filasPedidos.innerHTML = `
-         <tr>
-            <td colspan="6" class="text-center p-4">
-               No hay pedidos registrados
-            </td>
-         </tr>
-      `;
-
-            return;
-        }
-
-        pedidos.forEach((pedido) => {
-
-            filasPedidos.innerHTML += `
-         <tr>
-
-            <td>#${pedido.id}</td>
-
-            <td>
-               <strong>${pedido.cliente}</strong>
-               <br>
-               <small>${pedido.email}</small>
-            </td>
-
-            <td>
-               <span class="badge bg-warning text-dark">
-                  ${pedido.estado}
-               </span>
-            </td>
-
-            <td>
-               ${pedido.total.toLocaleString('es-CO', {
-                style: 'currency',
-                currency: 'COP'
-            })}
-            </td>
-
-            <td>${pedido.fecha}</td>
-
-            <td>
-               <button
-                  class="btn btn-success btn-sm"
-                  onclick='verPedido(${JSON.stringify(pedido)})'
-               >
-                  Ver
-               </button>
-            </td>
-
-         </tr>
-      `;
-        });
-    }
-    window.verPedido = function (pedido) {
-
-        let productosHTML = "";
-
-        pedido.productos.forEach((p) => {
-
-            productosHTML += `
-         • ${p.nombre}
-         | Cantidad: ${p.cantidad}
-         | Precio: ${p.precio}
-      <br>
-      `;
-        });
-
-        alert(`
-Pedido de: ${pedido.cliente}
-
-Productos:
-${productosHTML}
-
-Total:
-${pedido.total.toLocaleString('es-CO', {
-            style: 'currency',
-            currency: 'COP'
-        })}
-   `);
-    };
-    function cargarUsuarios() {
-
-        const usuarios =
-            JSON.parse(localStorage.getItem("listaUsuarios")) || [];
-
-        const filasUsuarios =
-            document.getElementById("filas-usuarios");
-
-        if (!filasUsuarios) return;
-
-        filasUsuarios.innerHTML = "";
-
-        if (usuarios.length === 0) {
-
-            filasUsuarios.innerHTML = `
-         <tr>
-            <td colspan="7" class="text-center p-4">
-               No hay usuarios registrados
-            </td>
-         </tr>
-      `;
-
-            return;
-        }
-
-        usuarios.forEach((usuario, index) => {
-
-            filasUsuarios.innerHTML += `
-         <tr>
-
-            <td>${index + 1}</td>
-
-            <td>${usuario.nombre}</td>
-
-            <td>${usuario.email}</td>
-
-            <td>${usuario.telefono || "No registrado"}</td>
-
-            <td>
-               <span class="badge bg-primary">
-                  ${usuario.role || "CLIENTE"}
-               </span>
-            </td>
-
-            <td>
-               <span class="text-success fw-bold">
-                  Activo
-               </span>
-            </td>
-
-            <td>
-               Usuario registrado correctamente
-            </td>
-
-         </tr>
-      `;
-        });
-    }
     // ============================================================
     // 🔽 DROPDOWN COLUMNAS
     // ============================================================
@@ -380,7 +245,6 @@ ${pedido.total.toLocaleString('es-CO', {
         menu.style.display = isOpen ? "none" : "block";
     };
 
-    // Cerrar dropdown al hacer click fuera
     document.addEventListener("click", (e) => {
         const wrapper = document.getElementById("dropdown-columnas-wrapper");
         if (wrapper && !wrapper.contains(e.target)) {
@@ -395,8 +259,8 @@ ${pedido.total.toLocaleString('es-CO', {
     function formatearPrecio(v) { return Number(v).toLocaleString("es-CO"); }
 
     function calcularPrecioFinal(p) {
-        const enPromo = p.enPromocion || (p.detalles && p.detalles.enPromocion);
-        const desc = p.descuento || (p.detalles && p.detalles.porcentajeDescuento) || 0;
+        const enPromo = p.detalles?.enPromocion === true;
+        const desc = p.detalles?.descuento || 0;
         return enPromo ? p.precio * (1 - desc / 100) : p.precio;
     }
 
@@ -404,20 +268,11 @@ ${pedido.total.toLocaleString('es-CO', {
         switch (clave) {
             case "precio": return `$ ${formatearPrecio(calcularPrecioFinal(p))}`;
             case "activo": return p.activo ? "✅ Sí" : "❌ No";
-            case "enPromocion": {
-                const e = p.enPromocion || (p.detalles && p.detalles.enPromocion);
-                return e ? "🏷️ Sí" : "No";
-            }
-            case "descuento": {
-                const e = p.enPromocion || (p.detalles && p.detalles.enPromocion);
-                const d = p.descuento || (p.detalles && p.detalles.porcentajeDescuento) || 0;
-                return e ? `${d}%` : "—";
-            }
+            case "enPromocion": return p.detalles?.enPromocion === true ? "🏷️ Sí" : "No";
+            case "descuento": return p.detalles?.enPromocion === true ? `${p.detalles.descuento || 0}%` : "—";
             case "cantidad": return p.cantidad ?? "—";
             case "stockMinimo": return p.stockMinimo ?? "—";
-            case "descripcion": return p.descripcion
-                ? (p.descripcion.length > 40 ? p.descripcion.substring(0, 40) + "…" : p.descripcion)
-                : "—";
+            case "descripcion": return p.descripcion ? (p.descripcion.length > 40 ? p.descripcion.substring(0, 40) + "…" : p.descripcion) : "—";
             case "fechaDeIngreso": return p.fechaDeIngreso || "—";
             default: return p[clave] ?? "—";
         }
@@ -431,12 +286,12 @@ ${pedido.total.toLocaleString('es-CO', {
         const pro = document.getElementById("stat-promo");
         const act = document.getElementById("stat-activos");
         if (tot) tot.textContent = productos.length;
-        if (pro) pro.textContent = productos.filter(p => p.enPromocion || (p.detalles && p.detalles.enPromocion)).length;
+        if (pro) pro.textContent = productos.filter(p => p.detalles?.enPromocion === true).length;
         if (act) act.textContent = productos.filter(p => p.activo).length;
     }
 
     // ============================================================
-    // ☑️ DROPDOWN CHECKBOXES DE COLUMNAS (con columnas fijas bloqueadas)
+    // ☑️ DROPDOWN CHECKBOXES DE COLUMNAS
     // ============================================================
     function renderCheckboxesColumnas() {
         const container = document.getElementById("checkboxes-columnas");
@@ -486,44 +341,13 @@ ${pedido.total.toLocaleString('es-CO', {
 
         return productos.filter(p => {
             if (!p.nombre.toLowerCase().includes(q)) return false;
-            if (cat && (p.categoriaId || "") !== cat) return false;
-
-            for (const col of columnasDisponibles) {
-                const clave = col.clave;
-                const f = filtrosActivos[clave];
-                if (!columnasVisibles.includes(clave)) continue;
-
-                if (clave === "nombre" || clave === "descripcion") {
-                    if (f && !(p[clave] || "").toLowerCase().includes(f.toLowerCase())) return false;
-                } else if (clave === "tipoProducto") {
-                    if (f && (p.tipoProducto || "") !== f) return false;
-                } else if (clave === "activo") {
-                    if (f !== "" && p.activo !== (f === "true")) return false;
-                } else if (clave === "enPromocion") {
-                    if (f !== "") {
-                        const pv = p.enPromocion || (p.detalles && p.detalles.enPromocion) || false;
-                        if (pv !== (f === "true")) return false;
-                    }
-                } else if (["precio", "cantidad", "stockMinimo", "descuento"].includes(clave)) {
-                    if (f && f.valor !== "") {
-                        const fv = parseFloat(f.valor);
-                        let pv = clave === "precio" ? calcularPrecioFinal(p)
-                            : clave === "descuento" ? (p.descuento || (p.detalles && p.detalles.porcentajeDescuento) || 0)
-                                : (p[clave] ?? 0);
-                        if (f.operacion === ">=" && !(pv >= fv)) return false;
-                        if (f.operacion === "<=" && !(pv <= fv)) return false;
-                        if (f.operacion === "=" && pv !== fv) return false;
-                    }
-                } else if (clave === "fechaDeIngreso") {
-                    if (f && !(p.fechaDeIngreso || "").startsWith(f)) return false;
-                }
-            }
+            if (cat && (p.categoriaNombre || "") !== cat) return false;
             return true;
         });
     }
 
     // ============================================================
-    // 🔍 FILA DE FILTROS (segunda fila del thead)
+    // 🔍 FILA DE FILTROS
     // ============================================================
     function renderFiltrosRow() {
         const thead = document.getElementById("propiedades-producto")?.parentNode;
@@ -543,58 +367,18 @@ ${pedido.total.toLocaleString('es-CO', {
         visibles.forEach(col => {
             const th = document.createElement("th");
             th.className = "th-filtro";
-            let html = "";
-
-            if (col.clave === "nombre" || col.clave === "descripcion") {
-                html = `<input type="text" id="fi-${col.clave}" class="table-filter-input" placeholder="Buscar..." value="${filtrosActivos[col.clave] || ''}">`;
-            } else if (col.clave === "tipoProducto") {
-                const tipos = [...new Set(productos.map(p => p.tipoProducto).filter(Boolean))];
-                html = `<select id="fi-${col.clave}" class="table-filter-select"><option value="">Todos</option>${tipos.map(t => `<option value="${t}" ${filtrosActivos[col.clave] === t ? "selected" : ""}>${t}</option>`).join("")}</select>`;
-            } else if (["precio", "cantidad", "stockMinimo", "descuento"].includes(col.clave)) {
-                const f = filtrosActivos[col.clave];
-                html = `<div class="filter-number-group"><select id="fo-${col.clave}" class="table-filter-operator"><option value=">=" ${f.operacion === ">=" ? "selected" : ""}>≥</option><option value="<=" ${f.operacion === "<=" ? "selected" : ""}>≤</option><option value="=" ${f.operacion === "=" ? "selected" : ""}}>=</option></select><input type="number" id="fv-${col.clave}" class="table-filter-input-number" placeholder="Val" value="${f.valor || ''}"></div>`;
-            } else if (col.clave === "activo" || col.clave === "enPromocion") {
-                const v = filtrosActivos[col.clave];
-                html = `<select id="fi-${col.clave}" class="table-filter-select"><option value="">Todos</option><option value="true" ${v === "true" ? "selected" : ""}>Sí</option><option value="false" ${v === "false" ? "selected" : ""}>No</option></select>`;
-            } else if (col.clave === "fechaDeIngreso") {
-                html = `<input type="date" id="fi-${col.clave}" class="table-filter-date" value="${filtrosActivos[col.clave] || ''}">`;
-            }
-
+            let html = `<input type="text" id="fi-${col.clave}" class="table-filter-input" placeholder="Filtrar..." style="width: 100%;">`;
             th.innerHTML = html;
             trFiltros.appendChild(th);
         });
 
-        // Botón limpiar
         const thBtn = document.createElement("th");
         thBtn.className = "th-filtro-accion";
         thBtn.innerHTML = `<button id="btn-limpiar-filtros" class="btn-limpiar-filtros" title="Limpiar filtros">🧹</button>`;
         trFiltros.appendChild(thBtn);
 
-        // Bind eventos
-        visibles.forEach(col => {
-            const clave = col.clave;
-            if (["nombre", "descripcion", "fechaDeIngreso"].includes(clave)) {
-                const el = document.getElementById(`fi-${clave}`);
-                if (el) el.addEventListener("input", e => { filtrosActivos[clave] = e.target.value; renderTablaSoloFilas(); });
-            } else if (["tipoProducto", "activo", "enPromocion"].includes(clave)) {
-                const el = document.getElementById(`fi-${clave}`);
-                if (el) el.addEventListener("change", e => { filtrosActivos[clave] = e.target.value; renderTablaSoloFilas(); });
-            } else if (["precio", "cantidad", "stockMinimo", "descuento"].includes(clave)) {
-                const op = document.getElementById(`fo-${clave}`);
-                const vl = document.getElementById(`fv-${clave}`);
-                if (op) op.addEventListener("change", e => { filtrosActivos[clave].operacion = e.target.value; renderTablaSoloFilas(); });
-                if (vl) vl.addEventListener("input", e => { filtrosActivos[clave].valor = e.target.value; renderTablaSoloFilas(); });
-            }
-        });
-
         const btnL = document.getElementById("btn-limpiar-filtros");
-        if (btnL) btnL.addEventListener("click", () => {
-            Object.keys(filtrosActivos).forEach(k => {
-                if (typeof filtrosActivos[k] === "object") { filtrosActivos[k].valor = ""; filtrosActivos[k].operacion = ">="; }
-                else filtrosActivos[k] = "";
-            });
-            renderTabla();
-        });
+        if (btnL) btnL.addEventListener("click", renderTabla);
     }
 
     // ============================================================
@@ -604,10 +388,6 @@ ${pedido.total.toLocaleString('es-CO', {
         const tbody = document.getElementById("filas-producto");
         if (!tbody) return;
 
-        const focusId = document.activeElement?.id || null;
-        const selStart = document.activeElement?.selectionStart ?? null;
-        const selEnd = document.activeElement?.selectionEnd ?? null;
-
         tbody.innerHTML = "";
         const filtrados = obtenerProductosFiltrados();
 
@@ -616,7 +396,7 @@ ${pedido.total.toLocaleString('es-CO', {
             const td = document.createElement("td");
             td.colSpan = columnasVisibles.length + 1;
             td.className = "tabla-vacia";
-            td.innerHTML = `<div class="tabla-vacia__contenido"><span class="tabla-vacia__icon">📦</span><p>No hay productos que coincidan</p></div>`;
+            td.innerHTML = `<div class="tabla-vacia__contenido"><span class="tabla-vacia__icon">📦</span><p>No hay productos</p></div>`;
             tr.appendChild(td);
             tbody.appendChild(tr);
         } else {
@@ -636,23 +416,14 @@ ${pedido.total.toLocaleString('es-CO', {
                 tbody.appendChild(tr);
             });
         }
-
-        if (focusId) {
-            const el = document.getElementById(focusId);
-            if (el) { el.focus(); try { if (selStart !== null) el.setSelectionRange(selStart, selEnd); } catch (_) { } }
-        }
     }
 
     // ============================================================
-    // 📊 RENDER TABLA COMPLETA (headers + filtros + filas)
+    // 📊 RENDER TABLA COMPLETA
     // ============================================================
     function renderTabla() {
         const thead = document.getElementById("propiedades-producto");
         if (!thead) return;
-
-        const focusId = document.activeElement?.id || null;
-        const selStart = document.activeElement?.selectionStart ?? null;
-        const selEnd = document.activeElement?.selectionEnd ?? null;
 
         thead.innerHTML = "";
         columnasDisponibles
@@ -668,19 +439,21 @@ ${pedido.total.toLocaleString('es-CO', {
 
         renderFiltrosRow();
         renderTablaSoloFilas();
-
-        if (focusId) {
-            const el = document.getElementById(focusId);
-            if (el) { el.focus(); try { if (selStart !== null) el.setSelectionRange(selStart, selEnd); } catch (_) { } }
-        }
     }
 
     // ============================================================
     // 📦 RENDER PEDIDOS
     // ============================================================
-    function renderPedidos() {
+    async function renderPedidos() {
         const tbody = document.getElementById("filas-pedidos");
         if (!tbody) return;
+
+        try {
+            pedidos = await getPedidos() || [];
+        } catch (error) {
+            console.error("Error cargando pedidos:", error);
+            pedidos = [];
+        }
 
         const q = (document.getElementById("buscar-pedido")?.value || "").toLowerCase();
         const est = document.getElementById("filtro-estado-pedido")?.value || "";
@@ -693,11 +466,11 @@ ${pedido.total.toLocaleString('es-CO', {
             return true;
         });
 
-        const etiquetas = { PENDIENTE: "🟡 Pendiente", EN_PROCESO: "🔵 En proceso", ENVIADO: "🚚 Enviado", ENTREGADO: "✅ Entregado", CANCELADO: "❌ Cancelado" };
+        const etiquetas = { PENDIENTE: "🟡 Pendiente", COMPRADO: "✅ Comprado" };
 
         tbody.innerHTML = "";
         if (filtrados.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="6" class="tabla-vacia"><div class="tabla-vacia__contenido"><span class="tabla-vacia__icon">🧾</span><p>No hay pedidos registrados</p></div></td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="6" class="tabla-vacia"><div class="tabla-vacia__contenido"><span class="tabla-vacia__icon">🧾</span><p>No hay pedidos</p></div></td></tr>`;
             return;
         }
 
@@ -710,7 +483,7 @@ ${pedido.total.toLocaleString('es-CO', {
             tr.innerHTML = `
                 <td><span class="badge-id">#${p.id}</span></td>
                 <td>${p.clienteNombre || "—"}</td>
-                <td><span class="estado-badge estado-${(p.estadoActual || "").toLowerCase()}">${estado}</span></td>
+                <td><span class="estado-badge">${estado}</span></td>
                 <td class="fw-semibold text-success">${total}</td>
                 <td>${fecha}</td>
                 <td><span class="badge bg-secondary">${nDet} ítem(s)</span></td>
@@ -722,42 +495,48 @@ ${pedido.total.toLocaleString('es-CO', {
     // ============================================================
     // 👥 RENDER USUARIOS
     // ============================================================
-    function renderUsuarios() {
+    async function renderUsuarios() {
         const tbody = document.getElementById("filas-usuarios");
         if (!tbody) return;
+
+        try {
+            usuarios = await getUsuarios() || [];
+        } catch (error) {
+            console.error("Error cargando usuarios:", error);
+            usuarios = [];
+        }
 
         const q = (document.getElementById("buscar-usuario")?.value || "").toLowerCase();
         const rol = document.getElementById("filtro-rol-usuario")?.value || "";
 
         const filtrados = usuarios.filter(u => {
-            const nombre = (u.name || "").toLowerCase();
+            const nombre = (u.nombre || "").toLowerCase();
             const email = (u.email || "").toLowerCase();
             if (q && !nombre.includes(q) && !email.includes(q)) return false;
             if (rol && (u.rol || "") !== rol) return false;
             return true;
         });
 
-        const rolesLabel = { CLIENTE: "🛒 Cliente", EMPLEADO: "👷 Empleado", ADMIN: "🛡️ Admin" };
+        const rolesLabel = { CLIENTE: "🛒 Cliente", ADMIN: "🛡️ Admin" };
+        const estadoLabel = { ACTIVO: "✅ Activo", INACTIVO: "❌ Inactivo" };
 
         tbody.innerHTML = "";
         if (filtrados.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="7" class="tabla-vacia"><div class="tabla-vacia__contenido"><span class="tabla-vacia__icon">👥</span><p>No hay usuarios registrados</p></div></td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="7" class="tabla-vacia"><div class="tabla-vacia__contenido"><span class="tabla-vacia__icon">👥</span><p>No hay usuarios</p></div></td></tr>`;
             return;
         }
 
         filtrados.forEach(u => {
-            const extra = u.rol === "CLIENTE"
-                ? `<span class="badge bg-info text-dark">${(u.pedidos || []).length} pedido(s)</span>`
-                : `<span class="badge bg-warning text-dark">${u.area || "—"} · ${u.turno || "—"}</span>`;
+            const fecha = u.fechaCreacion ? new Date(u.fechaCreacion).toLocaleDateString("es-CO") : "—";
             const tr = document.createElement("tr");
             tr.innerHTML = `
-                <td><span class="badge-id">#${u.clienteId || "?"}</span></td>
-                <td class="fw-semibold">${u.name}</td>
+                <td><span class="badge-id">#${u.id || "?"}</span></td>
+                <td class="fw-semibold">${u.nombre}</td>
                 <td><a href="mailto:${u.email}" class="text-decoration-none">${u.email}</a></td>
                 <td>${u.telefono || "—"}</td>
                 <td><span class="badge bg-primary">${rolesLabel[u.rol] || u.rol}</span></td>
-                <td>${u.activo ? "✅ Sí" : "❌ No"}</td>
-                <td>${extra}</td>
+                <td>${estadoLabel[u.estado] || u.estado}</td>
+                <td>${fecha}</td>
             `;
             tbody.appendChild(tr);
         });
@@ -769,12 +548,9 @@ ${pedido.total.toLocaleString('es-CO', {
     function poblarCategorias() {
         const sel = document.getElementById("filtro-categoria");
         if (!sel) return;
-        const tipos = [...new Set(productos.map(p => p.tipoProducto).filter(Boolean))];
-        tipos.forEach(t => {
-            const o = document.createElement("option");
-            o.value = t; o.textContent = t;
-            sel.appendChild(o);
-        });
+        const categorias = categoriasDisponibles.map(c => c.nombre);
+        sel.innerHTML = '<option value="">Todas las categorías</option>' +
+            categorias.map(cat => `<option value="${cat}">${cat}</option>`).join('');
     }
 
     // ============================================================
@@ -784,14 +560,14 @@ ${pedido.total.toLocaleString('es-CO', {
         indexActual = index;
         const p = productos[index];
         document.getElementById("edit-nombre").value = p.nombre || "";
-        document.getElementById("edit-tipo").value = p.tipoProducto || "";
+        document.getElementById("edit-categoria").value = p.categoriaNombre || "";
         document.getElementById("edit-precio").value = p.precio || 0;
         document.getElementById("edit-cantidad").value = p.cantidad ?? 0;
         document.getElementById("edit-stockMinimo").value = p.stockMinimo ?? 5;
         document.getElementById("edit-activo").value = p.activo ? "true" : "false";
-        const enPromo = p.enPromocion || (p.detalles && p.detalles.enPromocion) || false;
+        const enPromo = p.detalles?.enPromocion === true;
         document.getElementById("edit-promocion").checked = enPromo;
-        document.getElementById("edit-descuento").value = p.descuento || (p.detalles && p.detalles.porcentajeDescuento) || 0;
+        document.getElementById("edit-descuento").value = p.detalles?.descuento || 0;
         document.getElementById("edit-descuento-group").style.display = enPromo ? "block" : "none";
         document.getElementById("modal-editar").classList.add("modal-overlay--visible");
     };
@@ -800,54 +576,75 @@ ${pedido.total.toLocaleString('es-CO', {
         document.getElementById("modal-editar").classList.remove("modal-overlay--visible");
     };
 
-    window.eliminarProducto = function () {
+    window.eliminarProducto = async function () {
         if (indexActual === null) return;
-        const nombre = productos[indexActual]?.nombre || "este producto";
+        const p = productos[indexActual];
+        const nombre = p.nombre || "este producto";
+        
         if (!confirm(`¿Estás seguro de eliminar "${nombre}"? Esta acción no se puede deshacer.`)) return;
-        productos.splice(indexActual, 1);
-        localStorage.setItem("listaProducts", JSON.stringify(productos));
-        indexActual = null;
-        cerrarModal();
-        renderTabla();
-        renderEstadisticas();
+
+        try {
+            await deleteProducto(p.id);
+            productos.splice(indexActual, 1);
+            indexActual = null;
+            cerrarModal();
+            renderTabla();
+            renderEstadisticas();
+            alert("Producto eliminado exitosamente");
+        } catch (error) {
+            const err = manejarErrorAPI(error);
+            alert(`Error al eliminar: ${err.message}`);
+        }
     };
 
-    window.guardarEdicion = function () {
+    window.guardarEdicion = async function () {
+        if (indexActual === null) return;
+        
         const p = productos[indexActual];
         const precio = parseFloat(document.getElementById("edit-precio").value);
         const cant = parseInt(document.getElementById("edit-cantidad").value);
         const stock = parseInt(document.getElementById("edit-stockMinimo").value);
+        const activo = document.getElementById("edit-activo").value === "true";
+        const promo = document.getElementById("edit-promocion").checked;
+        const desc = parseFloat(document.getElementById("edit-descuento").value) || 0;
 
         if (isNaN(precio) || precio < 0) { alert("El precio debe ser un número positivo."); return; }
         if (isNaN(cant) || cant < 0) { alert("La cantidad no puede ser negativa."); return; }
         if (isNaN(stock) || stock < 0) { alert("El stock mínimo no puede ser negativo."); return; }
-        const activo = document.getElementById("edit-activo").value === "true";
-        const promo = document.getElementById("edit-promocion").checked;
-        const desc = document.getElementById("edit-descuento").value;
 
-        if (!isNaN(precio)) p.precio = precio;
-        if (!isNaN(cant)) p.cantidad = cant;
-        if (!isNaN(stock)) p.stockMinimo = stock;
-        p.activo = activo;
-        p.enPromocion = promo;
-        if (p.detalles) p.detalles.enPromocion = promo;
+        try {
+            // Actualizar en la API
+            await updateProducto(p.id, {
+                precio,
+                cantidad: cant,
+                stockMinimo: stock,
+                activo,
+                enPromocion: promo
+            });
 
-        if (promo && desc >= 1 && desc <= 100) {
-            p.descuento = Number(desc);
-            if (p.detalles) p.detalles.porcentajeDescuento = Number(desc);
-        } else {
-            p.descuento = 0;
-            if (p.detalles) p.detalles.porcentajeDescuento = 0;
+            // Actualizar objeto local
+            p.precio = precio;
+            p.cantidad = cant;
+            p.stockMinimo = stock;
+            p.activo = activo;
+            p.enPromocion = promo;
+            if (p.detalles) {
+                p.detalles.enPromocion = promo;
+                p.detalles.descuento = promo && desc >= 1 && desc <= 100 ? desc : 0;
+            }
+
+            cerrarModal();
+            renderTabla();
+            renderEstadisticas();
+            alert("Producto actualizado exitosamente");
+        } catch (error) {
+            const err = manejarErrorAPI(error);
+            alert(`Error al actualizar: ${err.message}`);
         }
-
-        localStorage.setItem("listaProducts", JSON.stringify(productos));
-        cerrarModal();
-        renderTabla();
-        renderEstadisticas();
     };
 
     // ============================================================
-    // 🎧 EVENTOS GENERALES
+    // 🎧 EVENTOS
     // ============================================================
     const inputBuscar = document.getElementById("buscar-producto");
     if (inputBuscar) inputBuscar.addEventListener("input", renderTabla);

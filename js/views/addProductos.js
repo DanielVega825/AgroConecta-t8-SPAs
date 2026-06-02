@@ -1,6 +1,4 @@
-import { Producto } from '../../models/productos.js';
-import { products } from '../../data/products.js';
-
+import { createProducto, fileToBase64, manejarErrorAPI, getCategorias } from '../services/api.js';
 
 export function AddProduct() {
     return `
@@ -16,13 +14,9 @@ export function AddProduct() {
                         <input type="text" id="productName" class="form-control bg-light" placeholder="Ej: Tomate Cherry Orgánico" required>
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label fw-bold">Tipo de Producto *</label>
-                        <select id="productType" class="form-select bg-light" required>
-                            <option value="" selected disabled>Seleccionar tipo</option>
-                            <option value="Semillas">Semillas</option>
-                            <option value="Concentrados">Concentrados</option>
-                            <option value="Herramientas">Herramientas</option>
-                            
+                        <label class="form-label fw-bold">Categoría *</label>
+                        <select id="productCategory" class="form-select bg-light" required>
+                            <option value="" selected disabled>Seleccionar categoría</option>
                         </select>
                     </div>
                     <div class="col-12">
@@ -53,10 +47,9 @@ export function AddProduct() {
             <div class="product-form__section mb-5">
                 <h2 class="h5 border-bottom pb-2 mb-4">Estados del Producto</h2>
                 <div class="row g-3">
-                    
                     <div class="col-md-4">
                         <label class="product-form__status-card">
-                            <input type="checkbox" id="checkPromotion" class="form-check-input me-2"> En descuento
+                            <input type="checkbox" id="checkPromotion" class="form-check-input me-2"> En promoción
                         </label>
                     </div>
                 </div>
@@ -84,6 +77,7 @@ export function AddProduct() {
                 <h2 class="h5 border-bottom pb-2 mb-4">Imágenes del Producto</h2>
                 <div class="mb-3">
                     <input class="form-control bg-light" type="file" id="productImages" accept="image/*" multiple required>
+                    <small class="text-muted d-block mt-2">Mínimo 1 imagen, máximo 7</small>
                 </div>
                 <div id="previewContainer" class="product-form__image-preview d-flex flex-wrap gap-3"></div>
             </div>
@@ -144,10 +138,10 @@ export function AddProduct() {
             </div>
 
             <div class="d-flex gap-3 mt-4">
-                <button type="submit" class="btn btn-success flex-grow-1 py-2 fw-bold">
+                <button type="submit" id="btn-submit" class="btn btn-success flex-grow-1 py-2 fw-bold">
                     <i class="bi bi-box-seam me-2"></i>Agregar Producto
                 </button>
-                <button type="reset" class="btn btn-outline-secondary px-5 py-2">
+                <button type="reset" id="btn-reset" class="btn btn-outline-secondary px-5 py-2">
                     Limpiar
                 </button>
             </div>
@@ -157,16 +151,44 @@ export function AddProduct() {
 </section>
     `;
 }
-export function initAddProductLogic() {
+
+export async function initAddProductLogic() {
+    
+    
+    // ============================================================
+    // 📂 CARGAR CATEGORÍAS DESDE API
+    // ============================================================
+    try {
+        const categorias = await getCategorias();
+        if (categorias && categorias.length > 0) {
+            selectCategory.innerHTML = '<option value="" selected disabled>Seleccionar categoría</option>' +
+                categorias.map(cat => `<option value="${cat.id}">${cat.nombre}</option>`).join('');
+        }
+    } catch (error) {
+        console.error("Error cargando categorías:", error);
+        selectCategory.innerHTML = '<option value="" selected disabled>Error cargando categorías</option>';
+    }
+
     const input = document.getElementById('productImages');
     const container = document.getElementById('previewContainer');
     const btnReset = document.getElementById('btn-reset');
-
+    const btnSubmit = document.getElementById('btn-submit');
+    const form = document.getElementById('productForm');
+    const editor = document.getElementById("productDescriptionLong");
 
     if (!input || !container) return;
 
+    // ============================================================
+    // 🖼️ PREVIEW DE IMÁGENES
+    // ============================================================
     input.addEventListener('change', (e) => {
         const files = e.target.files;
+
+        if (files.length > 7) {
+            alert("Máximo 7 imágenes permitidas");
+            input.value = '';
+            return;
+        }
 
         Array.from(files).forEach(file => {
             if (file.type.startsWith('image/')) {
@@ -185,9 +207,7 @@ export function initAddProductLogic() {
                         </button>
                     `;
 
-                    // Lógica para eliminar la miniatura individualmente
                     thumbContainer.querySelector('.product-form__btn--remove').onclick = () => thumbContainer.remove();
-
                     container.appendChild(thumbContainer);
                 };
                 reader.readAsDataURL(file);
@@ -195,13 +215,16 @@ export function initAddProductLogic() {
         });
     });
 
-    // Limpiar el contenedor al resetear el formulario
     if (btnReset) {
         btnReset.addEventListener('click', () => {
             container.innerHTML = '';
+            input.value = '';
         });
     }
 
+    // ============================================================
+    // 🏷️ MANEJO DE PROMOCIÓN
+    // ============================================================
     const checkPromotion = document.getElementById('checkPromotion');
     const discountGroup = document.getElementById('discountGroup');
     const discountInput = document.getElementById('discountInput');
@@ -209,11 +232,9 @@ export function initAddProductLogic() {
     if (checkPromotion && discountGroup) {
         checkPromotion.addEventListener('change', (e) => {
             if (e.target.checked) {
-                // Mostramos la sección y la hacemos requerida
                 discountGroup.classList.remove('d-none');
                 discountInput.setAttribute('required', 'true');
             } else {
-                // Ocultamos y limpiamos el valor
                 discountGroup.classList.add('d-none');
                 discountInput.value = '';
                 discountInput.removeAttribute('required');
@@ -221,25 +242,25 @@ export function initAddProductLogic() {
         });
     }
 
-    // Lógica del Editor de Texto Enriquecido para DescripcionLong
-    const editor = document.getElementById("productDescriptionLong");
-    const actions = [
-        "bold", "italic", "underline", "strikeThrough",
-        "subscript", "superscript",
-        "justifyLeft", "justifyCenter", "justifyRight", "justifyFull",
-        "insertUnorderedList", "insertOrderedList",
-        "outdent", "indent",
-        "removeFormat", "undo", "redo"
-    ];
-
+    // ============================================================
+    // ✏️ EDITOR DE TEXTO ENRIQUECIDO
+    // ============================================================
     if (editor) {
+        const actions = [
+            "bold", "italic", "underline", "strikeThrough",
+            "subscript", "superscript",
+            "justifyLeft", "justifyCenter", "justifyRight", "justifyFull",
+            "insertUnorderedList", "insertOrderedList",
+            "outdent", "indent",
+            "removeFormat", "undo", "redo"
+        ];
+
         const executeCmd = (cmd, value = null) => {
             document.execCommand(cmd, false, value);
             editor.focus();
         };
 
         actions.forEach(action => {
-            // Mapeamos los IDs de botones con las acciones de document.execCommand
             const btnId = `btn-${action.replace('strikeThrough', 'strike').replace('justifyLeft', 'alignLeft').replace('justifyCenter', 'alignCenter').replace('justifyRight', 'alignRight').replace('justifyFull', 'alignJustify').replace('insertUnorderedList', 'ul').replace('insertOrderedList', 'ol')}`;
             const btn = document.getElementById(btnId);
             if (btn) {
@@ -247,7 +268,6 @@ export function initAddProductLogic() {
             }
         });
 
-        // Controles con valor
         const btnFormat = document.getElementById("btn-formatBlock");
         if (btnFormat) btnFormat.onchange = (e) => { executeCmd("formatBlock", e.target.value); };
 
@@ -272,12 +292,14 @@ export function initAddProductLogic() {
         };
     }
 
-    const form = document.getElementById('productForm');
+    // ============================================================
+    // 🚀 SUBMIT FORM — CREAR PRODUCTO
+    // ============================================================
     if (form) {
-        form.addEventListener('submit', (e) => {
+        form.addEventListener('submit', async (e) => {
             e.preventDefault();
 
-            // Recopilar imágenes
+            // Extraer imágenes Base64 de los previews
             const imagenesCargadas = Array.from(container.querySelectorAll('img')).map(img => img.src);
 
             if (imagenesCargadas.length === 0) {
@@ -285,46 +307,55 @@ export function initAddProductLogic() {
                 return;
             }
 
+            const nombre = document.getElementById('productName').value.trim();
+            const categoriaId = parseInt(document.getElementById('productCategory').value);
+            const precio = parseFloat(document.getElementById('productPrice').value);
+            const descripcion = document.getElementById('productDescription').value.trim();
+            const cantidad = parseInt(document.getElementById('productQuantity').value);
+            const stockMinimo = parseInt(document.getElementById('productMinStock').value);
+            const enPromocion = checkPromotion?.checked || false;
+            const descuento = enPromocion ? parseFloat(discountInput.value) || 0 : 0;
+            const descripcionLong = editor?.innerHTML || '';
+
+            // Validaciones básicas
+            if (!nombre || !categoriaId || !precio || !descripcion || !cantidad) {
+                alert("Por favor, completa todos los campos requeridos");
+                return;
+            }
+
+            if (descuento < 0 || descuento > 100) {
+                alert("El descuento debe estar entre 0 y 100");
+                return;
+            }
+
+            btnSubmit.disabled = true;
+            btnSubmit.innerHTML = "Procesando...";
+
             try {
-                const tipoValue = document.getElementById('productType').value;
-                console.log("Tipo de producto seleccionado:", tipoValue);
-                let catId = "Semillas";
-                if (tipoValue === "Semillas") catId = "SEMILLAS";
-                else if (tipoValue === "Concentrados") catId = "CONCENTRADOS";
-                else if (tipoValue === "Herramientas") catId = "HERRAMIENTAS";
-                console.log("Categoría ID asignada:", catId);
-
-                const nuevoProducto = new Producto({
-                    nombre: document.getElementById('productName').value,
-                    precio: parseFloat(document.getElementById('productPrice').value),
-                    descripcion: document.getElementById('productDescription').value,
-                    imagenes: imagenesCargadas,
+                // Crear payload según la guía API
+                const productData = {
+                    nombre,
+                    precio,
+                    descripcion,
+                    imagenes: imagenesCargadas,  // Array de Base64
+                    cantidad,
+                    stockMinimo,
+                    descripcionLong,
+                    categoriaId,
                     detalles: {
-                        enDescuento: checkPromotion?.checked || false,
-                        porcentajeDescuento: checkPromotion?.checked ? parseFloat(discountInput.value) : null,
-                    },
-                    cantidad: parseInt(document.getElementById('productQuantity').value),
-                    stockMinimo: parseInt(document.getElementById('productMinStock').value),
-                    descripcionLong: editor ? editor.innerHTML : "",
-                    categoriaId: catId
-                });
+                        enPromocion,
+                        descuento: enPromocion ? descuento : 0,
+                        unidad: "kg"  // Por defecto
+                    }
+                };
 
-                // Campos para compatibilidad con el panel
-                nuevoProducto.categoriaId = catId;
-                nuevoProducto.enPromocion = checkPromotion?.checked || false;
-                nuevoProducto.descuento = checkPromotion?.checked ? parseFloat(discountInput.value) : 0;
-                nuevoProducto.activo = true;
+                // Llamar a la API
+                const response = await createProducto(productData);
 
-                //Subir los productos al backend
-                // uploadProduct(nuevoProducto);
-
-                products.push(nuevoProducto);
-                console.log("Producto Agregado:", products);
-
-                localStorage.setItem("listaProducts", JSON.stringify(products))
+                btnSubmit.innerHTML = "✅ Producto creado exitosamente";
                 alert("¡Producto agregado con éxito!");
 
-
+                // Limpiar formulario
                 form.reset();
                 if (editor) editor.innerHTML = '';
                 container.innerHTML = '';
@@ -332,24 +363,29 @@ export function initAddProductLogic() {
                     discountGroup.classList.add('d-none');
                     discountInput.removeAttribute('required');
                 }
+
+                // Redirigir al panel después de 2 segundos
+                setTimeout(() => {
+                    window.location.hash = "#/panel";
+                }, 2000);
+
             } catch (error) {
-                alert("Error de validación: " + error.message);
+                btnSubmit.disabled = false;
+                btnSubmit.innerHTML = '<i class="bi bi-box-seam me-2"></i>Agregar Producto';
+
+                const err = manejarErrorAPI(error);
+                
+                // Mostrar errores de validación específicos
+                if (err.fields) {
+                    let mensaje = "Errores de validación:\n";
+                    Object.entries(err.fields).forEach(([campo, errorMsg]) => {
+                        mensaje += `- ${campo}: ${errorMsg}\n`;
+                    });
+                    alert(mensaje);
+                } else {
+                    alert(`Error al crear producto: ${err.message}`);
+                }
             }
         });
     }
 }
-
-// async function uploadProduct(product) {
-//     console.log(JSON.stringify(product));
-//     try {
-//         await fetch('http://localhost:8080/api/productos', {
-//             method: 'POST',
-//             headers: {
-//                 'Content-Type': 'application/json',
-//             },
-//             body: JSON.stringify(product),
-//         });
-//     } catch (error) {
-//         console.error("Error al subir el producto:", error);
-//     }
-// }

@@ -1,13 +1,30 @@
 import { Header } from "./components/header.js";
 import { Footer } from "./components/footer.js";
 import { router } from "./router.js";
-import { products } from "../data/products.js";
- 
  
 console.log("main.js cargado");
- 
-localStorage.setItem("listaProducts", JSON.stringify(products))
- 
+
+// ============================================================
+// 📊 ACTUALIZAR CONTADOR DEL CARRITO
+// ============================================================
+export function actualizarContadorCarrito() {
+    const carrito = JSON.parse(localStorage.getItem("carrito")) || [];
+    const total = carrito.reduce((acc, p) => acc + p.cantidad, 0);
+    
+    const contador = document.getElementById("contador-carrito");
+    if (contador) {
+        contador.textContent = total;
+        if (total > 0) {
+            contador.classList.remove("d-none");
+        } else {
+            contador.classList.add("d-none");
+        }
+    }
+}
+
+// ============================================================
+// 🎨 RENDERIZAR LAYOUT PRINCIPAL
+// ============================================================
 function renderLayout() {
     console.log("renderLayout iniciado");
     const root = document.getElementById("root");
@@ -25,15 +42,21 @@ function renderLayout() {
     `;
     console.log("renderLayout completado");
 }
- 
+
+// ============================================================
+// 🔄 ACTUALIZAR HEADER CUANDO CAMBIA LA SESIÓN
+// ============================================================
 function updateHeader() {
-    const headerElement = document.querySelector("header"); // Selecciona el tag header
+    const headerElement = document.querySelector("header");
     if (headerElement) {
         headerElement.outerHTML = Header();
     }
-    actualizarContadorCarrito(); // Importante: re-vincular el contador
+    actualizarContadorCarrito();
 }
-//Uso de clicks en el footer
+
+// ============================================================
+// 🔗 CONFIGURAR FILTROS DEL FOOTER
+// ============================================================
 function setupFooterFilters() {
     const footer = document.getElementById("main-footer");
     if (!footer) return;
@@ -46,7 +69,6 @@ function setupFooterFilters() {
 
             localStorage.setItem('filtro_pendiente_categoria', categoria);
 
-            // Si ya estamos en el catálogo, aplicar el filtro directamente sin esperar hashchange
             if (location.hash === '#/catalogo') {
                 e.preventDefault();
                 const radio = document.querySelector(`input[name="cat"][value="${categoria}"]`);
@@ -60,7 +82,10 @@ function setupFooterFilters() {
         };
     });
 }
- 
+
+// ============================================================
+// ☰ MENÚ MÓVIL
+// ============================================================
 function setupMenu() {
     const btn = document.getElementById("menu-toggle");
     const nav = document.getElementById("nav-menu");
@@ -74,7 +99,6 @@ function setupMenu() {
             }
         };
  
-        // Cerramos el menú cuando se hace click en cualquier enlace
         nav.querySelectorAll("a").forEach(link => {
             link.onclick = () => {
                 nav.classList.remove("active");
@@ -85,7 +109,6 @@ function setupMenu() {
         });
     }
  
-    // Cerrar menú al hacer click en el backdrop
     if (backdrop) {
         backdrop.onclick = () => {
             nav.classList.remove("active");
@@ -93,73 +116,52 @@ function setupMenu() {
         };
     }
 }
- 
+
+// ============================================================
+// 🚪 LOGOUT
+// ============================================================
 function setupLogout() {
     const logoutBtn = document.getElementById("logoutBtn");
     const logoutBtnMobile = document.getElementById("logoutBtnMobile");
     const nav = document.getElementById("nav-menu");
-    const backdrop = document.getElementById("menu-backdrop");
-   
-    const handleLogout = (e) => {
-        e.preventDefault();
-        localStorage.removeItem("userLogged");
-        // Cerrar menú y backdrop
-        if (nav) {
-            nav.classList.remove("active");
-        }
-        if (backdrop) {
-            backdrop.classList.remove("active");
-        }
-        window.location.hash = "#/";
-        // Forzar actualización de la vista al hacer logout
+
+    const handleLogout = () => {
+        localStorage.removeItem("token");
+        localStorage.removeItem("rol");
+        localStorage.removeItem("email");
+        localStorage.removeItem("nombre");
+        localStorage.removeItem("clienteId");
         updateHeader();
-        setupMenu();
-        setupLogout();
+        window.location.hash = "#/";
     };
-   
+
     if (logoutBtn) {
         logoutBtn.onclick = handleLogout;
     }
-   
     if (logoutBtnMobile) {
-        logoutBtnMobile.onclick = handleLogout;
+        logoutBtnMobile.onclick = () => {
+            handleLogout();
+            if (nav) nav.classList.remove("active");
+        };
     }
 }
- 
-// Al usar type="module", el script se carga de forma diferida (defer),
-// por lo que el DOM root ya estará disponible.
-console.log("Iniciando aplicación SPA...");
-renderLayout();
-router();
-setupMenu(); // <--- Llamada inicial para que el menú funcione al cargar la página
-setupLogout(); // <--- Inicializar el botón de salir
-setupFooterFilters();
-actualizarContadorCarrito();
- 
+
+// ============================================================
+// 🎯 EVENT LISTENER PRINCIPAL
+// ============================================================
 window.addEventListener("hashchange", () => {
-    window.scrollTo(0, 0); // <--- AÑADE ESTA LÍNEA AQUÍ (Lleva el scroll al inicio)
-    updateHeader();
+    router();
+    setupFooterFilters();
+});
+
+// ============================================================
+// ⏱️ INICIALIZACIÓN
+// ============================================================
+document.addEventListener("DOMContentLoaded", () => {
+    renderLayout();
+    router();
     setupMenu();
     setupLogout();
-    router();    
+    setupFooterFilters();
+    actualizarContadorCarrito();
 });
- 
- 
- 
-export function actualizarContadorCarrito() {
-    const carrito = JSON.parse(localStorage.getItem("carrito")) || [];
- 
-    const total = carrito.reduce((acc, p) => acc + p.cantidad, 0);
- 
-    const contador = document.getElementById("contador-carrito");
- 
-    if (contador) {
-        contador.textContent = total;
- 
-        contador.classList.add("animar");
- 
-        setTimeout(() => {
-            contador.classList.remove("animar");
-        }, 200);
-    }
-}
