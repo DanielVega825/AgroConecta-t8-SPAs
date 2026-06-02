@@ -143,12 +143,21 @@ async function initCatalogo() {
             imagenSegura = imagenes[0] || imagenSegura;
         }
 
+        // Datos de descuento desde detalles
+        const enDescuento = p.detalles?.enDescuento === true;
+        const porcentajeDescuento = p.detalles?.porcentajeDescuento ?? 0;
+        const precioOriginal = Number(p.precio) || 0;
+        const precioFinal = enDescuento ? precioOriginal * (1 - porcentajeDescuento / 100) : precioOriginal;
+
         return {
             id: `prod-${p.id || index}`,
             productId: p.id,
             nombre: p.nombre,
             cat: p.categoriaNombre || "Otros",
-            precio: Number(p.precio) || 0,
+            precio: precioFinal,
+            precioOriginal,
+            enDescuento,
+            porcentajeDescuento,
             stock: Number(p.cantidad) || 0,
             img: imagenSegura,
             desc: p.descripcion || "",
@@ -172,16 +181,24 @@ async function initCatalogo() {
 
         contenedor.innerHTML = lista.map(p => {
             const srcImagen = formatoImagen(p.img, p.esBase64);
+            const badgeDescuento = p.enDescuento
+                ? `<span class="badge-descuento">${p.porcentajeDescuento}% OFF</span>`
+                : '';
+            const precioHtml = p.enDescuento
+                ? `<span class="precio-original">${formatPrice(p.precioOriginal)}</span>
+                   <strong class="h5 text-danger d-block mb-3">${formatPrice(p.precio)}</strong>`
+                : `<strong class="h5 text-dark d-block mb-3">${formatPrice(p.precio)}</strong>`;
             return `
                 <div class="card" data-id="${p.id}" data-product-id="${p.productId}">
-                    <div class="card-img trigger-modal">
+                    <div class="card-img trigger-modal" style="position:relative;">
                         <img src="${srcImagen}" alt="${p.nombre}">
                         <span class="stock">${p.stock} en stock</span>
+                        ${badgeDescuento}
                     </div>
                     <div class="card-body">
                         <small class="text-success fw-bold text-uppercase">${p.cat}</small>
                         <h3 class="trigger-modal h6 fw-bold mb-2">${p.nombre}</h3>
-                        <strong class="h5 text-dark d-block mb-3">${formatPrice(p.precio)}</strong>
+                        ${precioHtml}
                         <button class="btn btn-success btn-sm w-100 btn-agregar" 
                             data-product-id="${p.productId}"
                             data-nombre="${p.nombre}" 
@@ -252,12 +269,13 @@ async function initCatalogo() {
         document.getElementById('modal-nombre').textContent = p.nombre;
         document.getElementById('modal-cat').textContent = p.cat;
         document.getElementById('modal-desc').textContent = p.desc;
+        // Precio en modal: muestra el precio final (ya descontado si aplica)
         document.getElementById('modal-precio').textContent = formatPrice(p.precio);
         const modalStock = document.getElementById('modal-stock');
         modalStock.textContent = `(${p.stock} disponibles)`;
         modalStock.dataset.stock = p.stock;
         document.getElementById('modal-qty').value = 1;
-        modal.dataset.productId = p.productId;  // ← GUARDAR PRODUCT ID
+        modal.dataset.productId = p.productId;
         modal.classList.add('active');
     };
 

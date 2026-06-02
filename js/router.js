@@ -65,6 +65,12 @@ export function router() {
     // 🎯 RENDERIZAR VISTA
     // ============================================================
     const renderView = () => {
+        window.scrollTo({
+            top: 0,
+            left: 0,
+            behavior: 'smooth' // Desplazamiento animado
+        });
+
         if (path === "/sesion") {
             if (header) header.style.display = "none";
             if (footer) footer.style.display = "none";
@@ -87,13 +93,13 @@ export function router() {
         // Inicializar lógica específica (DESPUÉS de inyectar el HTML)
         if (path === "/contacto") initContactForm();
         if (path === "/addProduct") initAddProductLogic();
-        
+
         // Mostrar el contenedor con una suave transición
         appContainer.style.opacity = "1";
     };
 
     const linkTag = document.getElementById("page-style");
-    
+
     // ============================================================
     // ⏱️ MANEJO DE FOUC - ESPERAR A QUE CSS CARGUE
     // ============================================================

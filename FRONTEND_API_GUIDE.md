@@ -1,6 +1,6 @@
 # 🌿 AgroConecta — Guía de Integración para el Frontend
 
-> **Versión:** 1.1 · **Base URL:** `http://localhost:8080/api/v1`  
+> **Versión:** 1.2 · **Base URL:** `http://localhost:8080/api/v1`  
 > Este documento es la fuente de verdad entre el backend y el frontend.  
 > Describe cada endpoint, su payload exacto, su response y las reglas de acceso por rol.
 
@@ -153,11 +153,11 @@ function cerrarSesion() {
 | Método | Endpoint | Acceso | Descripción |
 |---|---|---|---|
 | `GET` | `/productos` | Público | Catálogo de productos **activos** |
-| `GET` | `/productos/promociones` | Público | Productos con `enPromocion: true` |
+| `GET` | `/productos/promociones` | Público | Productos con `enDescuento: true` |
 | `GET` | `/productos/{id}` | CLIENTE + ADMIN | Detalle de un producto |
 | `GET` | `/productos/admin` | ADMIN | Catálogo **completo** (activos + inactivos) |
 | `POST` | `/productos` | ADMIN | Crear nuevo producto |
-| `PUT` | `/productos/{id}` | ADMIN | Actualizar precio, stock, estado |
+| `PUT` | `/productos/{id}` | ADMIN | Actualizar precio, stock, estado y detalles |
 
 ---
 
@@ -171,9 +171,8 @@ function cerrarSesion() {
   "descripcion": "Tomate fresco de la región",
   "imagen": "url_imagen1|url_imagen2|url_imagen3",
   "detalles": {
-    "enPromocion": true,
-    "descuento": 10,
-    "unidad": "kg"
+    "enDescuento": true,
+    "porcentajeDescuento": 10
   },
   "cantidad": 150,
   "fechaDeIngreso": "2025-06-01T10:30:00",
@@ -190,9 +189,13 @@ function cerrarSesion() {
 > const imagenes = producto.imagen ? producto.imagen.split('|').filter(s => s) : [];
 > ```
 
-> **`detalles`**: Es un objeto JSON libre (jsonb en la BD). El campo `enPromocion` vive aquí:
+> **`detalles`**: Objeto JSON (jsonb en la BD) con la información de descuento del producto:
 > ```javascript
-> const enPromocion = producto.detalles?.enPromocion === true;
+> const enDescuento  = producto.detalles?.enDescuento === true;
+> const pctDescuento = producto.detalles?.porcentajeDescuento ?? 0;
+> const precioFinal  = enDescuento
+>   ? precio * (1 - pctDescuento / 100)
+>   : precio;
 > ```
 
 ---
@@ -211,8 +214,8 @@ function cerrarSesion() {
     "data:image/png;base64,iVBORw0KGgoAAAANSUhE..."
   ],
   "detalles": {
-    "enPromocion": false,
-    "unidad": "kg"
+    "enDescuento": false,
+    "porcentajeDescuento": null
   },
   "cantidad": 200,
   "stockMinimo": 10,
@@ -252,11 +255,30 @@ const imagenes = await Promise.all([...inputFiles].map(fileToBase64));
   "cantidad": 180,
   "stockMinimo": 8,
   "activo": true,
-  "enPromocion": false
+  "detalles": {
+    "enDescuento": false,
+    "porcentajeDescuento": null
+  }
 }
 ```
 
-Todos los campos son **obligatorios** en el PUT.
+> **Campos obligatorios:** `precio`, `cantidad`, `stockMinimo`, `activo`.  
+> **`detalles`** es **opcional**: si se omite, el objeto `detalles` almacenado en la BD no se modifica.  
+> Si se incluye, el backend hace un **merge**: solo se actualizan los sub-campos presentes en el payload; otros campos del JSON existente se conservan.
+
+> **Ejemplo activando descuento del 15%:**
+> ```json
+> {
+>   "precio": 3200.00,
+>   "cantidad": 180,
+>   "stockMinimo": 8,
+>   "activo": true,
+>   "detalles": {
+>     "enDescuento": true,
+>     "porcentajeDescuento": 15
+>   }
+> }
+> ```
 
 ---
 
@@ -520,7 +542,7 @@ Todos los errores siguen este formato JSON:
 7. **Imágenes**: El campo `imagen` en el response es un string delimitado por `|`. Parsea con `.split('|').filter(s => s)`.  
    Al **enviar** imágenes, conviértelas a **Base64** con `FileReader.readAsDataURL()` y pásalas en el array `imagenes`.
 
-8. **`detalles`**: El campo `enPromocion` está anidado dentro del objeto `detalles` en el response del producto.
+8. **`detalles`**: El objeto `detalles` en el response contiene `enDescuento` (boolean) y `porcentajeDescuento` (número | null). Al **crear** o **actualizar** un producto, envía este mismo objeto dentro del campo `detalles`. El backend hace merge, por lo que solo los sub-campos incluidos se sobreescriben.
 
 9. **Teléfono en registro**: Si el formulario detecta rol `CLIENTE`, muestra el campo `telefono` como **requerido**. Para `ADMIN`, muéstralo como opcional.
 

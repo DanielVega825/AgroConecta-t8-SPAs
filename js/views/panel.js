@@ -203,21 +203,21 @@ export async function gestionPanel() {
         { clave: "cantidad", label: "Cantidad", tipo: "numero" },
         { clave: "stockMinimo", label: "Stock Mín.", tipo: "numero" },
         { clave: "activo", label: "Activo", tipo: "booleano" },
-        { clave: "enPromocion", label: "Promoción", tipo: "booleano" },
-        { clave: "descuento", label: "Descuento", tipo: "numero" },
+        { clave: "enDescuento", label: "Promoción", tipo: "booleano" },
+        { clave: "porcentajeDescuento", label: "Descuento", tipo: "numero" },
         { clave: "descripcion", label: "Descripción", tipo: "texto" },
         { clave: "fechaDeIngreso", label: "Fecha Ingreso", tipo: "fecha" },
     ];
 
-    let columnasVisibles = ["nombre", "categoriaNombre", "precio", "cantidad", "stockMinimo", "activo", "enPromocion", "descuento"];
+    let columnasVisibles = ["nombre", "categoriaNombre", "precio", "cantidad", "stockMinimo", "activo", "enDescuento", "porcentajeDescuento"];
 
     const filtrosActivos = {
         nombre: "", categoriaNombre: "",
         precio: { operacion: ">=", valor: "" },
         cantidad: { operacion: ">=", valor: "" },
         stockMinimo: { operacion: ">=", valor: "" },
-        activo: "", enPromocion: "",
-        descuento: { operacion: ">=", valor: "" },
+        activo: "", enDescuento: "",
+        porcentajeDescuento: { operacion: ">=", valor: "" },
         descripcion: "", fechaDeIngreso: "",
     };
 
@@ -259,17 +259,17 @@ export async function gestionPanel() {
     function formatearPrecio(v) { return Number(v).toLocaleString("es-CO"); }
 
     function calcularPrecioFinal(p) {
-        const enPromo = p.detalles?.enPromocion === true;
-        const desc = p.detalles?.descuento || 0;
-        return enPromo ? p.precio * (1 - desc / 100) : p.precio;
+        const enDescuento = p.detalles?.enDescuento === true;
+        const pct = p.detalles?.porcentajeDescuento || 0;
+        return enDescuento ? p.precio * (1 - pct / 100) : p.precio;
     }
 
     function obtenerValorCelda(p, clave) {
         switch (clave) {
             case "precio": return `$ ${formatearPrecio(calcularPrecioFinal(p))}`;
             case "activo": return p.activo ? "✅ Sí" : "❌ No";
-            case "enPromocion": return p.detalles?.enPromocion === true ? "🏷️ Sí" : "No";
-            case "descuento": return p.detalles?.enPromocion === true ? `${p.detalles.descuento || 0}%` : "—";
+            case "enDescuento": return p.detalles?.enDescuento === true ? "🏷️ Sí" : "No";
+            case "porcentajeDescuento": return p.detalles?.enDescuento === true ? `${p.detalles.porcentajeDescuento ?? 0}%` : "—";
             case "cantidad": return p.cantidad ?? "—";
             case "stockMinimo": return p.stockMinimo ?? "—";
             case "descripcion": return p.descripcion ? (p.descripcion.length > 40 ? p.descripcion.substring(0, 40) + "…" : p.descripcion) : "—";
@@ -286,7 +286,7 @@ export async function gestionPanel() {
         const pro = document.getElementById("stat-promo");
         const act = document.getElementById("stat-activos");
         if (tot) tot.textContent = productos.length;
-        if (pro) pro.textContent = productos.filter(p => p.detalles?.enPromocion === true).length;
+        if (pro) pro.textContent = productos.filter(p => p.detalles?.enDescuento === true).length;
         if (act) act.textContent = productos.filter(p => p.activo).length;
     }
 
@@ -565,9 +565,9 @@ export async function gestionPanel() {
         document.getElementById("edit-cantidad").value = p.cantidad ?? 0;
         document.getElementById("edit-stockMinimo").value = p.stockMinimo ?? 5;
         document.getElementById("edit-activo").value = p.activo ? "true" : "false";
-        const enPromo = p.detalles?.enPromocion === true;
+        const enPromo = p.detalles?.enDescuento === true;
         document.getElementById("edit-promocion").checked = enPromo;
-        document.getElementById("edit-descuento").value = p.detalles?.descuento || 0;
+        document.getElementById("edit-descuento").value = p.detalles?.porcentajeDescuento ?? 0;
         document.getElementById("edit-descuento-group").style.display = enPromo ? "block" : "none";
         document.getElementById("modal-editar").classList.add("modal-overlay--visible");
     };
@@ -614,12 +614,16 @@ export async function gestionPanel() {
 
         try {
             // Actualizar en la API
+            const porcentajeDescuento = promo && desc >= 1 && desc <= 100 ? desc : null;
             await updateProducto(p.id, {
                 precio,
                 cantidad: cant,
                 stockMinimo: stock,
                 activo,
-                enPromocion: promo
+                detalles: {
+                    enDescuento: promo,
+                    porcentajeDescuento
+                }
             });
 
             // Actualizar objeto local
@@ -627,11 +631,9 @@ export async function gestionPanel() {
             p.cantidad = cant;
             p.stockMinimo = stock;
             p.activo = activo;
-            p.enPromocion = promo;
-            if (p.detalles) {
-                p.detalles.enPromocion = promo;
-                p.detalles.descuento = promo && desc >= 1 && desc <= 100 ? desc : 0;
-            }
+            if (!p.detalles) p.detalles = {};
+            p.detalles.enDescuento = promo;
+            p.detalles.porcentajeDescuento = porcentajeDescuento;
 
             cerrarModal();
             renderTabla();
