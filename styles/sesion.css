@@ -107,6 +107,34 @@ input.input-valid {
     transform: scale(1.05);
 }
 
+.agro-toast {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    color: white;
+    padding: 16px 22px;
+    border-radius: 14px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.25);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    z-index: 99999;
+    animation: agroSlideIn 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+}
+.agro-toast-success { background: #16a34a; }
+.agro-toast-error   { background: #dc3545; }
+
+@keyframes agroSlideIn {
+    from { transform: translateX(110%); opacity: 0; }
+    to   { transform: translateX(0);    opacity: 1; }
+}
+.agro-toast-exit {
+    animation: agroSlideOut 0.35s ease forwards;
+}
+@keyframes agroSlideOut {
+    to { transform: translateX(110%); opacity: 0; }
+}
+
 /*-----------------------------------------------*/
 
 .sesion-full-page {

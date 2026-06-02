@@ -267,64 +267,61 @@ export function gestionSesion() {
         }, 2500);
     });
 
+    const mostrarToastSesion = (titulo, mensaje, tipo = 'success') => {
+        const iconos = { success: 'bi-check-circle-fill', error: 'bi-exclamation-circle-fill' };
+        const toast = document.createElement('div');
+        toast.className = `agro-toast agro-toast-${tipo}`;
+        toast.innerHTML = `
+            <i class="bi ${iconos[tipo]} fs-4 text-white"></i>
+            <div>
+                <div style="font-weight:700;font-size:0.9rem">${titulo}</div>
+                <div style="font-size:0.78rem;opacity:0.88">${mensaje}</div>
+            </div>`;
+        document.body.appendChild(toast);
+        setTimeout(() => {
+            toast.classList.add('agro-toast-exit');
+            setTimeout(() => toast.remove(), 400);
+        }, 3000);
+    };
+
     if (formLogin) {
         formLogin.addEventListener("submit", (e) => {
             e.preventDefault();
 
-            const email = document
-                .getElementById("loginEmail")
-                .value
-                .trim()
-                .toLowerCase();
-
-            const password = document
-                .getElementById("loginPassword")
-                .value;
+            const email = document.getElementById("loginEmail").value.trim().toLowerCase();
+            const password = document.getElementById("loginPassword").value;
 
             // 1. Validar usuario administrador hardcodeado
-            if (
-                email === "admin@admin.com" &&
-                password === "admin123"
-            ) {
-                alert("Inicio de sesión exitoso. Bienvenido Administrador.");
-
-                localStorage.setItem(
-                    "userLogged",
-                    JSON.stringify({
-                        email: "admin@admin.com",
-                        nombre: "Administrador",
-                        role: "admin"
-                    })
-                );
-
-                window.location.hash = "#/panel";
+            if (email === "admin@admin.com" && password === "admin123") {
+                localStorage.setItem("userLogged", JSON.stringify({
+                    email: "admin@admin.com",
+                    nombre: "Administrador",
+                    role: "admin"
+                }));
+                mostrarToastSesion("¡Bienvenido, Administrador!", "Redirigiendo al panel...");
+                setTimeout(() => { window.location.hash = "#/panel"; }, 1500);
                 return;
             }
 
-            // 2. Validar usuario almacenado en local storage
-
+            // 2. Validar usuario almacenado en localStorage
             const usuarios = JSON.parse(localStorage.getItem("listaUsuarios")) || [];
-
             const usuarioEncontrado = usuarios.find(
-                (u) =>
-                    u.email.trim().toLowerCase() ===
-                    email.trim().toLowerCase() &&
-                    u.password === password
+                (u) => u.email.trim().toLowerCase() === email && u.password === password
             );
-            if (usuarioEncontrado) {
-                alert("Inicio de sesión exitoso. Bienvenido " + usuarioEncontrado.name);
 
+            if (usuarioEncontrado) {
                 localStorage.setItem("userLogged", JSON.stringify({
                     email: usuarioEncontrado.email,
                     nombre: usuarioEncontrado.name,
                     role: "user"
                 }));
-
-                window.location.hash = "#/home";
-                location.reload();
-
+                mostrarToastSesion(`¡Bienvenido, ${usuarioEncontrado.name}!`, "Inicio de sesión exitoso.");
+                setTimeout(() => {
+                    window.location.hash = "#/home";
+                    location.reload();
+                }, 1500);
             } else {
-                alert("Nombre de usuario o contraseña inválidos.");
+                mostrarToastSesion("Credenciales inválidas", "El correo o la contraseña no son correctos.", "error");
             }
         });
     }
