@@ -153,20 +153,21 @@ export function AddProduct() {
 }
 
 export async function initAddProductLogic() {
-    
-    
+
     // ============================================================
     // 📂 CARGAR CATEGORÍAS DESDE API
     // ============================================================
+    const selectCategory = document.getElementById('productCategory');
+
     try {
         const categorias = await getCategorias();
-        if (categorias && categorias.length > 0) {
+        if (categorias && categorias.length > 0 && selectCategory) {
             selectCategory.innerHTML = '<option value="" selected disabled>Seleccionar categoría</option>' +
                 categorias.map(cat => `<option value="${cat.id}">${cat.nombre}</option>`).join('');
         }
     } catch (error) {
         console.error("Error cargando categorías:", error);
-        selectCategory.innerHTML = '<option value="" selected disabled>Error cargando categorías</option>';
+        if (selectCategory) selectCategory.innerHTML = '<option value="" selected disabled>Error cargando categorías</option>';
     }
 
     const input = document.getElementById('productImages');
@@ -313,8 +314,8 @@ export async function initAddProductLogic() {
             const descripcion = document.getElementById('productDescription').value.trim();
             const cantidad = parseInt(document.getElementById('productQuantity').value);
             const stockMinimo = parseInt(document.getElementById('productMinStock').value);
-            const enPromocion = checkPromotion?.checked || false;
-            const descuento = enPromocion ? parseFloat(discountInput.value) || 0 : 0;
+            const enDescuento = checkPromotion?.checked || false;
+            const porcentajeDescuento = enDescuento ? parseFloat(discountInput.value) || 0 : 0;
             const descripcionLong = editor?.innerHTML || '';
 
             // Validaciones básicas
@@ -323,7 +324,7 @@ export async function initAddProductLogic() {
                 return;
             }
 
-            if (descuento < 0 || descuento > 100) {
+            if (porcentajeDescuento < 0 || porcentajeDescuento > 100) {
                 alert("El descuento debe estar entre 0 y 100");
                 return;
             }
@@ -343,9 +344,8 @@ export async function initAddProductLogic() {
                     descripcionLong,
                     categoriaId,
                     detalles: {
-                        enPromocion,
-                        descuento: enPromocion ? descuento : 0,
-                        unidad: "kg"  // Por defecto
+                        enDescuento,
+                        porcentajeDescuento: enDescuento ? porcentajeDescuento : 0
                     }
                 };
 

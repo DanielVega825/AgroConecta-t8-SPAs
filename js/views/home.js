@@ -212,17 +212,17 @@ export function Home() {
 
 async function initHome() {
    // ============================================================
-   // 📦 CARGAR PRODUCTOS CON PROMOCIÓN DESDE API
+   // 📦 CARGAR PRODUCTOS EN DESCUENTO DESDE API
+   // Los campos reales del backend son: detalles.enDescuento y detalles.porcentajeDescuento
    // ============================================================
    let productosPromocion = [];
 
    try {
       const productosAPI = await getProductos();
-      // Filtrar solo productos en promoción (detalles.enPromocion === true)
-      productosPromocion = productosAPI.filter(p => p.detalles && p.detalles.enPromocion);
+      // Filtrar productos que tienen enDescuento === true en su objeto detalles
+      productosPromocion = productosAPI.filter(p => p.detalles?.enDescuento === true);
    } catch (error) {
-      console.error("Error cargando productos promocionales:", error);
-      // Fallback: sin productos de promoción
+      console.error("Error cargando productos en descuento:", error);
       productosPromocion = [];
    }
 
@@ -241,8 +241,11 @@ async function initHome() {
          const srcImg = esBase64 ? imagenData : `${imagenData}`;
 
          const precioOriginal = Number(p.precio) || 0;
-         const descuento = p.detalles?.descuento || 0;
-         const precioConDescuento = precioOriginal * (1 - descuento / 100);
+         // Campos reales de la API: detalles.porcentajeDescuento
+         const descuento = Number(p.detalles?.porcentajeDescuento) || 0;
+         const precioConDescuento = descuento > 0
+            ? precioOriginal * (1 - descuento / 100)
+            : precioOriginal;
 
          return `
             <div class="carousel-card" data-index="${index}">
@@ -326,48 +329,51 @@ async function initHome() {
 
    // ============================================================
    // 🛒 AGREGAR AL CARRITO DESDE CARRUSEL
+   // El listener se registra en el contenedor del carrusel (no en document)
+   // para evitar que se acumule con cada navegación al home.
    // ============================================================
-   document.addEventListener('click', (e) => {
-      if (e.target.classList.contains('carousel-card-btn')) {
-         const productId = Number(e.target.dataset.productId);
-         const nombre = e.target.dataset.nombre;
-         const precio = parseFloat(e.target.dataset.precio);
-         const img = e.target.dataset.img;
-         const stock = parseInt(e.target.dataset.stock);
+   carouselContainer.addEventListener('click', (e) => {
+      const btn = e.target.closest('.carousel-card-btn');
+      if (!btn) return;
 
-         let carrito = JSON.parse(localStorage.getItem('carrito')) || [];
-         const existe = carrito.find(p => p.nombre === nombre);
+      const productId = Number(btn.dataset.productId);
+      const nombre = btn.dataset.nombre;
+      const precio = parseFloat(btn.dataset.precio);
+      const img = btn.dataset.img;
+      const stock = parseInt(btn.dataset.stock);
 
-         if (existe) {
-            if (existe.cantidad + 1 > stock) {
-               alert('No puedes agregar más productos. Límite de stock alcanzado.');
-               return;
-            }
-            existe.cantidad += 1;
-         } else {
-            carrito.push({ productId, nombre, precio, img, stock, cantidad: 1 });
+      let carrito = JSON.parse(localStorage.getItem('carrito')) || [];
+      const existe = carrito.find(p => p.productId === productId);
+
+      if (existe) {
+         if (existe.cantidad + 1 > stock) {
+            alert('No puedes agregar más productos. Límite de stock alcanzado.');
+            return;
          }
-
-         localStorage.setItem('carrito', JSON.stringify(carrito));
-         actualizarContadorCarrito();
-
-         // Mostrar notificación
-         const toast = document.createElement('div');
-         toast.className = 'agro-toast shadow-lg';
-         toast.innerHTML = `
-            <div class="d-flex align-items-center gap-3">
-               <i class="bi bi-cart-check-fill fs-3 text-white"></i>
-               <div>
-                  <h6 class="m-0 fw-bold text-white">¡Añadido!</h6>
-                  <p class="m-0 small text-white opacity-75">${nombre}</p>
-               </div>
-            </div>
-         `;
-         document.body.appendChild(toast);
-         setTimeout(() => {
-            toast.classList.add('agro-toast-exit');
-            setTimeout(() => toast.remove(), 500);
-         }, 3000);
+         existe.cantidad += 1;
+      } else {
+         carrito.push({ productId, nombre, precio, img, stock, cantidad: 1 });
       }
+
+      localStorage.setItem('carrito', JSON.stringify(carrito));
+      actualizarContadorCarrito();
+
+      // Mostrar notificación
+      const toast = document.createElement('div');
+      toast.className = 'agro-toast shadow-lg';
+      toast.innerHTML = `
+         <div class="d-flex align-items-center gap-3">
+            <i class="bi bi-cart-check-fill fs-3 text-white"></i>
+            <div>
+               <h6 class="m-0 fw-bold text-white">¡Añadido!</h6>
+               <p class="m-0 small text-white opacity-75">${nombre}</p>
+            </div>
+         </div>
+      `;
+      document.body.appendChild(toast);
+      setTimeout(() => {
+         toast.classList.add('agro-toast-exit');
+         setTimeout(() => toast.remove(), 500);
+      }, 3000);
    });
 }

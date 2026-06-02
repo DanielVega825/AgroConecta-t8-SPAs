@@ -15,11 +15,16 @@ const API_BASE = 'http://localhost:8080/api/v1';
  */
 async function apiCall(endpoint, options = {}) {
     const token = localStorage.getItem('token');
-    
+
+    // Los endpoints públicos de auth NO deben enviar el token Bearer.
+    // Si hubiera un token expirado en localStorage, el backend lo rechazaría con 401
+    // antes de siquiera intentar el login/registro.
+    const esEndpointPublico = endpoint.startsWith('/auth/');
+
     // Headers por defecto
     const headers = {
         'Content-Type': 'application/json',
-        ...(token && { 'Authorization': `Bearer ${token}` }),
+        ...(!esEndpointPublico && token && { 'Authorization': `Bearer ${token}` }),
         ...options.headers
     };
 
@@ -30,7 +35,9 @@ async function apiCall(endpoint, options = {}) {
         });
 
         // Manejar respuesta 401 (Token expirado o inválido)
-        if (response.status === 401) {
+        // Solo redirigir si NO estamos en un endpoint de autenticación,
+        // ya que ahí un 401 significa credenciales incorrectas, no sesión expirada.
+        if (response.status === 401 && !esEndpointPublico) {
             localStorage.clear();
             window.location.hash = '#/sesion';
             throw new Error('Sesión expirada. Inicia sesión nuevamente.');

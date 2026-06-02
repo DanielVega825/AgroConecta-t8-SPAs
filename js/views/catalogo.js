@@ -261,62 +261,72 @@ async function initCatalogo() {
         modal.classList.add('active');
     };
 
-    // ============================================================
-    // 🛒 AGREGAR AL CARRITO
-    // ============================================================
-    if (!window.eventoCarritoActivo) {
-        document.addEventListener("click", (e) => {
-            if (e.target.classList.contains("btn-agregar") || e.target.id === "btn-add-from-modal") {
-                let pData, cant = 1;
-                
-                if (e.target.id === "btn-add-from-modal") {
-                    const rawPriceText = document.getElementById('modal-precio').textContent;
-                    const cleanPrice = Number(rawPriceText.replace(/[^0-9]/g, "")) / 100;
-                    
-                    pData = {
-                        productId: Number(modal.dataset.productId) || 0,  // ← LEER DEL MODAL
-                        nombre: document.getElementById('modal-nombre').textContent,
-                        precio: cleanPrice,
-                        img: document.getElementById('modal-img').src,
-                        stock: Number(document.getElementById('modal-stock').dataset.stock)
-                    };
-                    cant = Number(document.getElementById('modal-qty').value);  // ← CAPTURAR CANTIDAD DEL MODAL
-                    modal.classList.remove('active');
-                } else {
-                    pData = {
-                        productId: Number(e.target.dataset.productId),
-                        nombre: e.target.dataset.nombre,
-                        precio: Number(e.target.dataset.precio),
-                        img: e.target.dataset.img,
-                        stock: Number(e.target.dataset.stock)
-                    };
-                }
+   // ============================================================
+   // 🛒 AGREGAR AL CARRITO DESDE TARJETAS
+   // Listener scoped al section del catálogo para evitar acumulación al navegar.
+   // ============================================================
+   const section = contenedor.closest('section') || contenedor;
+   section.addEventListener('click', (e) => {
+      const btnAgregar = e.target.closest('.btn-agregar');
+      if (!btnAgregar) return;
 
-                let carrito = JSON.parse(localStorage.getItem("carrito")) || [];
-                const existe = carrito.find(p => p.nombre === pData.nombre);
-                
-                if (existe) {
-                    if (existe.cantidad + cant > pData.stock) {
-                        mostrarError("No puedes agregar más. Límite de stock alcanzado.");
-                        return;
-                    }
-                    existe.cantidad += cant;
-                    existe.stock = pData.stock;
-                } else {
-                    if (cant > pData.stock) {
-                        mostrarError("No puedes agregar más. Límite de stock alcanzado.");
-                        return;
-                    }
-                    carrito.push({ ...pData, cantidad: cant });
-                }
+      const pData = {
+         productId: Number(btnAgregar.dataset.productId),
+         nombre: btnAgregar.dataset.nombre,
+         precio: Number(btnAgregar.dataset.precio),
+         img: btnAgregar.dataset.img,
+         stock: Number(btnAgregar.dataset.stock)
+      };
 
-                localStorage.setItem("carrito", JSON.stringify(carrito));
-                actualizarContadorCarrito();
-                mostrarNotificacion(pData.nombre);
-            }
-        });
-        window.eventoCarritoActivo = true;
-    }
+      agregarAlCarrito(pData, 1);
+   });
+
+   // ============================================================
+   // 🛒 AGREGAR AL CARRITO DESDE MODAL
+   // Listener scoped al propio modal (vive fuera del section).
+   // ============================================================
+   const btnAddModal = document.getElementById('btn-add-from-modal');
+   if (btnAddModal) {
+      btnAddModal.addEventListener('click', () => {
+         const rawPriceText = document.getElementById('modal-precio').textContent;
+         const cleanPrice = Number(rawPriceText.replace(/[^0-9]/g, "")) / 100;
+         const pData = {
+            productId: Number(modal.dataset.productId) || 0,
+            nombre: document.getElementById('modal-nombre').textContent,
+            precio: cleanPrice,
+            img: document.getElementById('modal-img').src,
+            stock: Number(document.getElementById('modal-stock').dataset.stock)
+         };
+         const cant = Number(document.getElementById('modal-qty').value);
+         modal.classList.remove('active');
+         agregarAlCarrito(pData, cant);
+      });
+   }
+
+   // Función reutilizable de agregar al carrito
+   function agregarAlCarrito(pData, cant) {
+      let carrito = JSON.parse(localStorage.getItem("carrito")) || [];
+      const existe = carrito.find(p => p.productId === pData.productId);
+
+      if (existe) {
+         if (existe.cantidad + cant > pData.stock) {
+            mostrarError("No puedes agregar más. Límite de stock alcanzado.");
+            return;
+         }
+         existe.cantidad += cant;
+         existe.stock = pData.stock;
+      } else {
+         if (cant > pData.stock) {
+            mostrarError("No puedes agregar más. Límite de stock alcanzado.");
+            return;
+         }
+         carrito.push({ ...pData, cantidad: cant });
+      }
+
+      localStorage.setItem("carrito", JSON.stringify(carrito));
+      actualizarContadorCarrito();
+      mostrarNotificacion(pData.nombre);
+   }
 
     // ============================================================
     // 🔎 FILTRADO

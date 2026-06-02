@@ -118,32 +118,31 @@ function setupMenu() {
 }
 
 // ============================================================
-// 🚪 LOGOUT
+// 🚪 LOGOUT — Delegación de eventos (funciona tras re-render del header)
 // ============================================================
 function setupLogout() {
-    const logoutBtn = document.getElementById("logoutBtn");
-    const logoutBtnMobile = document.getElementById("logoutBtnMobile");
-    const nav = document.getElementById("nav-menu");
-
-    const handleLogout = () => {
+    const handleLogout = (isMobile = false) => {
         localStorage.removeItem("token");
         localStorage.removeItem("rol");
         localStorage.removeItem("email");
         localStorage.removeItem("nombre");
         localStorage.removeItem("clienteId");
         updateHeader();
+        if (isMobile) {
+            const nav = document.getElementById("nav-menu");
+            if (nav) nav.classList.remove("active");
+        }
         window.location.hash = "#/";
     };
 
-    if (logoutBtn) {
-        logoutBtn.onclick = handleLogout;
-    }
-    if (logoutBtnMobile) {
-        logoutBtnMobile.onclick = () => {
-            handleLogout();
-            if (nav) nav.classList.remove("active");
-        };
-    }
+    // Usar delegación en document para que funcione aunque el header se re-renderice
+    document.addEventListener("click", (e) => {
+        if (e.target.closest("#logoutBtn")) {
+            handleLogout(false);
+        } else if (e.target.closest("#logoutBtnMobile")) {
+            handleLogout(true);
+        }
+    });
 }
 
 // ============================================================
