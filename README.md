@@ -7,6 +7,10 @@ Bienvenido al repositorio oficial de **AgroConecta**, una plataforma de e-commer
 *   **Ivan Chavez**
 *   **Juan Castro**
 *   **Daniel Vega**
+
+## Repo Back-end
+[API AgroConecta - Backend](https://github.com/idchavez/api-agroconecta)
+
  
 ## 🚀 Flujo de Trabajo (Git)
  
